@@ -1,0 +1,127 @@
+.hero {
+  padding: 20rpx 8rpx 36rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-mark {
+  display: flex;
+  align-items: center;
+}
+
+.hero-emoji {
+  font-size: 52rpx;
+  line-height: 1;
+  margin-right: 14rpx;
+}
+
+.hero-name {
+  font-size: 46rpx;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 4rpx;
+}
+
+.hero-desc {
+  margin-top: 12rpx;
+  font-size: 25rpx;
+  color: var(--text-3);
+}
+
+/* ---------- 统计 ---------- */
+.stat-card {
+  padding: 32rpx 16rpx;
+}
+
+.stat-row {
+  display: flex;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-num {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-name {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+/* ---------- 设置 ---------- */
+.block {
+  margin-top: 40rpx;
+}
+
+.block-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0 8rpx 18rpx;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.cell-last {
+  border-bottom: none;
+}
+
+.cell-hover {
+  opacity: 0.7;
+}
+
+.cell-label {
+  font-size: 27rpx;
+  color: var(--text);
+}
+
+.cell-hint {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+.cell-value {
+  font-size: 25rpx;
+  color: var(--text-3);
+}
+
+.cell-danger {
+  color: var(--danger);
+}
+
+.danger-card {
+  margin-top: 20rpx;
+}
+
+/* ---------- 页脚 ---------- */
+.foot {
+  margin-top: 60rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.foot-line {
+  font-size: 22rpx;
+  color: var(--text-3);
+  line-height: 1.9;
+}

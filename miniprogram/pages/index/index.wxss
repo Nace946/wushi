@@ -1,0 +1,195 @@
+/* ---------- 顶部 ---------- */
+.hd {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 12rpx 8rpx 28rpx;
+}
+
+.hd-hello {
+  display: block;
+  font-size: 42rpx;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 1rpx;
+}
+
+.hd-date {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: var(--text-3);
+}
+
+.hd-btn {
+  padding: 10rpx 22rpx;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.hd-btn-text {
+  font-size: 22rpx;
+  color: var(--text-2);
+}
+
+/* ---------- 概览卡 ---------- */
+.overview {
+  background: linear-gradient(158deg, #eef4f0 0%, #ffffff 62%);
+  border-radius: var(--r-lg);
+  padding: 36rpx 32rpx 32rpx;
+  box-shadow: var(--shadow);
+}
+
+.ov-row {
+  display: flex;
+  align-items: baseline;
+}
+
+.ov-num {
+  font-size: 88rpx;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-unit {
+  font-size: 28rpx;
+  color: var(--text-2);
+  margin-left: 8rpx;
+}
+
+.ov-label {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: var(--text-2);
+}
+
+.ov-grid {
+  display: flex;
+  margin-top: 32rpx;
+  padding-top: 26rpx;
+  border-top: 2rpx solid rgba(43, 47, 44, 0.06);
+}
+
+.ov-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ov-cell-num {
+  font-size: 36rpx;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ov-cell-name {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+.ov-zero {
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  color: var(--text-3);
+  text-align: center;
+}
+
+/* ---------- 提醒条 ---------- */
+.tip {
+  margin-top: 24rpx;
+  padding: 22rpx 26rpx;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.tip-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--warn);
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.tip-text {
+  font-size: 25rpx;
+  color: var(--text-2);
+  flex: 1;
+}
+
+/* ---------- 区块 ---------- */
+.sec {
+  margin-top: 44rpx;
+}
+
+.sec-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8rpx 20rpx;
+}
+
+.sec-more {
+  font-size: 24rpx;
+  color: var(--text-3);
+}
+
+.card-list > item-card {
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+/* ---------- 分类 ---------- */
+.cats {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.cat {
+  width: 33.33%;
+  padding: 0 8rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cat-icon {
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 26rpx 0;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.cat-name {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--text);
+}
+
+.cat-count {
+  font-size: 20rpx;
+  color: var(--text-3);
+}
+
+.cat-hover .cat-icon {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+.fab-hover {
+  opacity: 0.88;
+  transform: scale(0.94);
+}

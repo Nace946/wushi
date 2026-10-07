@@ -1,0 +1,79 @@
+<view class="page">
+
+  <!-- 头部 -->
+  <view class="hero">
+    <view class="hero-mark">
+      <text class="hero-emoji">🌿</text>
+      <text class="hero-name">物时</text>
+    </view>
+    <text class="hero-desc">记住每件物品的保质期与更换周期</text>
+  </view>
+
+  <!-- 统计 -->
+  <view class="card stat-card">
+    <view class="stat-row">
+      <view class="stat">
+        <text class="stat-num">{{total}}</text>
+        <text class="stat-name">全部物品</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{attentionCount}}</text>
+        <text class="stat-name">需要关注</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{countdownCount}}</text>
+        <text class="stat-name">倒计时</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{countupCount}}</text>
+        <text class="stat-name">正计时</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 偏好 -->
+  <view class="block">
+    <text class="block-title">偏好</text>
+    <view class="card">
+      <view class="cell" bindtap="onSort" hover-class="cell-hover" hover-stay-time="60">
+        <text class="cell-label">列表默认排序</text>
+        <text class="cell-value">{{sortName}} ›</text>
+      </view>
+      <view class="cell cell-last">
+        <view>
+          <text class="cell-label">首页显示待处理提示</text>
+          <text class="cell-hint">关闭后首页不再出现提醒条</text>
+        </view>
+        <switch checked="{{dailyRemind}}" bindchange="onRemindChange" color="#5E8C7A" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他 -->
+  <view class="block">
+    <text class="block-title">其他</text>
+    <view class="card">
+      <view class="cell" bindtap="goGuide" hover-class="cell-hover" hover-stay-time="60">
+        <text class="cell-label">使用说明</text>
+        <text class="cell-value">›</text>
+      </view>
+      <view class="cell cell-last" bindtap="onAdd" hover-class="cell-hover" hover-stay-time="60">
+        <text class="cell-label">添加新物品</text>
+        <text class="cell-value">›</text>
+      </view>
+    </view>
+    <view class="card danger-card">
+      <view class="cell cell-last" bindtap="onClear" hover-class="cell-hover" hover-stay-time="60">
+        <text class="cell-label cell-danger">清空所有数据</text>
+        <text class="cell-value">›</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="foot">
+    <text class="foot-line">物时 v{{version}}</text>
+    <text class="foot-line">数据仅保存在本机，不会上传服务器</text>
+    <text class="foot-line">更换手机或卸载小程序会导致数据丢失，请注意</text>
+  </view>
+
+</view>

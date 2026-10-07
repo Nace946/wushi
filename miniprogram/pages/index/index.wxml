@@ -1,0 +1,98 @@
+<view class="page">
+
+  <!-- 顶部问候 -->
+  <view class="hd">
+    <view class="hd-left">
+      <text class="hd-hello">{{greeting}}</text>
+      <text class="hd-date">{{dateText}}</text>
+    </view>
+    <view class="hd-btn" bindtap="goGuide">
+      <text class="hd-btn-text">使用说明</text>
+    </view>
+  </view>
+
+  <!-- 概览卡 -->
+  <view class="overview">
+    <view class="ov-row">
+      <text class="ov-num">{{attentionCount}}</text>
+      <text class="ov-unit">件</text>
+    </view>
+    <text class="ov-label">件物品需要你留意</text>
+
+    <view class="ov-grid">
+      <view class="ov-cell" wx:for="{{stats}}" wx:key="key">
+        <text class="ov-cell-num" style="color:{{item.color}}">{{item.count}}</text>
+        <text class="ov-cell-name">{{item.name}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{total === 0}}" class="ov-zero">
+      <text>还没有物品，点击下方 + 添加第一件</text>
+    </view>
+  </view>
+
+  <!-- 温和提醒条 -->
+  <view wx:if="{{urgentText}}" class="tip">
+    <text class="tip-dot"></text>
+    <text class="tip-text">{{urgentText}}</text>
+  </view>
+
+  <!-- 需要关注 -->
+  <view class="sec" wx:if="{{attention.length > 0}}">
+    <view class="sec-hd">
+      <text class="t-title">需要关注</text>
+      <text class="sec-more" bindtap="goItems">查看全部 ›</text>
+    </view>
+    <view class="card-list">
+      <item-card
+        wx:for="{{attention}}"
+        wx:key="id"
+        item="{{item}}"
+        compact="{{true}}"
+        bind:tap="goDetail"
+      />
+    </view>
+  </view>
+
+  <view wx:else class="sec">
+    <view class="sec-hd">
+      <text class="t-title">需要关注</text>
+    </view>
+    <view class="card">
+      <empty-state
+        emoji="🌿"
+        text="一切都在掌控中"
+        subText="所有物品状态良好，无需处理"
+      />
+    </view>
+  </view>
+
+  <!-- 分类 -->
+  <view class="sec">
+    <view class="sec-hd">
+      <text class="t-title">分类</text>
+      <text class="sec-more" bindtap="goItems">管理物品 ›</text>
+    </view>
+    <view class="cats">
+      <view
+        class="cat"
+        wx:for="{{categories}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onCategory"
+        hover-class="cat-hover"
+        hover-stay-time="80"
+      >
+        <view class="cat-icon">{{item.icon}}</view>
+        <text class="cat-name">{{item.name}}</text>
+        <text class="cat-count">{{item.count}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 悬浮添加 -->
+  <view class="fab" bindtap="onAdd" hover-class="fab-hover" hover-stay-time="80">
+    <text class="fab-plus">+</text>
+  </view>
+
+</view>

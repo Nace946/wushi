@@ -1,0 +1,49 @@
+<view class="page" wx:if="{{item}}">
+
+  <!-- 主卡片 -->
+  <view class="main">
+    <view class="main-top">
+      <text class="main-emoji">{{item.icon}}</text>
+      <text class="main-name">{{item.name}}</text>
+      <view class="main-cat">{{categoryName}}</view>
+    </view>
+
+    <view class="ring-area">
+      <time-ring percent="{{ringPercent}}" size="{{300}}" stroke="{{20}}" color="{{state.color}}" track="#F1F0EC" hole="#FFFFFF">
+        <text class="ring-num" style="color:{{state.color}}">{{state.mainValue}}</text>
+        <text class="ring-unit">{{state.mainUnit}} · {{state.mainLabel}}</text>
+      </time-ring>
+    </view>
+
+    <view class="state-bar" style="background:{{state.soft}};color:{{state.color}}">
+      <text class="state-dot" style="background:{{state.color}}"></text>
+      <text class="state-text">{{state.statusLabel}} · {{state.subText}}</text>
+    </view>
+  </view>
+
+  <!-- 信息 -->
+  <view class="card info">
+    <view class="info-row" wx:for="{{rows}}" wx:key="label">
+      <text class="info-label">{{item.label}}</text>
+      <text class="info-value">{{item.value}}</text>
+    </view>
+  </view>
+
+  <!-- 操作 -->
+  <view class="ops">
+    <view wx:if="{{isCountUp}}" class="btn btn-primary op-btn" bindtap="onReset" hover-class="btn-hover" hover-stay-time="80">
+      我刚处理过，重新开始计时
+    </view>
+    <view class="btn btn-ghost op-btn" bindtap="onEdit" hover-class="btn-hover" hover-stay-time="80">
+      编辑信息
+    </view>
+    <view class="btn btn-danger-text op-btn" bindtap="onDelete" hover-class="btn-hover" hover-stay-time="80">
+      删除这件物品
+    </view>
+  </view>
+
+  <view class="foot-tip">
+    <text>数据保存在本机，卸载小程序或更换设备将丢失</text>
+  </view>
+
+</view>

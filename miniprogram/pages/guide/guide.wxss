@@ -1,0 +1,144 @@
+.lead {
+  padding: 16rpx 8rpx 32rpx;
+}
+
+.lead-title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.lead-desc {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+
+.mode-card {
+  padding: 30rpx 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.mode-head {
+  display: flex;
+  align-items: center;
+}
+
+.mode-emoji {
+  font-size: 40rpx;
+  line-height: 1;
+  margin-right: 14rpx;
+}
+
+.mode-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mode-desc {
+  display: block;
+  margin-top: 14rpx;
+  font-size: 25rpx;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+
+.field-list {
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  border-top: 2rpx solid var(--line);
+}
+
+.field-item {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 8rpx;
+}
+
+.field-dot {
+  margin-right: 10rpx;
+  color: var(--primary);
+  font-size: 26rpx;
+}
+
+.field-text {
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+
+.block {
+  margin-top: 36rpx;
+}
+
+.block-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0 8rpx 18rpx;
+}
+
+.st {
+  display: flex;
+  align-items: flex-start;
+  padding: 18rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.st:last-child {
+  border-bottom: none;
+}
+
+.st-dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  margin-top: 10rpx;
+  margin-right: 18rpx;
+  flex-shrink: 0;
+}
+
+.st-name {
+  display: block;
+  font-size: 26rpx;
+  color: var(--text);
+}
+
+.st-desc {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 23rpx;
+  color: var(--text-3);
+}
+
+.faq {
+  padding: 22rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.faq:last-child {
+  border-bottom: none;
+}
+
+.faq-q {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.faq-a {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+
+.cta {
+  margin-top: 48rpx;
+}

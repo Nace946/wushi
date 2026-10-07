@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "time-ring": "/components/time-ring/index"
+  },
+  "navigationBarTitleText": "物品详情"
+}

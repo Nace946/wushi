@@ -1,0 +1,118 @@
+.main {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 34rpx 32rpx 30rpx;
+  box-shadow: var(--shadow);
+}
+
+.main-top {
+  display: flex;
+  align-items: center;
+}
+
+.main-emoji {
+  font-size: 52rpx;
+  line-height: 1;
+  margin-right: 18rpx;
+}
+
+.main-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.main-cat {
+  margin-left: auto;
+  padding: 6rpx 18rpx;
+  border-radius: var(--r-pill);
+  background: var(--surface-soft);
+  font-size: 22rpx;
+  color: var(--text-2);
+}
+
+.ring-area {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx 0 30rpx;
+}
+
+.ring-num {
+  font-size: 76rpx;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.ring-unit {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+
+.state-bar {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  border-radius: var(--r-md);
+}
+
+.state-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: 14rpx;
+  flex-shrink: 0;
+}
+
+.state-text {
+  font-size: 25rpx;
+  flex: 1;
+}
+
+/* ---------- 信息 ---------- */
+.info {
+  margin-top: 24rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: var(--text);
+  text-align: right;
+  max-width: 420rpx;
+  word-break: break-all;
+}
+
+/* ---------- 操作 ---------- */
+.ops {
+  margin-top: 40rpx;
+}
+
+.op-btn {
+  margin-bottom: 20rpx;
+}
+
+.foot-tip {
+  margin-top: 20rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--text-3);
+}

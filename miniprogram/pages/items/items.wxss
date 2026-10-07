@@ -1,0 +1,128 @@
+.filters {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bg);
+  padding-bottom: 16rpx;
+}
+
+/* ---------- 搜索 ---------- */
+.search {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border-radius: var(--r-pill);
+  padding: 0 26rpx;
+  height: 76rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.search-icon {
+  font-size: 26rpx;
+  margin-right: 14rpx;
+  opacity: 0.6;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 27rpx;
+  color: var(--text);
+  height: 76rpx;
+}
+
+.search-ph {
+  color: var(--text-3);
+}
+
+.search-clear {
+  font-size: 26rpx;
+  color: var(--text-3);
+  padding: 0 8rpx;
+}
+
+/* ---------- 分类 tab ---------- */
+.tabs {
+  width: 100%;
+  white-space: nowrap;
+  margin-top: 20rpx;
+}
+
+.tabs-inner {
+  display: inline-flex;
+}
+
+.tab {
+  padding: 12rpx 26rpx;
+  margin-right: 12rpx;
+  border-radius: var(--r-pill);
+  font-size: 25rpx;
+  color: var(--text-2);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-on {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+/* ---------- 状态筛选 ---------- */
+.chips-row {
+  display: flex;
+  align-items: center;
+  margin-top: 18rpx;
+}
+
+.fchip {
+  padding: 8rpx 22rpx;
+  margin-right: 12rpx;
+  border-radius: var(--r-pill);
+  font-size: 23rpx;
+  color: var(--text-2);
+  background: var(--surface-soft);
+  border: 2rpx solid var(--line);
+}
+
+.fchip-on {
+  background: var(--primary-soft);
+  border-color: var(--primary-soft);
+  color: var(--primary);
+}
+
+.fchip-sort {
+  margin-left: auto;
+  margin-right: 0;
+  display: flex;
+  align-items: center;
+}
+
+.sort-icon {
+  margin-right: 4rpx;
+  font-size: 22rpx;
+}
+
+/* ---------- 列表 ---------- */
+.list {
+  padding-top: 4rpx;
+}
+
+.card-item {
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+.empty-wrap {
+  margin-top: 20rpx;
+}
+
+.list-foot {
+  text-align: center;
+  padding: 8rpx 0 40rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+.fab-hover {
+  opacity: 0.88;
+  transform: scale(0.94);
+}

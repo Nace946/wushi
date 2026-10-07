@@ -1,0 +1,247 @@
+/**
+ * 物时 · 全局样式
+ * 设计语言：新极简 + 舒缓式（低饱和、大留白、柔圆角、无强阴影）
+ */
+
+page {
+  /* 底色与容器 */
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-soft: #fbfaf7;
+  --line: #efeee9;
+
+  /* 文字 */
+  --text: #2b2f2c;
+  --text-2: #6e7570;
+  --text-3: #a5aba6;
+
+  /* 主色：鼠尾草绿 */
+  --primary: #5e8c7a;
+  --primary-soft: #eaf1ed;
+  --primary-deep: #4a7364;
+
+  /* 状态色 */
+  --warn: #d9a05b;
+  --warn-soft: #faf1e2;
+  --danger: #d8735f;
+  --danger-soft: #fbeae5;
+  --muted: #9a9a94;
+  --muted-soft: #f0efec;
+
+  /* 圆角 */
+  --r-lg: 32rpx;
+  --r-md: 24rpx;
+  --r-sm: 16rpx;
+  --r-pill: 999rpx;
+
+  /* 阴影：极轻，避免视觉压迫 */
+  --shadow: 0 6rpx 30rpx rgba(43, 47, 44, 0.05);
+  --shadow-sm: 0 2rpx 12rpx rgba(43, 47, 44, 0.04);
+
+  /* 字号 */
+  --fs-xl: 44rpx;
+  --fs-lg: 32rpx;
+  --fs-md: 28rpx;
+  --fs-sm: 24rpx;
+  --fs-xs: 22rpx;
+
+  /* 间距 */
+  --gap: 24rpx;
+
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: var(--fs-md);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+view,
+text,
+image,
+input,
+textarea,
+scroll-view {
+  box-sizing: border-box;
+}
+
+/* ---------- 页面容器 ---------- */
+.page {
+  min-height: 100vh;
+  padding: 24rpx 24rpx calc(160rpx + env(safe-area-inset-bottom));
+}
+
+/* ---------- 卡片 ---------- */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 28rpx;
+  box-shadow: var(--shadow);
+}
+
+.card-soft {
+  background: var(--surface-soft);
+  border-radius: var(--r-lg);
+  padding: 28rpx;
+}
+
+/* ---------- 文本 ---------- */
+.t-title {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5rpx;
+}
+
+.t-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.t-tip {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.t-num {
+  font-size: 56rpx;
+  font-weight: 600;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 布局 ---------- */
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid-2 {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.grid-2 > view {
+  width: 50%;
+}
+
+/* ---------- 标签 ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6rpx 16rpx;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  background: var(--muted-soft);
+  color: var(--text-2);
+}
+
+.chip-primary {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.chip-warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.chip-danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-md);
+  background: var(--primary);
+  color: #ffffff;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn-hover {
+  opacity: 0.86;
+  transform: scale(0.985);
+}
+
+.btn-ghost {
+  background: var(--surface-soft);
+  color: var(--text);
+  border: 2rpx solid var(--line);
+}
+
+.btn-danger-text {
+  background: transparent;
+  color: var(--danger);
+}
+
+.btn-sm {
+  height: 64rpx;
+  padding: 0 28rpx;
+  font-size: var(--fs-sm);
+  border-radius: var(--r-pill);
+}
+
+/* ---------- 分割线 ---------- */
+.divider {
+  height: 2rpx;
+  background: var(--line);
+  margin: 24rpx 0;
+}
+
+/* ---------- 安全区 ---------- */
+.safe-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ---------- 悬浮按钮 ---------- */
+.fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: calc(60rpx + env(safe-area-inset-bottom));
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 10rpx 30rpx rgba(94, 140, 122, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.fab-plus {
+  color: #fff;
+  font-size: 52rpx;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -4rpx;
+}
+
+/* ---------- 隐藏滚动条 ---------- */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+}

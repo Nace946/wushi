@@ -1,0 +1,52 @@
+<view class="page">
+
+  <view class="lead">
+    <text class="lead-title">物时怎么用</text>
+    <text class="lead-desc">两个计时模式，覆盖大部分生活物品。选对模式，剩下的交给物时。</text>
+  </view>
+
+  <!-- 两种模式 -->
+  <view class="mode-card card" wx:for="{{modes}}" wx:key="name">
+    <view class="mode-head">
+      <text class="mode-emoji">{{item.emoji}}</text>
+      <text class="mode-title">{{item.name}}</text>
+    </view>
+    <text class="mode-desc">{{item.desc}}</text>
+    <view class="field-list">
+      <view class="field-item" wx:for="{{item.fields}}" wx:for-item="f" wx:key="*this">
+        <text class="field-dot">·</text>
+        <text class="field-text">{{f}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 状态说明 -->
+  <view class="block">
+    <text class="block-title">状态颜色</text>
+    <view class="card">
+      <view class="st" wx:for="{{statusList}}" wx:key="name">
+        <view class="st-dot" style="background:{{item.color}}"></view>
+        <view class="st-body">
+          <text class="st-name">{{item.name}}</text>
+          <text class="st-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 常见问题 -->
+  <view class="block">
+    <text class="block-title">常见问题</text>
+    <view class="card">
+      <view class="faq" wx:for="{{faqs}}" wx:key="q">
+        <text class="faq-q">{{item.q}}</text>
+        <text class="faq-a">{{item.a}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="cta">
+    <view class="btn" bindtap="onAdd" hover-class="btn-hover" hover-stay-time="80">添加第一件物品</view>
+  </view>
+
+</view>

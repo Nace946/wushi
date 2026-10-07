@@ -1,0 +1,48 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/items/items",
+    "pages/mine/mine",
+    "pages/detail/detail",
+    "pages/edit/edit",
+    "pages/guide/guide"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#F7F6F3",
+    "navigationBarTitleText": "物时",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F7F6F3",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "color": "#A3AAA5",
+    "selectedColor": "#5E8C7A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "总览",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/items/items",
+        "text": "物品",
+        "iconPath": "assets/tabbar/box.png",
+        "selectedIconPath": "assets/tabbar/box-active.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "assets/tabbar/user.png",
+        "selectedIconPath": "assets/tabbar/user-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {}
+}

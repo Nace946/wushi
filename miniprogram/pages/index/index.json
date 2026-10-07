@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "item-card": "/components/item-card/index",
+    "empty-state": "/components/empty-state/index"
+  },
+  "navigationBarTitleText": "物时",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark"
+}

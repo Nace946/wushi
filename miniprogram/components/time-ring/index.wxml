@@ -1,0 +1,5 @@
+<view class="tr" style="width:{{size}}rpx;height:{{size}}rpx;background:{{gradient}}">
+  <view class="tr-hole" style="width:{{holeSize}};height:{{holeSize}};background:{{hole}}">
+    <slot></slot>
+  </view>
+</view>

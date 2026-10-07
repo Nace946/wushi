@@ -1,0 +1,283 @@
+<view class="page" wx:if="{{form}}">
+
+  <!-- 预设模板 -->
+  <view class="block">
+    <text class="block-title">快速开始 · 常见物品</text>
+    <scroll-view scroll-x class="preset-scroll" show-scrollbar="{{false}}">
+      <view class="preset-inner">
+        <view
+          class="preset"
+          wx:for="{{presets}}"
+          wx:key="name"
+          data-index="{{index}}"
+          bindtap="onPreset"
+          hover-class="preset-hover"
+          hover-stay-time="60"
+        >
+          <text class="preset-emoji">{{item.icon}}</text>
+          <text class="preset-name">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="card">
+    <view class="field">
+      <text class="flabel">名称</text>
+      <input
+        class="finput"
+        value="{{form.name}}"
+        bindinput="onNameInput"
+        placeholder="例如：鲜牛奶"
+        placeholder-class="fph"
+        maxlength="20"
+      />
+    </view>
+
+    <view class="field field-col">
+      <text class="flabel">图标</text>
+      <scroll-view scroll-x class="emoji-scroll" show-scrollbar="{{false}}">
+        <view class="emoji-inner">
+          <view
+            class="emoji {{form.icon === item ? 'emoji-on' : ''}}"
+            wx:for="{{emojis}}"
+            wx:key="*this"
+            data-emoji="{{item}}"
+            bindtap="onEmoji"
+          >{{item}}</view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="field field-col">
+      <text class="flabel">分类</text>
+      <view class="cat-chips">
+        <view
+          class="cchip {{form.category === item.key ? 'cchip-on' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onCategory"
+        >{{item.icon}} {{item.name}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 计时模式 -->
+  <view class="block">
+    <text class="block-title">计时方式</text>
+    <view class="modes">
+      <view
+        class="mode {{form.mode === 'countdown' ? 'mode-on' : ''}}"
+        data-mode="countdown"
+        bindtap="onMode"
+      >
+        <text class="mode-emoji">⏳</text>
+        <text class="mode-name">倒计时</text>
+        <text class="mode-desc">有保质期，还剩多久</text>
+      </view>
+      <view
+        class="mode {{form.mode === 'countup' ? 'mode-on' : ''}}"
+        data-mode="countup"
+        bindtap="onMode"
+      >
+        <text class="mode-emoji">🌱</text>
+        <text class="mode-name">正计时</text>
+        <text class="mode-desc">距上次处理已多久</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 倒计时字段 -->
+  <view class="card" wx:if="{{form.mode === 'countdown'}}">
+    <view class="switch-row">
+      <view>
+        <text class="flabel">直接填写到期日</text>
+        <text class="fhint">包装上只印了到期日时打开</text>
+      </view>
+      <switch
+        checked="{{form.expireManual}}"
+        bindchange="onExpireManual"
+        color="#5E8C7A"
+      />
+    </view>
+
+    <view wx:if="{{form.expireManual}}">
+      <view class="field">
+        <text class="flabel">到期日</text>
+        <picker
+          mode="date"
+          value="{{form.expireDate}}"
+          start="2000-01-01"
+          end="2040-12-31"
+          data-field="expireDate"
+          bindchange="onDate"
+        >
+          <view class="fvalue">{{form.expireDate || '请选择'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view wx:else>
+      <view class="field">
+        <text class="flabel">生产日期</text>
+        <picker
+          mode="date"
+          value="{{form.produceDate}}"
+          start="2000-01-01"
+          end="2040-12-31"
+          data-field="produceDate"
+          bindchange="onDate"
+        >
+          <view class="fvalue">{{form.produceDate || '请选择'}}</view>
+        </picker>
+      </view>
+
+      <view class="field field-col">
+        <text class="flabel">保质期</text>
+        <view class="life-row">
+          <input
+            class="finput life-input"
+            type="digit"
+            value="{{form.shelfLife}}"
+            data-field="shelfLife"
+            bindinput="onInput"
+            placeholder="0"
+            placeholder-class="fph"
+          />
+          <view class="seg">
+            <view
+              class="seg-item {{form.shelfLifeUnit === item.key ? 'seg-on' : ''}}"
+              wx:for="{{units}}"
+              wx:key="key"
+              data-key="{{item.key}}"
+              bindtap="onUnitTap"
+            >{{item.name}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{expirePreview}}" class="preview">
+      <text class="preview-label">到期日</text>
+      <text class="preview-value">{{expirePreview}}</text>
+    </view>
+  </view>
+
+  <!-- 正计时字段 -->
+  <view class="card" wx:else>
+    <view class="field">
+      <text class="flabel">上次处理日期</text>
+      <picker
+        mode="date"
+        value="{{form.lastDate}}"
+        start="2000-01-01"
+        end="2040-12-31"
+        data-field="lastDate"
+        bindchange="onDate"
+      >
+        <view class="fvalue">{{form.lastDate || '请选择'}}</view>
+      </picker>
+    </view>
+
+    <view class="field field-col">
+      <text class="flabel">建议周期（天）</text>
+      <input
+        class="finput"
+        type="number"
+        value="{{form.cycleDays}}"
+        data-field="cycleDays"
+        bindinput="onInput"
+        placeholder="例如：14"
+        placeholder-class="fph"
+      />
+      <view class="quick-row">
+        <view
+          class="quick {{form.cycleDays == item ? 'quick-on' : ''}}"
+          wx:for="{{cycleOptions}}"
+          wx:key="*this"
+          data-days="{{item}}"
+          bindtap="onCycleQuick"
+        >{{item}}天</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 其他信息 -->
+  <view class="card">
+    <view class="field field-col">
+      <text class="flabel">提前提醒</text>
+      <view class="quick-row">
+        <view
+          class="quick {{form.remindDays == item ? 'quick-on' : ''}}"
+          wx:for="{{remindOptions}}"
+          wx:key="*this"
+          data-days="{{item}}"
+          bindtap="onRemindQuick"
+        >{{item}}天</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="flabel">数量</text>
+      <view class="qty-row">
+        <input
+          class="finput qty-input"
+          type="number"
+          value="{{form.quantity}}"
+          data-field="quantity"
+          bindinput="onInput"
+          placeholder="1"
+          placeholder-class="fph"
+        />
+        <input
+          class="finput unit-input"
+          value="{{form.unit}}"
+          data-field="unit"
+          bindinput="onInput"
+          placeholder="份"
+          placeholder-class="fph"
+          maxlength="4"
+        />
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="flabel">存放位置</text>
+      <input
+        class="finput"
+        value="{{form.location}}"
+        data-field="location"
+        bindinput="onInput"
+        placeholder="例如：冰箱冷藏"
+        placeholder-class="fph"
+        maxlength="16"
+      />
+    </view>
+
+    <view class="field field-col">
+      <text class="flabel">备注</text>
+      <textarea
+        class="ftextarea"
+        value="{{form.remark}}"
+        bindinput="onRemarkInput"
+        placeholder="补充说明（可选）"
+        placeholder-class="fph"
+        maxlength="100"
+        auto-height
+      />
+    </view>
+  </view>
+
+  <!-- 提交 -->
+  <view class="submit-area">
+    <view class="btn btn-primary" bindtap="onSave" hover-class="btn-hover" hover-stay-time="80">
+      {{isEdit ? '保存修改' : '添加物品'}}
+    </view>
+    <view wx:if="{{isEdit}}" class="btn btn-danger-text" bindtap="onDelete" hover-class="btn-hover" hover-stay-time="80">
+      删除这件物品
+    </view>
+  </view>
+
+</view>

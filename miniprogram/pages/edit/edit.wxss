@@ -1,0 +1,325 @@
+.block {
+  margin-top: 36rpx;
+}
+
+.block-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0 8rpx 18rpx;
+}
+
+/* ---------- 预设 ---------- */
+.preset-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.preset-inner {
+  display: inline-flex;
+}
+
+.preset {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140rpx;
+  padding: 20rpx 0;
+  margin-right: 14rpx;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.preset-emoji {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.preset-name {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--text-2);
+}
+
+.preset-hover {
+  opacity: 0.8;
+}
+
+/* ---------- 表单 ---------- */
+.card {
+  margin-top: 24rpx;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.field:last-child {
+  border-bottom: none;
+}
+
+.field-col {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.flabel {
+  font-size: 27rpx;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.fhint {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+.finput {
+  flex: 1;
+  text-align: right;
+  font-size: 27rpx;
+  color: var(--text);
+}
+
+.fph {
+  color: var(--text-3);
+}
+
+.fvalue {
+  font-size: 27rpx;
+  color: var(--primary);
+  padding: 4rpx 0;
+}
+
+.ftextarea {
+  width: 100%;
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: var(--text);
+  min-height: 120rpx;
+  line-height: 1.6;
+}
+
+/* ---------- 模式选择 ---------- */
+.modes {
+  display: flex;
+}
+
+.mode {
+  flex: 1;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 28rpx 20rpx;
+  margin-right: 16rpx;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  border: 2rpx solid transparent;
+}
+
+.mode:last-child {
+  margin-right: 0;
+}
+
+.mode-on {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.mode-emoji {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.mode-name {
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mode-desc {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+/* ---------- 分段控件 ---------- */
+.seg {
+  display: flex;
+  background: var(--surface-soft);
+  border-radius: var(--r-pill);
+  padding: 4rpx;
+}
+
+.seg-item {
+  padding: 10rpx 24rpx;
+  border-radius: var(--r-pill);
+  font-size: 24rpx;
+  color: var(--text-2);
+}
+
+.seg-on {
+  background: #ffffff;
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.life-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14rpx;
+}
+
+.life-input {
+  flex: none;
+  width: 200rpx;
+  text-align: left;
+  background: var(--surface-soft);
+  border-radius: var(--r-sm);
+  padding: 14rpx 20rpx;
+}
+
+/* ---------- 快捷选择 ---------- */
+.quick-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 14rpx;
+}
+
+.quick {
+  padding: 10rpx 22rpx;
+  margin: 0 12rpx 12rpx 0;
+  border-radius: var(--r-pill);
+  font-size: 23rpx;
+  color: var(--text-2);
+  background: var(--surface-soft);
+  border: 2rpx solid var(--line);
+}
+
+.quick-on {
+  background: var(--primary-soft);
+  border-color: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* ---------- 图标 / 分类 ---------- */
+.emoji-scroll {
+  width: 100%;
+  white-space: nowrap;
+  margin-top: 14rpx;
+}
+
+.emoji-inner {
+  display: inline-flex;
+}
+
+.emoji {
+  width: 76rpx;
+  height: 76rpx;
+  margin-right: 12rpx;
+  border-radius: var(--r-sm);
+  background: var(--surface-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  border: 2rpx solid transparent;
+}
+
+.emoji-on {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.cat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 14rpx;
+}
+
+.cchip {
+  padding: 12rpx 24rpx;
+  margin: 0 12rpx 12rpx 0;
+  border-radius: var(--r-pill);
+  font-size: 24rpx;
+  color: var(--text-2);
+  background: var(--surface-soft);
+  border: 2rpx solid var(--line);
+}
+
+.cchip-on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+/* ---------- 数量 ---------- */
+.qty-row {
+  display: flex;
+  align-items: center;
+}
+
+.qty-input {
+  width: 140rpx;
+  text-align: center;
+  background: var(--surface-soft);
+  border-radius: var(--r-sm);
+  padding: 12rpx 16rpx;
+}
+
+.unit-input {
+  width: 120rpx;
+  margin-left: 12rpx;
+  text-align: center;
+  background: var(--surface-soft);
+  border-radius: var(--r-sm);
+  padding: 12rpx 16rpx;
+}
+
+/* ---------- 预览与提交 ---------- */
+.preview {
+  margin-top: 20rpx;
+  padding: 22rpx 24rpx;
+  border-radius: var(--r-md);
+  background: var(--primary-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.preview-label {
+  font-size: 24rpx;
+  color: var(--primary);
+}
+
+.preview-value {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.submit-area {
+  margin-top: 48rpx;
+}
+
+.submit-area .btn {
+  margin-bottom: 20rpx;
+}
