@@ -9,7 +9,7 @@
     </view>
 
     <view class="ring-area">
-      <time-ring percent="{{ringPercent}}" size="{{300}}" stroke="{{20}}" color="{{state.color}}" track="#F1F0EC" hole="#FFFFFF">
+      <time-ring percent="{{ringPercent}}" size="{{320}}" stroke="{{24}}" color="{{state.color}}" track="#E8E6E0" hole="#FFFFFF">
         <text class="ring-num" style="color:{{state.color}}">{{state.mainValue}}</text>
         <text class="ring-unit">{{state.mainUnit}} · {{state.mainLabel}}</text>
       </time-ring>

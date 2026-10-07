@@ -4,28 +4,28 @@
  */
 
 page {
-  /* 底色与容器 */
+  /* 底色与容器：暖米色背景，提升与白色卡片的对比，减少"灰白发飘" */
   --bg: #f7f6f3;
   --surface: #ffffff;
   --surface-soft: #fbfaf7;
   --line: #efeee9;
 
-  /* 文字 */
-  --text: #2b2f2c;
-  --text-2: #6e7570;
-  --text-3: #a5aba6;
+  /* 文字：整体加深，提升可读性（适老） */
+  --text: #1f2420;
+  --text-2: #535b55;
+  --text-3: #798178;
 
-  /* 主色：鼠尾草绿 */
-  --primary: #5e8c7a;
-  --primary-soft: #eaf1ed;
-  --primary-deep: #4a7364;
+  /* 主色：鼠尾草绿（加深以保证白字对比度） */
+  --primary: #3f8a6b;
+  --primary-soft: #dcefe4;
+  --primary-deep: #3d6757;
 
-  /* 状态色 */
-  --warn: #d9a05b;
-  --warn-soft: #faf1e2;
-  --danger: #d8735f;
-  --danger-soft: #fbeae5;
-  --muted: #9a9a94;
+  /* 状态色：同步加深 */
+  --warn: #d18c2a;
+  --warn-soft: #fbebd3;
+  --danger: #d4553c;
+  --danger-soft: #fce0d8;
+  --muted: #7c7c76;
   --muted-soft: #f0efec;
 
   /* 圆角 */
@@ -35,18 +35,18 @@ page {
   --r-pill: 999rpx;
 
   /* 阴影：极轻，避免视觉压迫 */
-  --shadow: 0 6rpx 30rpx rgba(43, 47, 44, 0.05);
-  --shadow-sm: 0 2rpx 12rpx rgba(43, 47, 44, 0.04);
+  --shadow: 0 6rpx 30rpx rgba(43, 47, 44, 0.08);
+  --shadow-sm: 0 2rpx 12rpx rgba(43, 47, 44, 0.06);
 
-  /* 字号 */
-  --fs-xl: 44rpx;
-  --fs-lg: 32rpx;
-  --fs-md: 28rpx;
-  --fs-sm: 24rpx;
-  --fs-xs: 22rpx;
+  /* 字号：整体放大一档（适老） */
+  --fs-xl: 48rpx;
+  --fs-lg: 34rpx;
+  --fs-md: 30rpx;
+  --fs-sm: 26rpx;
+  --fs-xs: 24rpx;
 
   /* 间距 */
-  --gap: 24rpx;
+  --gap: 28rpx;
 
   background-color: var(--bg);
   color: var(--text);
@@ -68,21 +68,21 @@ scroll-view {
 /* ---------- 页面容器 ---------- */
 .page {
   min-height: 100vh;
-  padding: 24rpx 24rpx calc(160rpx + env(safe-area-inset-bottom));
+  padding: 28rpx 28rpx calc(180rpx + env(safe-area-inset-bottom));
 }
 
 /* ---------- 卡片 ---------- */
 .card {
   background: var(--surface);
   border-radius: var(--r-lg);
-  padding: 28rpx;
+  padding: 32rpx;
   box-shadow: var(--shadow);
 }
 
 .card-soft {
   background: var(--surface-soft);
   border-radius: var(--r-lg);
-  padding: 28rpx;
+  padding: 32rpx;
 }
 
 /* ---------- 文本 ---------- */
@@ -104,7 +104,7 @@ scroll-view {
 }
 
 .t-num {
-  font-size: 56rpx;
+  font-size: 64rpx;
   font-weight: 600;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -167,9 +167,9 @@ scroll-view {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 88rpx;
+  height: 100rpx; /* 触控区加大，适老 */
   border-radius: var(--r-pill);
-  font-size: var(--fs-md);
+  font-size: 30rpx;
   background: var(--primary);
   color: #ffffff;
   transition: opacity 0.2s, transform 0.15s;
@@ -196,9 +196,9 @@ scroll-view {
 }
 
 .btn-sm {
-  height: 64rpx;
-  padding: 0 28rpx;
-  font-size: var(--fs-sm);
+  height: 76rpx;
+  padding: 0 32rpx;
+  font-size: 26rpx;
   border-radius: var(--r-pill);
 }
 
@@ -220,11 +220,11 @@ scroll-view {
   position: fixed;
   right: 40rpx;
   bottom: calc(60rpx + env(safe-area-inset-bottom));
-  width: 104rpx;
-  height: 104rpx;
+  width: 116rpx;
+  height: 116rpx;
   border-radius: 50%;
   background: var(--primary);
-  box-shadow: 0 10rpx 30rpx rgba(94, 140, 122, 0.35);
+  box-shadow: 0 10rpx 30rpx rgba(76, 124, 104, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -233,7 +233,7 @@ scroll-view {
 
 .fab-plus {
   color: #fff;
-  font-size: 52rpx;
+  font-size: 60rpx;
   font-weight: 300;
   line-height: 1;
   margin-top: -4rpx;

@@ -119,8 +119,8 @@ function getItemState(item) {
   const base = {
     status: 'normal',
     statusLabel: '正常',
-    color: '#5E8C7A',
-    soft: '#EAF1ED',
+    color: '#3F8A6B',
+    soft: '#DCEFE4',
     remainDays: 0, // 还可处理的剩余天数（倒计时=距过期；正计时=距建议更换）
     usedDays: 0,
     percent: 0, // 进度环填充比例 0~1
@@ -148,10 +148,10 @@ function getItemState(item) {
     else if (remain <= remind) status = 'soon'
 
     const meta = {
-      normal: { label: '正常', color: '#5E8C7A', soft: '#EAF1ED' },
-      soon: { label: '快到期', color: '#D9A05B', soft: '#FAF1E2' },
-      urgent: { label: '该处理了', color: '#D8735F', soft: '#FBEAE5' },
-      over: { label: '已超期', color: '#D8735F', soft: '#FBEAE5' }
+      normal: { label: '正常', color: '#3F8A6B', soft: '#DCEFE4' },
+      soon: { label: '快到期', color: '#D18C2A', soft: '#FBEBD3' },
+      urgent: { label: '该处理了', color: '#D4553C', soft: '#FCE0D8' },
+      over: { label: '已超期', color: '#D4553C', soft: '#FCE0D8' }
     }[status]
 
     return Object.assign(base, {
@@ -186,10 +186,10 @@ function getItemState(item) {
   else if (remain <= remind) status = 'soon'
 
   const meta = {
-    normal: { label: '充裕', color: '#5E8C7A', soft: '#EAF1ED' },
-    soon: { label: '临近', color: '#D9A05B', soft: '#FAF1E2' },
-    urgent: { label: '紧急', color: '#D8735F', soft: '#FBEAE5' },
-    over: { label: '已过期', color: '#9A9A94', soft: '#F0EFEC' }
+    normal: { label: '充裕', color: '#3F8A6B', soft: '#DCEFE4' },
+    soon: { label: '临近', color: '#D18C2A', soft: '#FBEBD3' },
+    urgent: { label: '紧急', color: '#D4553C', soft: '#FCE0D8' },
+    over: { label: '已过期', color: '#7C7C76', soft: '#E9E4D9' }
   }[status]
 
   return Object.assign(base, {

@@ -3,8 +3,8 @@
   align-items: flex-start;
   background: #ffffff;
   border-radius: var(--r-lg, 32rpx);
-  padding: 26rpx;
-  box-shadow: var(--shadow, 0 6rpx 30rpx rgba(43, 47, 44, 0.05));
+  padding: 30rpx;
+  box-shadow: var(--shadow, 0 6rpx 30rpx rgba(43, 47, 44, 0.08));
   transition: transform 0.18s ease;
 }
 
@@ -13,8 +13,8 @@
 }
 
 .ic-icon {
-  width: 88rpx;
-  height: 88rpx;
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 28rpx;
   display: flex;
   align-items: center;
@@ -24,7 +24,7 @@
 }
 
 .ic-emoji {
-  font-size: 42rpx;
+  font-size: 46rpx;
   line-height: 1;
 }
 
@@ -40,9 +40,9 @@
 }
 
 .ic-name {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
-  color: var(--text, #2b2f2c);
+  color: var(--text, #1f2420);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -50,7 +50,7 @@
 }
 
 .ic-status {
-  font-size: 22rpx;
+  font-size: 24rpx;
   padding: 4rpx 16rpx;
   border-radius: var(--r-pill, 999rpx);
   flex-shrink: 0;
@@ -63,36 +63,36 @@
 }
 
 .ic-num {
-  font-size: 48rpx;
+  font-size: 56rpx;
   font-weight: 600;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
 .ic-unit {
-  font-size: 24rpx;
-  color: var(--text-2, #6e7570);
+  font-size: 26rpx;
+  color: var(--text-2, #535b55);
   margin-left: 4rpx;
 }
 
 .ic-label {
-  font-size: 24rpx;
-  color: var(--text-2, #6e7570);
+  font-size: 26rpx;
+  color: var(--text-2, #535b55);
   margin-left: 10rpx;
 }
 
 .ic-meta {
-  font-size: 22rpx;
-  color: var(--text-3, #a5aba6);
+  font-size: 24rpx;
+  color: var(--text-3, #798178);
   margin-left: auto;
   flex-shrink: 0;
 }
 
 .ic-bar {
-  margin-top: 14rpx;
-  height: 8rpx;
+  margin-top: 16rpx;
+  height: 12rpx; /* 加厚，提升进度可读性 */
   border-radius: var(--r-pill, 999rpx);
-  background: #f1f0ec;
+  background: #e8e6e0; /* 轨道比背景略深，条形容器的存在感更明确 */
   overflow: hidden;
 }
 
@@ -105,6 +105,6 @@
 .ic-sub {
   display: block;
   margin-top: 12rpx;
-  font-size: 22rpx;
-  color: var(--text-3, #a5aba6);
+  font-size: 24rpx;
+  color: var(--text-3, #798178);
 }

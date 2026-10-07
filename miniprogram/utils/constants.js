@@ -27,18 +27,18 @@ const STATUS = {
 }
 
 const STATUS_META = {
-  normal: { label: '充裕', color: '#5E8C7A', soft: '#EAF1ED' },
-  soon: { label: '临近', color: '#D9A05B', soft: '#FAF1E2' },
-  urgent: { label: '紧急', color: '#D8735F', soft: '#FBEAE5' },
-  over: { label: '已过期', color: '#9A9A94', soft: '#F0EFEC' }
+  normal: { label: '充裕', color: '#3F8A6B', soft: '#DCEFE4' },
+  soon: { label: '临近', color: '#D18C2A', soft: '#FBEBD3' },
+  urgent: { label: '紧急', color: '#D4553C', soft: '#FCE0D8' },
+  over: { label: '已过期', color: '#7C7C76', soft: '#E9E4D9' }
 }
 
 // 正计时超期文案
 const STATUS_META_UP = {
-  normal: { label: '正常', color: '#5E8C7A', soft: '#EAF1ED' },
-  soon: { label: '快到期', color: '#D9A05B', soft: '#FAF1E2' },
-  urgent: { label: '该处理了', color: '#D8735F', soft: '#FBEAE5' },
-  over: { label: '已超期', color: '#9A9A94', soft: '#F0EFEC' }
+  normal: { label: '正常', color: '#3F8A6B', soft: '#DCEFE4' },
+  soon: { label: '快到期', color: '#D18C2A', soft: '#FBEBD3' },
+  urgent: { label: '该处理了', color: '#D4553C', soft: '#FCE0D8' },
+  over: { label: '已超期', color: '#7C7C76', soft: '#E9E4D9' }
 }
 
 // 保质期单位

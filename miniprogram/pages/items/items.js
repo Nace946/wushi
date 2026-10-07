@@ -131,7 +131,7 @@ Page({
           wx.showModal({
             title: '删除「' + item.name + '」',
             content: '删除后无法恢复，确定继续吗？',
-            confirmColor: '#D8735F',
+            confirmColor: '#D4553C',
             success: r => {
               if (r.confirm) {
                 storage.remove(id)

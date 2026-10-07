@@ -10,10 +10,10 @@ Page({
     attentionCount: 0,
     urgentText: '',
     stats: [
-      { key: 'normal', name: '充裕', count: 0, color: '#5E8C7A' },
-      { key: 'soon', name: '临近', count: 0, color: '#D9A05B' },
-      { key: 'urgent', name: '紧急', count: 0, color: '#D8735F' },
-      { key: 'over', name: '已过期', count: 0, color: '#9A9A94' }
+      { key: 'normal', name: '充裕', count: 0, color: '#3F8A6B' },
+      { key: 'soon', name: '临近', count: 0, color: '#D18C2A' },
+      { key: 'urgent', name: '紧急', count: 0, color: '#D4553C' },
+      { key: 'over', name: '已过期', count: 0, color: '#7C7C76' }
     ],
     attention: [],
     categories: [],

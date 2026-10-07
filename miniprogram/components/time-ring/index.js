@@ -14,8 +14,8 @@ Component({
     },
     size: { type: Number, value: 240 },
     stroke: { type: Number, value: 18 },
-    color: { type: String, value: '#5E8C7A' },
-    track: { type: String, value: '#F1F0EC' },
+    color: { type: String, value: '#3F8A6B' },
+    track: { type: String, value: '#E8E6E0' },
     hole: { type: String, value: '#FFFFFF' }
   },
 

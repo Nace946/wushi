@@ -18,14 +18,14 @@
 }
 
 .search-icon {
-  font-size: 26rpx;
+  font-size: 28rpx;
   margin-right: 14rpx;
   opacity: 0.6;
 }
 
 .search-input {
   flex: 1;
-  font-size: 27rpx;
+  font-size: 29rpx;
   color: var(--text);
   height: 76rpx;
 }
@@ -35,7 +35,7 @@
 }
 
 .search-clear {
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: var(--text-3);
   padding: 0 8rpx;
 }
@@ -55,7 +55,7 @@
   padding: 12rpx 26rpx;
   margin-right: 12rpx;
   border-radius: var(--r-pill);
-  font-size: 25rpx;
+  font-size: 27rpx;
   color: var(--text-2);
   background: var(--surface);
   box-shadow: var(--shadow-sm);
@@ -77,7 +77,7 @@
   padding: 8rpx 22rpx;
   margin-right: 12rpx;
   border-radius: var(--r-pill);
-  font-size: 23rpx;
+  font-size: 25rpx;
   color: var(--text-2);
   background: var(--surface-soft);
   border: 2rpx solid var(--line);
@@ -98,7 +98,7 @@
 
 .sort-icon {
   margin-right: 4rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
 }
 
 /* ---------- 列表 ---------- */
@@ -118,7 +118,7 @@
 .list-foot {
   text-align: center;
   padding: 8rpx 0 40rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--text-3);
 }
 

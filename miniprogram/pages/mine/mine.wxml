@@ -44,7 +44,7 @@
           <text class="cell-label">首页显示待处理提示</text>
           <text class="cell-hint">关闭后首页不再出现提醒条</text>
         </view>
-        <switch checked="{{dailyRemind}}" bindchange="onRemindChange" color="#5E8C7A" />
+        <switch checked="{{dailyRemind}}" bindchange="onRemindChange" color="#3F8A6B" />
       </view>
     </view>
   </view>

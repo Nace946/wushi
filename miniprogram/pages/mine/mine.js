@@ -72,7 +72,7 @@ Page({
     wx.showModal({
       title: '清空所有物品',
       content: '将删除本机保存的全部 ' + this.data.total + ' 条记录，且无法恢复。建议先确认无需保留。',
-      confirmColor: '#D8735F',
+      confirmColor: '#D4553C',
       success: res => {
         if (!res.confirm) return
         storage.clearAll()

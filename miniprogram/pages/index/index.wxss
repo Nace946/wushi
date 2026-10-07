@@ -8,7 +8,7 @@
 
 .hd-hello {
   display: block;
-  font-size: 42rpx;
+  font-size: 46rpx;
   font-weight: 600;
   color: var(--text);
   letter-spacing: 1rpx;
@@ -17,7 +17,7 @@
 .hd-date {
   display: block;
   margin-top: 6rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: var(--text-3);
 }
 
@@ -29,13 +29,13 @@
 }
 
 .hd-btn-text {
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--text-2);
 }
 
 /* ---------- 概览卡 ---------- */
 .overview {
-  background: linear-gradient(158deg, #eef4f0 0%, #ffffff 62%);
+  background: linear-gradient(158deg, #e2ece6 0%, #ffffff 62%);
   border-radius: var(--r-lg);
   padding: 36rpx 32rpx 32rpx;
   box-shadow: var(--shadow);
@@ -47,7 +47,7 @@
 }
 
 .ov-num {
-  font-size: 88rpx;
+  font-size: 96rpx;
   font-weight: 600;
   line-height: 1;
   color: var(--text);
@@ -55,7 +55,7 @@
 }
 
 .ov-unit {
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: var(--text-2);
   margin-left: 8rpx;
 }
@@ -63,7 +63,7 @@
 .ov-label {
   display: block;
   margin-top: 8rpx;
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: var(--text-2);
 }
 
@@ -82,20 +82,20 @@
 }
 
 .ov-cell-num {
-  font-size: 36rpx;
+  font-size: 40rpx;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
 .ov-cell-name {
   margin-top: 4rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
   color: var(--text-3);
 }
 
 .ov-zero {
   margin-top: 24rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: var(--text-3);
   text-align: center;
 }
@@ -121,7 +121,7 @@
 }
 
 .tip-text {
-  font-size: 25rpx;
+  font-size: 27rpx;
   color: var(--text-2);
   flex: 1;
 }
@@ -139,7 +139,7 @@
 }
 
 .sec-more {
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: var(--text-3);
 }
 
@@ -169,18 +169,18 @@
   padding: 26rpx 0;
   box-shadow: var(--shadow-sm);
   text-align: center;
-  font-size: 44rpx;
+  font-size: 48rpx;
   line-height: 1;
 }
 
 .cat-name {
   margin-top: 12rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: var(--text);
 }
 
 .cat-count {
-  font-size: 20rpx;
+  font-size: 23rpx;
   color: var(--text-3);
 }
 

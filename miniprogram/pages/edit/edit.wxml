@@ -99,7 +99,7 @@
       <switch
         checked="{{form.expireManual}}"
         bindchange="onExpireManual"
-        color="#5E8C7A"
+        color="#3F8A6B"
       />
     </view>
 

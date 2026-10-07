@@ -6,28 +6,28 @@
 }
 
 .es-icon {
-  font-size: 88rpx;
+  font-size: 96rpx;
   line-height: 1;
   opacity: 0.85;
   margin-bottom: 24rpx;
 }
 
 .es-text {
-  font-size: 28rpx;
-  color: var(--text-2, #6e7570);
+  font-size: 30rpx;
+  color: var(--text-2, #535b55);
 }
 
 .es-sub {
   margin-top: 10rpx;
-  font-size: 24rpx;
-  color: var(--text-3, #a5aba6);
+  font-size: 26rpx;
+  color: var(--text-3, #798178);
 }
 
 .es-btn {
   margin-top: 32rpx;
   padding: 18rpx 48rpx;
   border-radius: var(--r-pill, 999rpx);
-  background: var(--primary, #5e8c7a);
+  background: var(--primary, #4c7c68);
   color: #ffffff;
-  font-size: 28rpx;
+  font-size: 30rpx;
 }
