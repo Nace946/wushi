@@ -4,7 +4,7 @@
   <view class="hd">
     <view class="hd-left">
       <text class="hd-hello">{{greeting}}</text>
-      <text class="hd-date">{{dateText}}</text>
+      <text class="hd-slogan">{{slogan}}</text>
     </view>
     <view class="hd-btn" bindtap="goGuide">
       <text class="hd-btn-text">使用说明</text>
@@ -74,7 +74,10 @@
         wx:key="id"
         item="{{item}}"
         compact="{{true}}"
+        last-use="{{lastUse}}"
         bind:tap="goDetail"
+        bind:use="onUse"
+        bind:reset="onResetCard"
       />
     </view>
     <view wx:else class="card">
@@ -104,7 +107,10 @@
         wx:key="id"
         item="{{item}}"
         compact="{{true}}"
+        last-use="{{lastUse}}"
         bind:tap="goDetail"
+        bind:use="onUse"
+        bind:reset="onResetCard"
       />
     </view>
     <view wx:else class="card">
@@ -120,5 +126,8 @@
   <view class="fab" bindtap="onAdd" hover-class="fab-hover" hover-stay-time="80">
     <text class="fab-plus">+</text>
   </view>
+
+  <!-- 底部提示条（含撤销） -->
+  <snackbar show="{{snackShow}}" text="{{snackText}}" bind:undo="onUndoUse" />
 
 </view>

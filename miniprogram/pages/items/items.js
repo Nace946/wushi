@@ -20,7 +20,12 @@ Page({
     ],
     list: [],
     total: 0,
-    filteredTip: ''
+    filteredTip: '',
+    // 最近一次「用掉一个」的结果（连续点击合并为一批）
+    lastUse: null,
+    // 底部提示条
+    snackShow: false,
+    snackText: ''
   },
 
   onLoad() {
@@ -128,6 +133,68 @@ Page({
       fail: () => {}
     })
   },
+
+  /** 用掉一个：一次点击完成；连续点击合并为一批，撤销时整批还原 */
+  onUse(e) {
+    const id = e.detail.id
+    if (!id) return
+    const res = storage.useItem(id, 1)
+    if (!res) return
+
+    this.mergeUseSession(id, res)
+    this.refresh()
+  },
+
+  /** 连续点击合并：4 秒内的多次消耗算作一批，撤销回到最初数量 */
+  mergeUseSession(id, res) {
+    const now = Date.now()
+    let s = this.data.lastUse
+    if (!s || s.id !== id || now - (s.at || 0) > 4000) {
+      s = { id: id, logIds: [], count: 0, at: now }
+    }
+    s.logIds.push(res.logId)
+    s.count += res.n
+    s.at = now
+
+    const unit = res.item.unit || ''
+    if (res.after > 0) {
+      s.text = `已用掉 ${s.count}${unit} · 还剩 ${res.after}${unit}`
+    } else {
+      s.text = s.count > 1 ? `已用完 · 共 ${s.count}${unit}` : '已用完 · 记得补货'
+    }
+
+    this.setData({
+      lastUse: s,
+      snackText: s.text,
+      snackShow: true
+    })
+
+    // 4 秒后收起提示条（lastUse 多留一会儿，避免退场瞬间点撤销失效）
+    if (this._fbTimer) clearTimeout(this._fbTimer)
+    this._fbTimer = setTimeout(() => {
+      this.setData({ snackShow: false })
+    }, 4000)
+  },
+
+  /** 底部提示条上的「撤销」：整批还原 */
+  onUndoUse() {
+    const s = this.data.lastUse
+    if (!s || !s.logIds || !s.logIds.length) return
+    storage.undoUseBatch(s.id, s.logIds)
+    this.setData({ lastUse: null, snackShow: false })
+    this.refresh()
+    wx.showToast({ title: '已撤销', icon: 'none' })
+  },
+
+  /** 正计时：重新开始计时（等同详情页「我刚处理过」） */
+  onResetCard(e) {
+    const id = e.detail.id
+    if (!id) return
+    storage.resetCycle(id)
+    this.refresh()
+    wx.showToast({ title: '已重新开始计时', icon: 'success' })
+  },
+
 
   onCardTap(e) {
     const id = e.detail.id

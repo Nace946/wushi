@@ -1,0 +1,58 @@
+<view class="page">
+
+  <!-- 统计 -->
+  <view class="card stat-card">
+    <view class="us-row">
+      <view class="us-cell">
+        <text class="us-num">{{todayCount}}</text>
+        <text class="us-name">今日用掉</text>
+      </view>
+      <view class="us-cell">
+        <text class="us-num">{{totalCount}}</text>
+        <text class="us-name">累计用掉</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{empty}}" class="card empty-card">
+    <empty-state
+      emoji="📝"
+      text="还没有使用记录"
+      subText="在列表或首页，点卡片右侧的 − 就能记一笔"
+    />
+  </view>
+
+  <!-- 记录分组 -->
+  <view wx:for="{{groups}}" wx:key="date" class="sec">
+    <view class="sec-hd">
+      <text class="t-title">{{item.title}}</text>
+      <text class="sec-more">{{item.items.length}} 条</text>
+    </view>
+
+    <view class="card ul-card">
+      <view
+        class="ul-row"
+        wx:for="{{item.items}}"
+        wx:for-item="log"
+        wx:key="logId"
+        data-id="{{log.itemId}}"
+        bindtap="goDetail"
+        hover-class="ul-hover"
+        hover-stay-time="60"
+      >
+        <text class="ul-icon">{{log.icon}}</text>
+        <view class="ul-main">
+          <text class="ul-name">{{log.name}}</text>
+          <text class="ul-sub">{{log.timeText}}</text>
+        </view>
+        <text class="ul-n">−{{log.n}}{{log.unit}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!empty}}" class="foot-tip">
+    <text>只保留每件物品最近 40 条记录</text>
+  </view>
+
+</view>

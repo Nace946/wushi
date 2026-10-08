@@ -14,11 +14,13 @@
   letter-spacing: 1rpx;
 }
 
-.hd-date {
+.hd-slogan {
   display: block;
   margin-top: 6rpx;
   font-size: 26rpx;
   color: var(--text-3);
+  line-height: 1.5;
+  max-width: 460rpx;
 }
 
 .hd-btn {

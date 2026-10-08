@@ -52,7 +52,9 @@ Page({
     }
     rows.push({ label: '提前提醒', value: (item.remindDays || 0) + ' 天' })
     if (item.location) rows.push({ label: '存放位置', value: item.location })
-    rows.push({ label: '数量', value: (item.quantity || 1) + ' ' + (item.unit || '') })
+    // 注意：数量可能为 0，不能用 || 1 兜底（会显示成 1）
+    const qty = item.quantity === 0 || item.quantity ? Number(item.quantity) : 1
+    rows.push({ label: '数量', value: qty + ' ' + (item.unit || '') })
     if (item.remark) rows.push({ label: '备注', value: item.remark })
 
     this.setData({
@@ -110,6 +112,30 @@ Page({
         console.error('[detail] showModal 失败', err)
         wx.showToast({ title: '弹窗失败，请重试', icon: 'none' })
       }
+    })
+  },
+
+  /** 用掉一个：详情页也能一键记录 */
+  onUse() {
+    const item = this.data.item
+    if (!item) return
+    if (Number(item.quantity) <= 0) {
+      wx.showToast({ title: '数量已经是 0', icon: 'none' })
+      return
+    }
+    const res = storage.useItem(item.id, 1)
+    if (!res) return
+    try {
+      wx.vibrateShort({ type: 'light', fail: () => {} })
+    } catch (e) {
+      // 忽略
+    }
+    const unit = res.item.unit || ''
+    this.load()
+    wx.showToast({
+      title: res.after > 0 ? `已用掉 ${res.n}${unit} · 还剩 ${res.after}${unit}` : '已用完 · 记得补货',
+      icon: 'none',
+      duration: 2000
     })
   },
 

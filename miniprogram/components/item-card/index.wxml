@@ -26,4 +26,31 @@
 
     <text wx:if="{{!compact}}" class="ic-sub">{{state.subText}}</text>
   </view>
+
+  <!-- 快捷操作：倒计时 = 用掉一个；正计时 = 重新开始计时 -->
+  <view wx:if="{{showUse}}" class="ic-use-wrap">
+    <!-- 正计时：重置 -->
+    <view
+      wx:if="{{isCountUp}}"
+      class="ic-use ic-use-reset {{popping ? 'ic-use-pop' : ''}}"
+      catchtap="onReset"
+      hover-class="ic-use-hover"
+      hover-stay-time="60"
+    >
+      <text class="ic-use-minus">↺</text>
+    </view>
+
+    <!-- 倒计时：用掉一个 -->
+    <block wx:else>
+      <view
+        class="ic-use {{popping ? 'ic-use-pop' : ''}} {{item.quantity <= 0 ? 'ic-use-off' : ''}}"
+        catchtap="onUse"
+        hover-class="ic-use-hover"
+        hover-stay-time="60"
+      >
+        <text class="ic-use-minus">−</text>
+      </view>
+      <view wx:if="{{flying}}" class="ic-fly">−1</view>
+    </block>
+  </view>
 </view>

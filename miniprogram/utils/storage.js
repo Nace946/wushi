@@ -103,6 +103,105 @@ function resetCycle(id) {
   return update(id, { lastDate: time.today() })
 }
 
+/** 每件物品最多保留的消耗流水条数 */
+const USAGE_LOG_LIMIT = 40
+
+/**
+ * 用掉 n 个：减少数量并记一笔消耗流水
+ * @returns {null|{item:Object, logId:String, before:Number, after:Number, n:Number}}
+ */
+function useItem(id, n) {
+  const item = getById(id)
+  if (!item) return null
+  const num = Number(n) || 1
+  const before = Number(item.quantity) || 0
+  const after = Math.max(0, before - num)
+
+  const log = {
+    id: util.uuid(),
+    t: time.today(),
+    ts: Date.now(),
+    n: num,
+    unit: item.unit || ''
+  }
+  const logs = Array.isArray(item.usageLog) ? item.usageLog.slice(0, USAGE_LOG_LIMIT - 1) : []
+  logs.unshift(log)
+
+  const updated = update(id, { quantity: after, usageLog: logs })
+  return { item: updated, logId: log.id, before, after, n: num }
+}
+
+/** 撤销一次消耗：数量加回并删除该条流水 */
+function undoUse(id, logId) {
+  const item = getById(id)
+  if (!item) return null
+  const logs = Array.isArray(item.usageLog) ? item.usageLog : []
+  const log = logs.find(l => l.id === logId)
+  if (!log) return null
+
+  const cur = Number(item.quantity) || 0
+  return update(id, {
+    quantity: cur + (Number(log.n) || 1),
+    usageLog: logs.filter(l => l.id !== logId)
+  })
+}
+
+/**
+ * 批量撤销：把连续多次「用掉」一次性还原
+ * @param {String} id 物品 id
+ * @param {Array} logIds 需要撤销的流水 id 列表
+ */
+function undoUseBatch(id, logIds) {
+  const item = getById(id)
+  if (!item) return null
+  const set = {}
+  ;(logIds || []).forEach(x => {
+    set[x] = true
+  })
+
+  const logs = Array.isArray(item.usageLog) ? item.usageLog : []
+  let back = 0
+  const kept = logs.filter(l => {
+    if (set[l.id]) {
+      back += Number(l.n) || 1
+      return false
+    }
+    return true
+  })
+  if (!back) return item
+
+  const cur = Number(item.quantity) || 0
+  return update(id, { quantity: cur + back, usageLog: kept })
+}
+
+/** 清空某物品的消耗流水 */
+function clearUsage(id) {
+  return update(id, { usageLog: [] })
+}
+
+/** 汇总全部消耗流水（时间倒序），供记录页使用 */
+function getAllUsage() {
+  const list = getAll()
+  const out = []
+  list.forEach(item => {
+    const logs = Array.isArray(item.usageLog) ? item.usageLog : []
+    logs.forEach(l => {
+      out.push({
+        logId: l.id,
+        itemId: item.id,
+        name: item.name,
+        icon: item.icon,
+        date: l.t,
+        ts: l.ts || 0,
+        n: Number(l.n) || 1,
+        unit: l.unit || item.unit || ''
+      })
+    })
+  })
+  out.sort((a, b) => (b.ts || 0) - (a.ts || 0))
+  return out
+}
+
 /** 设置读写 */
 function getSettings() {
   try {
@@ -249,6 +348,11 @@ module.exports = {
   remove,
   clearAll,
   resetCycle,
+  useItem,
+  undoUse,
+  undoUseBatch,
+  clearUsage,
+  getAllUsage,
   getSettings,
   saveSettings,
   ensureInit,

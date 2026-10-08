@@ -11,7 +11,8 @@ Page({
     attentionCount: 0,
     sortName: '最紧急优先',
     sortKey: 'urgent',
-    dailyRemind: true
+    dailyRemind: true,
+    usageCount: 0
   },
 
   onShow() {
@@ -30,7 +31,8 @@ Page({
       attentionCount: list.filter(i => i._state.status !== 'normal').length,
       sortKey: settings.sortKey,
       sortName: opt.name,
-      dailyRemind: settings.dailyRemind
+      dailyRemind: settings.dailyRemind,
+      usageCount: storage.getAllUsage().length
     })
   },
 
@@ -54,6 +56,10 @@ Page({
     const on = e.detail.value
     storage.saveSettings({ dailyRemind: on })
     this.setData({ dailyRemind: on })
+  },
+
+  goUsage() {
+    wx.navigateTo({ url: '/pages/usage/usage' })
   },
 
   goGuide() {

@@ -1,0 +1,8 @@
+<view wx:if="{{show}}" class="cf-mask">
+  <view
+    wx:for="{{pieces}}"
+    wx:key="id"
+    class="cf-piece cf-{{item.side}}"
+    style="left:{{item.x}}%;top:{{item.top}}%;width:{{item.w}}rpx;height:{{item.h}}rpx;background:{{item.bg}};animation-delay:{{item.delay}}ms;animation-duration:{{item.dur}}ms"
+  ></view>
+</view>

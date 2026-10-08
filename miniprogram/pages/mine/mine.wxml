@@ -53,6 +53,13 @@
   <view class="block">
     <text class="block-title">其他</text>
     <view class="card">
+      <view class="cell" bindtap="goUsage" hover-class="cell-hover" hover-stay-time="60">
+        <view>
+          <text class="cell-label">使用记录</text>
+          <text class="cell-hint">看看什么东西在什么时候用掉的</text>
+        </view>
+        <text class="cell-value">{{usageCount}} 条 ›</text>
+      </view>
       <view class="cell" bindtap="goGuide" hover-class="cell-hover" hover-stay-time="60">
         <text class="cell-label">使用说明</text>
         <text class="cell-value">›</text>

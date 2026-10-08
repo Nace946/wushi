@@ -37,6 +37,9 @@
     <view wx:else class="btn btn-primary op-btn" bindtap="onFinish" hover-class="btn-hover" hover-stay-time="80">
       此物品已使用完或丢弃
     </view>
+    <view wx:if="{{!isCountUp}}" class="btn btn-ghost op-btn" bindtap="onUse" hover-class="btn-hover" hover-stay-time="80">
+      用掉一个 · 还剩 {{item.quantity}}{{item.unit}}
+    </view>
     <view class="btn btn-ghost op-btn" bindtap="onEdit" hover-class="btn-hover" hover-stay-time="80">
       编辑信息
     </view>

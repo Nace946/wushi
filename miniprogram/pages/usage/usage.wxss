@@ -1,0 +1,105 @@
+.stat-card {
+  padding: 30rpx 16rpx;
+}
+
+.us-row {
+  display: flex;
+}
+
+.us-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.us-num {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.us-name {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: var(--text-3);
+}
+
+.empty-card {
+  margin-top: 24rpx;
+}
+
+.sec {
+  margin-top: 36rpx;
+}
+
+.sec-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8rpx 16rpx;
+}
+
+.sec-more {
+  font-size: 24rpx;
+  color: var(--text-3);
+}
+
+.ul-card {
+  padding: 8rpx 28rpx;
+}
+
+.ul-row {
+  display: flex;
+  align-items: center;
+  padding: 22rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.ul-row:last-child {
+  border-bottom: none;
+}
+
+.ul-hover {
+  opacity: 0.7;
+}
+
+.ul-icon {
+  font-size: 40rpx;
+  line-height: 1;
+  width: 56rpx;
+  flex-shrink: 0;
+}
+
+.ul-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ul-name {
+  font-size: 30rpx;
+  color: var(--text);
+}
+
+.ul-sub {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+}
+
+.ul-n {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.foot-tip {
+  margin-top: 32rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--text-3);
+}

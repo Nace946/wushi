@@ -1,0 +1,61 @@
+.snack {
+  position: fixed;
+  left: 32rpx;
+  right: 32rpx;
+  /* 抬到 tabBar 上方，避免遮挡 */
+  bottom: calc(140rpx + env(safe-area-inset-bottom));
+  z-index: 500;
+  background: rgba(31, 36, 32, 0.93);
+  border-radius: var(--r-pill, 999rpx);
+  padding: 18rpx 20rpx 18rpx 34rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 10rpx 34rpx rgba(31, 36, 32, 0.28);
+  animation: snackIn 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.snack-out {
+  animation: snackOut 0.24s ease forwards;
+}
+
+.snack-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 28rpx;
+  color: #ffffff;
+}
+
+.snack-undo {
+  flex-shrink: 0;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #8fd3b6;
+  padding: 6rpx 14rpx;
+  border-radius: var(--r-pill, 999rpx);
+}
+
+.snack-undo-hover {
+  opacity: 0.7;
+}
+
+@keyframes snackIn {
+  from {
+    opacity: 0;
+    transform: translateY(32rpx) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes snackOut {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20rpx) scale(0.98);
+  }
+}

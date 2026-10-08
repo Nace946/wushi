@@ -104,6 +104,7 @@
   /* ---------- 手机外壳 ---------- */
   .phones { display: flex; gap: 28px; flex-wrap: wrap; }
   .phone {
+    position: relative;
     width: 375px; background: var(--bg); border-radius: 26px; overflow: hidden;
     box-shadow: 0 10px 40px rgba(0,0,0,.14); display: flex; flex-direction: column;
   }
@@ -254,6 +255,38 @@
   }
   .ip-cell.on { background: var(--primary-soft); border-color: var(--primary); }
 
+  /* ---------- 用掉一个按钮 ---------- */
+  .ic-use.ic-use-reset { background: #dcefe4; }
+  .ic-use {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--primary-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 19px; font-weight: 500; color: var(--primary);
+    flex-shrink: 0; margin-left: 8px; align-self: center;
+  }
+
+  /* ---------- 使用记录 ---------- */
+  .us-row { display: flex; }
+  .us-cell { flex: 1; text-align: center; }
+  .us-num { font-size: 22px; font-weight: 500; color: var(--text); }
+  .us-name { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .ul-row { display: flex; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); }
+  .ul-row:last-child { border-bottom: none; }
+  .ul-icon { font-size: 20px; width: 28px; flex-shrink: 0; }
+  .ul-main { flex: 1; display: flex; flex-direction: column; }
+  .ul-name { font-size: 15px; color: var(--text); }
+  .ul-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+  .ul-n { font-size: 15px; font-weight: 500; color: var(--primary); }
+
+  /* ---------- 底部提示条 ---------- */
+  .snack-demo {
+    position: absolute; left: 16px; right: 16px; bottom: 78px;
+    background: rgba(31, 36, 32, .93); border-radius: 999px;
+    padding: 9px 10px 9px 17px; display: flex; align-items: center;
+    box-shadow: 0 5px 18px rgba(31, 36, 32, .28);
+  }
+  .snack-demo span { flex: 1; font-size: 14px; color: #fff; }
+  .snack-demo b { font-size: 14px; font-weight: 500; color: #8fd3b6; padding: 0 7px; }
+
   /* ---------- 对照表 ---------- */
   table { border-collapse: collapse; width: 100%; margin-top: 36px; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 3px 14px rgba(0,0,0,.07); }
   th, td { padding: 12px 16px; text-align: left; font-size: 14px; border-bottom: 1px solid #eee; }
@@ -296,7 +329,7 @@
         <div class="hd-row">
           <div>
             <div class="hello">下午好</div>
-            <div class="hello-date">2026.10.07 · 周三</div>
+            <div class="hello-date">新鲜有时，别让好东西悄悄过期</div>
           </div>
           <div class="hd-btn">使用说明</div>
         </div>
@@ -416,6 +449,7 @@
               <div class="bar"><i style="width:71%;background:#d4553c"></i></div>
               <span class="item-sub">2026.10.09 到期 · 周五</span>
             </div>
+            <div class="ic-use">−</div>
           </div>
 
           <div class="item">
@@ -429,6 +463,7 @@
               <div class="bar"><i style="width:64%;background:#3f8a6b"></i></div>
               <span class="item-sub">建议 2026.10.12 前更换</span>
             </div>
+            <div class="ic-use ic-use-reset">↺</div>
           </div>
 
           <div class="item">
@@ -442,6 +477,7 @@
               <div class="bar"><i style="width:100%;background:#d4553c"></i></div>
               <span class="item-sub">建议更换时间已过 5 天</span>
             </div>
+            <div class="ic-use ic-use-reset">↺</div>
           </div>
 
         </div>
@@ -450,6 +486,12 @@
         <div><span>🏠</span>总览</div>
         <div class="on"><span>📦</span>物品</div>
         <div><span>👤</span>我的</div>
+      </div>
+
+      <!-- 底部提示条（含撤销） -->
+      <div class="snack-demo">
+        <span>已用掉 3瓶 · 还剩 2瓶</span>
+        <b>撤销</b>
       </div>
     </div>
 
@@ -550,6 +592,51 @@
       </div>
     </div>
 
+    <!-- ============ 使用记录页 ============ -->
+    <div class="phone">
+      <div class="nav">使用记录</div>
+      <div class="screen">
+        <div class="card">
+          <div class="us-row">
+            <div class="us-cell"><div class="us-num">3</div><div class="us-name">今日用掉</div></div>
+            <div class="us-cell"><div class="us-num">12</div><div class="us-name">累计用掉</div></div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hd"><span class="sec-title">今天</span><span class="sec-more">2 条</span></div>
+          <div class="card">
+            <div class="ul-row">
+              <span class="ul-icon">🥛</span>
+              <div class="ul-main"><span class="ul-name">鲜牛奶</span><span class="ul-sub">08:12</span></div>
+              <span class="ul-n">−1瓶</span>
+            </div>
+            <div class="ul-row">
+              <span class="ul-icon">🍞</span>
+              <div class="ul-main"><span class="ul-name">吐司面包</span><span class="ul-sub">07:40</span></div>
+              <span class="ul-n">−1袋</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hd"><span class="sec-title">昨天</span><span class="sec-more">1 条</span></div>
+          <div class="card">
+            <div class="ul-row">
+              <span class="ul-icon">🍶</span>
+              <div class="ul-main"><span class="ul-name">酸奶</span><span class="ul-sub">21:05</span></div>
+              <span class="ul-n">−2盒</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div><span>🏠</span>总览</div>
+        <div><span>📦</span>物品</div>
+        <div class="on"><span>👤</span>我的</div>
+      </div>
+    </div>
+
   </div>
 
   <table>
@@ -572,6 +659,7 @@
 
   <p class="note">
     说明：预览按 375px 宽（iPhone 标准）还原，1rpx = 0.5px。切换「原版 / 适老版」可实时对比。<br>
+    首页顶部第二行已改为语言库随机文案（共 22 句），日期信息由概览卡右侧的日历承载。<br>
     颜色与字号改动已同步写入小程序源码（app.wxss 主题变量、各页面 WXSS、time.js 状态色、app.json tabBar 配色）。
   </p>
 

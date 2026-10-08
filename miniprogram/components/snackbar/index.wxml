@@ -1,0 +1,4 @@
+<view wx:if="{{visible}}" class="snack {{leaving ? 'snack-out' : ''}}" catchtap="noop">
+  <text class="snack-text">{{text}}</text>
+  <view wx:if="{{showUndo}}" class="snack-undo" catchtap="onUndo" hover-class="snack-undo-hover" hover-stay-time="60">撤销</view>
+</view>

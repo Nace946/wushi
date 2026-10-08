@@ -5,6 +5,7 @@
     "pages/mine/mine",
     "pages/detail/detail",
     "pages/edit/edit",
+    "pages/usage/usage",
     "pages/guide/guide"
   ],
   "window": {

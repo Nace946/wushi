@@ -53,8 +53,11 @@
       wx:for="{{list}}"
       wx:key="id"
       item="{{item}}"
+      last-use="{{lastUse}}"
       bind:tap="onCardTap"
       bind:longpress="onCardLongPress"
+      bind:use="onUse"
+      bind:reset="onResetCard"
       class="card-item"
     />
   </view>
@@ -84,5 +87,8 @@
   <view class="fab" bindtap="onAdd" hover-class="fab-hover" hover-stay-time="80">
     <text class="fab-plus">+</text>
   </view>
+
+  <!-- 底部提示条（含撤销） -->
+  <snackbar show="{{snackShow}}" text="{{snackText}}" bind:undo="onUndoUse" />
 
 </view>

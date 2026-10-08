@@ -108,3 +108,86 @@
   font-size: 24rpx;
   color: var(--text-3, #798178);
 }
+
+/* ---------- 用掉一个 ---------- */
+.ic-use-wrap {
+  position: relative;
+  margin-left: 16rpx;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.ic-use {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: var(--primary-soft, #dcefe4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ic-use-minus {
+  font-size: 38rpx;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--primary, #3f8a6b);
+}
+
+.ic-use-hover {
+  opacity: 0.72;
+}
+
+.ic-use-off {
+  background: var(--surface-soft, #fbfaf7);
+}
+
+.ic-use-off .ic-use-minus {
+  color: var(--text-3, #798178);
+}
+
+/* 按下回弹 */
+@keyframes icPop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(0.82);
+  }
+  65% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.ic-use-pop {
+  animation: icPop 0.32s ease;
+}
+
+/* −1 上浮消散 */
+@keyframes icFly {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.9);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-56rpx) scale(1.4);
+  }
+}
+
+.ic-fly {
+  position: absolute;
+  left: 50%;
+  bottom: 60rpx;
+  margin-left: -30rpx;
+  width: 60rpx;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--primary, #3f8a6b);
+  pointer-events: none;
+  animation: icFly 0.8s ease-out forwards;
+}
