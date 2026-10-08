@@ -21,35 +21,37 @@
     </scroll-view>
   </view>
 
-  <!-- 基本信息 -->
+  <!-- 名称 + 图标 -->
+  <view class="card name-card">
+    <view class="nb-row">
+      <!-- 图标：点击弹出选择面板 -->
+      <view
+        class="nb-icon-btn"
+        bindtap="openIconPicker"
+        hover-class="nb-icon-hover"
+        hover-stay-time="60"
+      >
+        <text class="nb-emoji">{{form.icon}}</text>
+        <view class="nb-caret">▾</view>
+      </view>
+
+      <!-- 名称：加大突出 -->
+      <view class="nb-main">
+        <text class="nb-label">物品名称</text>
+        <input
+          class="nb-input"
+          value="{{form.name}}"
+          bindinput="onNameInput"
+          placeholder="例如：鲜牛奶"
+          placeholder-class="nb-ph"
+          maxlength="20"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类 -->
   <view class="card">
-    <view class="field">
-      <text class="flabel">名称</text>
-      <input
-        class="finput"
-        value="{{form.name}}"
-        bindinput="onNameInput"
-        placeholder="例如：鲜牛奶"
-        placeholder-class="fph"
-        maxlength="20"
-      />
-    </view>
-
-    <view class="field field-col">
-      <text class="flabel">图标</text>
-      <scroll-view scroll-x class="emoji-scroll" show-scrollbar="{{false}}">
-        <view class="emoji-inner">
-          <view
-            class="emoji {{form.icon === item ? 'emoji-on' : ''}}"
-            wx:for="{{emojis}}"
-            wx:key="*this"
-            data-emoji="{{item}}"
-            bindtap="onEmoji"
-          >{{item}}</view>
-        </view>
-      </scroll-view>
-    </view>
-
     <view class="field field-col">
       <text class="flabel">分类</text>
       <view class="cat-chips">
@@ -280,6 +282,40 @@
     </view>
     <view wx:if="{{isEdit}}" class="btn btn-danger-text" bindtap="onDelete" hover-class="btn-hover" hover-stay-time="80">
       删除这件物品
+    </view>
+  </view>
+
+  <!-- 图标选择面板（仿微信选表情） -->
+  <view wx:if="{{showIconPicker}}" class="ip-mask" bindtap="closeIconPicker">
+    <view class="ip-panel" catchtap="noop">
+      <view class="ip-head">
+        <text class="ip-title">选择图标</text>
+        <text class="ip-close" catchtap="closeIconPicker">✕</text>
+      </view>
+
+      <scroll-view scroll-x class="ip-tabs" show-scrollbar="{{false}}">
+        <view class="ip-tabs-inner">
+          <view
+            class="ip-tab {{iconGroup === item.key ? 'ip-tab-on' : ''}}"
+            wx:for="{{emojiGroups}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            catchtap="onIconGroup"
+          >{{item.name}}</view>
+        </view>
+      </scroll-view>
+
+      <scroll-view scroll-y class="ip-body">
+        <view class="ip-grid">
+          <view
+            class="ip-cell {{form.icon === item ? 'ip-cell-on' : ''}}"
+            wx:for="{{currentIcons}}"
+            wx:key="*this"
+            data-emoji="{{item}}"
+            catchtap="pickIcon"
+          >{{item}}</view>
+        </view>
+      </scroll-view>
     </view>
   </view>
 

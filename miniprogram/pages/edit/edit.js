@@ -1,8 +1,6 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
-const { CATEGORIES, PRESETS, MODE, SHELF_UNITS } = require('../../utils/constants')
-
-const EMOJIS = ['🥛', '🍞', '🥚', '🍚', '🍶', '🥫', '🍎', '🥬', '💊', '🩹', '🧴', '💄', '🛏️', '🪥', '🧺', '🧽', '🔌', '🌬️', '🚰', '📦']
+const { CATEGORIES, PRESETS, MODE, SHELF_UNITS, EMOJI_GROUPS } = require('../../utils/constants')
 
 const REMIND_OPTIONS = [1, 2, 3, 5, 7, 15, 30]
 const CYCLE_OPTIONS = [7, 14, 21, 30, 60, 90, 180, 365]
@@ -13,7 +11,10 @@ Page({
     id: '',
     form: null,
     categories: CATEGORIES,
-    emojis: EMOJIS,
+    emojiGroups: EMOJI_GROUPS,
+    iconGroup: 'common',
+    currentIcons: [],
+    showIconPicker: false,
     remindOptions: REMIND_OPTIONS,
     cycleOptions: CYCLE_OPTIONS,
     unitNames: SHELF_UNITS.map(u => u.name),
@@ -144,9 +145,35 @@ Page({
     })
   },
 
-  onEmoji(e) {
-    this.setData({ 'form.icon': e.currentTarget.dataset.emoji })
+  /** 打开图标面板：自动定位到当前图标所属的分组 */
+  openIconPicker() {
+    const cur = this.data.form && this.data.form.icon
+    const hit = EMOJI_GROUPS.find(g => g.icons.indexOf(cur) > -1)
+    const iconGroup = hit ? hit.key : this.data.iconGroup
+    const group = EMOJI_GROUPS.find(g => g.key === iconGroup) || EMOJI_GROUPS[0]
+    this.setData({
+      iconGroup: group.key,
+      currentIcons: group.icons,
+      showIconPicker: true
+    })
   },
+
+  closeIconPicker() {
+    this.setData({ showIconPicker: false })
+  },
+
+  onIconGroup(e) {
+    const key = e.currentTarget.dataset.key
+    const group = EMOJI_GROUPS.find(g => g.key === key) || EMOJI_GROUPS[0]
+    this.setData({ iconGroup: group.key, currentIcons: group.icons })
+  },
+
+  pickIcon(e) {
+    this.setData({ 'form.icon': e.currentTarget.dataset.emoji, showIconPicker: false })
+  },
+
+  /** 阻止弹层内部点击冒泡到遮罩 */
+  noop() {},
 
   onDate(e) {
     const field = e.currentTarget.dataset.field
@@ -185,11 +212,8 @@ Page({
     const preset = this.data.presets[idx]
     if (!preset) return
     const built = storage.buildFromPreset(preset)
-    const keepName = this.data.form.name
-    const form = Object.assign({}, this.data.form, built)
-    // 用户已输入名称时保留用户名称
-    if (keepName) form.name = keepName
-    else form.name = preset.name
+    // 点击预设即以预设为准：名称、图标、分类、周期等全部采用预设值
+    const form = Object.assign({}, this.data.form, built, { name: preset.name })
     this.setData(
       {
         form,
