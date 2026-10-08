@@ -145,6 +145,7 @@
             bindinput="onInput"
             placeholder="0"
             placeholder-class="fph"
+            maxlength="4"
           />
           <view class="seg">
             <view
@@ -191,6 +192,7 @@
         bindinput="onInput"
         placeholder="例如：14"
         placeholder-class="fph"
+        maxlength="4"
       />
       <view class="quick-row">
         <view
@@ -230,6 +232,7 @@
           bindinput="onInput"
           placeholder="1"
           placeholder-class="fph"
+          maxlength="3"
         />
         <input
           class="finput unit-input"

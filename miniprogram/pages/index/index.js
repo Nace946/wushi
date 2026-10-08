@@ -1,6 +1,5 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
-const { CATEGORIES } = require('../../utils/constants')
 
 Page({
   data: {
@@ -8,6 +7,7 @@ Page({
     dateText: '',
     total: 0,
     attentionCount: 0,
+    todoCount: 0,
     urgentText: '',
     stats: [
       { key: 'normal', name: '充裕', count: 0, color: '#3F8A6B' },
@@ -16,7 +16,7 @@ Page({
       { key: 'over', name: '已过期', count: 0, color: '#7C7C76' }
     ],
     attention: [],
-    categories: [],
+    todo: [],
     hasData: false
   },
 
@@ -64,29 +64,29 @@ Page({
 
     const stats = this.data.stats.map(s => Object.assign({}, s, { count: counter[s.key] }))
 
-    // 需要关注：非充裕状态，按紧急程度排序，最多 5 条
+    // 需要关注：临近 + 紧急（还未过期，提醒优先使用）
     const attention = time
       .sortItems(
-        list.filter(i => i._state.status !== 'normal'),
+        list.filter(i => i._state.status === 'soon' || i._state.status === 'urgent'),
         'urgent'
       )
       .slice(0, 5)
 
-    // 分类聚合
-    const categories = CATEGORIES.map(c =>
-      Object.assign({}, c, {
-        count: list.filter(i => i.category === c.key).length
-      })
-    )
+    // 需要处理：已过期（倒计时）/ 已超期（正计时），必须动手处理
+    const todo = time
+      .sortItems(
+        list.filter(i => i._state.status === 'over'),
+        'urgent'
+      )
+      .slice(0, 5)
 
-    const urgentCount = counter.urgent + counter.over
     let urgentText = ''
     // 用户可在「我的」关闭该提示条
     if (storage.getSettings().dailyRemind) {
       if (counter.over > 0 && counter.urgent > 0) {
-        urgentText = `有 ${counter.over} 件已过期、${counter.urgent} 件即将到期，建议尽快处理`
+        urgentText = `有 ${counter.over} 件需要处理、${counter.urgent} 件即将到期`
       } else if (counter.over > 0) {
-        urgentText = `有 ${counter.over} 件已过期，建议清理`
+        urgentText = `有 ${counter.over} 件已过期，建议尽快处理`
       } else if (counter.urgent > 0) {
         urgentText = `有 ${counter.urgent} 件即将到期，记得优先使用`
       }
@@ -96,21 +96,26 @@ Page({
       total,
       stats,
       attention,
-      categories,
+      todo,
       attentionCount: counter.soon + counter.urgent + counter.over,
+      todoCount: counter.over,
       urgentText,
       hasData: total > 0
     })
   },
 
-  // 进入物品页并筛选分类（tabBar 页面不支持带参 navigateTo，用全局临时变量传递）
-  onCategory(e) {
+  // 概览统计卡片点击：跳到物品页并筛选对应状态
+  onStatTap(e) {
     const key = e.currentTarget.dataset.key
-    app.globalData.filterCategory = key
+    if (!key) return
+    getApp().globalData.filterStatus = key
     wx.switchTab({ url: '/pages/items/items' })
   },
 
-  goItems() {
+  // 「查看全部」：可带状态筛选跳转物品页
+  goItems(e) {
+    const status = e && e.currentTarget && e.currentTarget.dataset.status
+    if (status) getApp().globalData.filterStatus = status
     wx.switchTab({ url: '/pages/items/items' })
   },
 

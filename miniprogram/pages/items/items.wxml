@@ -11,6 +11,7 @@
         placeholder-class="search-ph"
         bindinput="onSearch"
         confirm-type="search"
+        maxlength="20"
       />
       <text wx:if="{{keyword}}" class="search-clear" bindtap="clearSearch">✕</text>
     </view>
@@ -23,18 +24,22 @@
           wx:key="key"
           data-key="{{item.key}}"
           bindtap="onCategory"
-        >{{item.name}}</view>
+        >{{item.name}}<text wx:if="{{item.count}}" class="tab-count">{{item.count}}</text></view>
       </view>
     </scroll-view>
 
     <view class="chips-row">
-      <view
-        class="fchip {{activeStatus === item.key ? 'fchip-on' : ''}}"
-        wx:for="{{statuses}}"
-        wx:key="key"
-        data-key="{{item.key}}"
-        bindtap="onStatus"
-      >{{item.name}}</view>
+      <scroll-view scroll-x class="chips-scroll" show-scrollbar="{{false}}">
+        <view class="chips-inner">
+          <view
+            class="fchip {{activeStatus === item.key ? 'fchip-on' : ''}}"
+            wx:for="{{statuses}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="onStatus"
+          >{{item.name}}</view>
+        </view>
+      </scroll-view>
       <view class="fchip fchip-sort" bindtap="onSort">
         <text class="sort-icon">⇅</text>
         <text>排序</text>

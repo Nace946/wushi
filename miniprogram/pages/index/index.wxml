@@ -20,9 +20,17 @@
     <text class="ov-label">件物品需要你留意</text>
 
     <view class="ov-grid">
-      <view class="ov-cell" wx:for="{{stats}}" wx:key="key">
+      <view
+        class="ov-cell"
+        wx:for="{{stats}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onStatTap"
+        hover-class="ov-cell-hover"
+        hover-stay-time="60"
+      >
         <text class="ov-cell-num" style="color:{{item.color}}">{{item.count}}</text>
-        <text class="ov-cell-name">{{item.name}}</text>
+        <text class="ov-cell-name">{{item.name}} ›</text>
       </view>
     </view>
 
@@ -37,13 +45,19 @@
     <text class="tip-text">{{urgentText}}</text>
   </view>
 
-  <!-- 需要关注 -->
-  <view class="sec" wx:if="{{attention.length > 0}}">
+  <!-- 需要关注：临近 / 紧急（还没过期，提醒优先使用） -->
+  <view class="sec">
     <view class="sec-hd">
       <text class="t-title">需要关注</text>
-      <text class="sec-more" bindtap="goItems">查看全部 ›</text>
+      <text
+        wx:if="{{attention.length > 0}}"
+        class="sec-more"
+        data-status="attention"
+        bindtap="goItems"
+      >查看全部 ›</text>
     </view>
-    <view class="card-list">
+
+    <view wx:if="{{attention.length > 0}}" class="card-list">
       <item-card
         wx:for="{{attention}}"
         wx:key="id"
@@ -52,41 +66,42 @@
         bind:tap="goDetail"
       />
     </view>
-  </view>
-
-  <view wx:else class="sec">
-    <view class="sec-hd">
-      <text class="t-title">需要关注</text>
-    </view>
-    <view class="card">
+    <view wx:else class="card">
       <empty-state
         emoji="🌿"
-        text="一切都在掌控中"
-        subText="所有物品状态良好，无需处理"
+        text="暂无临近物品"
+        subText="没有临近或紧急到期的物品"
       />
     </view>
   </view>
 
-  <!-- 分类 -->
+  <!-- 需要处理：已过期 / 已超期 -->
   <view class="sec">
     <view class="sec-hd">
-      <text class="t-title">分类</text>
-      <text class="sec-more" bindtap="goItems">管理物品 ›</text>
+      <text class="t-title">需要处理</text>
+      <text
+        wx:if="{{todo.length > 0}}"
+        class="sec-more"
+        data-status="over"
+        bindtap="goItems"
+      >查看全部 ›</text>
     </view>
-    <view class="cats">
-      <view
-        class="cat"
-        wx:for="{{categories}}"
-        wx:key="key"
-        data-key="{{item.key}}"
-        bindtap="onCategory"
-        hover-class="cat-hover"
-        hover-stay-time="80"
-      >
-        <view class="cat-icon">{{item.icon}}</view>
-        <text class="cat-name">{{item.name}}</text>
-        <text class="cat-count">{{item.count}}</text>
-      </view>
+
+    <view wx:if="{{todo.length > 0}}" class="card-list">
+      <item-card
+        wx:for="{{todo}}"
+        wx:key="id"
+        item="{{item}}"
+        compact="{{true}}"
+        bind:tap="goDetail"
+      />
+    </view>
+    <view wx:else class="card">
+      <empty-state
+        emoji="✨"
+        text="没有待处理物品"
+        subText="没有已过期或超出使用期限的物品"
+      />
     </view>
   </view>
 

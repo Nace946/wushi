@@ -12,6 +12,9 @@ Page({
     statuses: [
       { key: 'all', name: '全部' },
       { key: 'attention', name: '需关注' },
+      { key: 'normal', name: '充裕' },
+      { key: 'soon', name: '临近' },
+      { key: 'urgent', name: '紧急' },
       { key: 'over', name: '已过期' },
       { key: 'countup', name: '正计时' }
     ],
@@ -26,11 +29,15 @@ Page({
   },
 
   onShow() {
-    // 支持从首页分类入口跳转过来时带上的筛选
+    // 支持从首页跳转过来时带上的筛选（分类宫格入口 / 概览统计卡片）
     const app = getApp()
     if (app.globalData.filterCategory) {
       this.setData({ activeCategory: app.globalData.filterCategory })
       app.globalData.filterCategory = ''
+    }
+    if (app.globalData.filterStatus) {
+      this.setData({ activeStatus: app.globalData.filterStatus })
+      app.globalData.filterStatus = ''
     }
     this.refresh()
   },
@@ -44,16 +51,26 @@ Page({
     const d = this.data
     const all = time.decorate(storage.getAll())
 
+    // 分类数量按全部物品统计，不受当前状态筛选影响
+    const categories = this.data.categories.map(c =>
+      Object.assign({}, c, {
+        count: c.key === 'all' ? all.length : all.filter(i => i.category === c.key).length
+      })
+    )
+
     let list = all
     if (d.activeCategory !== 'all') {
       list = list.filter(i => i.category === d.activeCategory)
     }
-    if (d.activeStatus === 'attention') {
+
+    // 状态筛选：需关注 = 非充裕；其余为精确状态
+    const st = d.activeStatus
+    if (st === 'attention') {
       list = list.filter(i => i._state.status !== 'normal')
-    } else if (d.activeStatus === 'over') {
-      list = list.filter(i => i._state.status === 'over')
-    } else if (d.activeStatus === 'countup') {
+    } else if (st === 'countup') {
       list = list.filter(i => i.mode === 'countup')
+    } else if (st === 'normal' || st === 'soon' || st === 'urgent' || st === 'over') {
+      list = list.filter(i => i._state.status === st)
     }
     if (d.keyword) {
       const kw = d.keyword.trim().toLowerCase()
@@ -69,7 +86,7 @@ Page({
     let tip = ''
     if (all.length > 0 && list.length === 0) tip = '换个筛选条件试试'
 
-    this.setData({ list, total: all.length, filteredTip: tip })
+    this.setData({ list, total: all.length, categories, filteredTip: tip })
   },
 
   onSearch(e) {

@@ -182,6 +182,7 @@
   .tabs { display: flex; gap: 6px; margin-top: 10px; overflow: hidden; }
   .tab { padding: 6px 13px; border-radius: 999px; font-size: var(--fs-sub); color: var(--text-2); background: var(--surface); box-shadow: 0 1px 6px rgba(0,0,0,.05); white-space: nowrap; }
   .tab.on { background: var(--primary); color: #fff; }
+  .tab-count { font-size: 11.5px; opacity: .7; margin-left: 3px; }
   .chips { display: flex; gap: 6px; margin-top: 9px; align-items: center; }
   .chip { padding: 4px 11px; border-radius: 999px; font-size: var(--fs-tag); color: var(--text-2); background: var(--surface-soft); border: 1px solid var(--line); }
   .chip.on { background: var(--primary-soft); color: var(--primary); border-color: var(--primary-soft); }
@@ -261,14 +262,14 @@
           <div><span class="ov-num">3</span><span class="ov-unit">件</span></div>
           <span class="ov-label">件物品需要你留意</span>
           <div class="ov-grid">
-            <div class="ov-cell"><b style="color:#3f8a6b">4</b><span>充裕</span></div>
-            <div class="ov-cell"><b style="color:#d18c2a">1</b><span>临近</span></div>
-            <div class="ov-cell"><b style="color:#d4553c">1</b><span>紧急</span></div>
-            <div class="ov-cell"><b style="color:#7c7c76">1</b><span>已过期</span></div>
+            <div class="ov-cell"><b style="color:#3f8a6b">4</b><span>充裕 ›</span></div>
+            <div class="ov-cell"><b style="color:#d18c2a">1</b><span>临近 ›</span></div>
+            <div class="ov-cell"><b style="color:#d4553c">1</b><span>紧急 ›</span></div>
+            <div class="ov-cell"><b style="color:#7c7c76">2</b><span>已过期 ›</span></div>
           </div>
         </div>
 
-        <div class="tip"><i></i><p>有 1 件已过期、1 件即将到期，建议尽快处理</p></div>
+        <div class="tip"><i></i><p>有 2 件需要处理、1 件即将到期</p></div>
 
         <div class="sec">
           <div class="sec-hd"><span class="sec-title">需要关注</span><span class="sec-more">查看全部 ›</span></div>
@@ -287,6 +288,23 @@
           </div>
 
           <div class="item">
+            <div class="item-icon" style="background:#fbebd3">🍚</div>
+            <div class="item-body">
+              <div class="item-hd">
+                <span class="item-name">大米</span>
+                <span class="status" style="color:#d18c2a;background:#fbebd3">临近</span>
+              </div>
+              <div class="metric">
+                <b style="color:#d18c2a">18</b><em>天</em><i>剩余</i><u>米桶 · ×1</u>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hd"><span class="sec-title">需要处理</span><span class="sec-more">查看全部 ›</span></div>
+
+          <div class="item">
             <div class="item-icon" style="background:#f0efec">🍶</div>
             <div class="item-body">
               <div class="item-hd">
@@ -298,17 +316,18 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="sec">
-          <div class="sec-hd"><span class="sec-title">分类</span><span class="sec-more">管理物品 ›</span></div>
-          <div class="cats">
-            <div class="cat"><div class="cat-icon">🥛</div><b>食品</b><span>2</span></div>
-            <div class="cat"><div class="cat-icon">💊</div><b>药品</b><span>1</span></div>
-            <div class="cat"><div class="cat-icon">🧴</div><b>化妆品</b><span>0</span></div>
-            <div class="cat"><div class="cat-icon">🧺</div><b>日用品</b><span>2</span></div>
-            <div class="cat"><div class="cat-icon">🔌</div><b>家电耗材</b><span>0</span></div>
-            <div class="cat"><div class="cat-icon">📦</div><b>其他</b><span>0</span></div>
+          <div class="item">
+            <div class="item-icon" style="background:#fce0d8">🪥</div>
+            <div class="item-body">
+              <div class="item-hd">
+                <span class="item-name">牙刷</span>
+                <span class="status" style="color:#d4553c;background:#fce0d8">已超期</span>
+              </div>
+              <div class="metric">
+                <b style="color:#d4553c">95</b><em>天</em><i>已使用</i><u>卫生间 · ×1</u>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -325,10 +344,10 @@
       <div class="screen">
         <div class="search"><span>🔍</span><i>搜索名称或存放位置</i></div>
         <div class="tabs">
-          <div class="tab on">全部</div><div class="tab">食品</div><div class="tab">药品</div><div class="tab">日用品</div>
+          <div class="tab on">全部<span class="tab-count">7</span></div><div class="tab">食品<span class="tab-count">3</span></div><div class="tab">药品<span class="tab-count">1</span></div><div class="tab">日用品<span class="tab-count">2</span></div>
         </div>
         <div class="chips">
-          <div class="chip on">全部</div><div class="chip">需关注</div><div class="chip">已过期</div>
+          <div class="chip on">全部</div><div class="chip">需关注</div><div class="chip">充裕</div><div class="chip">临近</div>
           <div class="chip sort">⇅ 排序</div>
         </div>
 

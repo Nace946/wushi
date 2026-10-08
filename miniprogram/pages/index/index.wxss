@@ -93,6 +93,10 @@
   color: var(--text-3);
 }
 
+.ov-cell-hover {
+  opacity: 0.55;
+}
+
 .ov-zero {
   margin-top: 24rpx;
   font-size: 26rpx;
