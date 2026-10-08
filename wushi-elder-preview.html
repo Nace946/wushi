@@ -138,6 +138,15 @@
     border-radius: var(--radius); padding: 18px 16px 16px; box-shadow: 0 3px 14px rgba(43,47,44,.07);
   }
   .ov-num { font-size: var(--fs-big); font-weight: 600; line-height: 1; color: var(--text); }
+  .ov-top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .ov-main { flex: 1; min-width: 0; }
+  .ov-cal {
+    width: 66px; margin-left: 10px; background: #fff; border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08); overflow: hidden; flex-shrink: 0; text-align: center;
+  }
+  .cal-month { background: var(--primary); color: #fff; font-size: 11px; padding: 3px 0; }
+  .cal-day { font-size: 23px; font-weight: 600; line-height: 1.2; color: var(--text); padding-top: 4px; }
+  .cal-week { font-size: 10px; color: var(--text-2); padding-bottom: 5px; }
   .ov-unit { font-size: var(--fs-body); color: var(--text-2); margin-left: 4px; }
   .ov-label { font-size: var(--fs-sub); color: var(--text-2); margin-top: 5px; display: block; }
   .ov-grid { display: flex; margin-top: 16px; padding-top: 13px; border-top: 1px solid rgba(43,47,44,.07); }
@@ -259,8 +268,17 @@
         </div>
 
         <div class="overview">
-          <div><span class="ov-num">3</span><span class="ov-unit">件</span></div>
-          <span class="ov-label">件物品需要你留意</span>
+          <div class="ov-top">
+            <div class="ov-main">
+              <div><span class="ov-num">3</span><span class="ov-unit">件</span></div>
+              <span class="ov-label">件物品需要你留意</span>
+            </div>
+            <div class="ov-cal">
+              <div class="cal-month">10月</div>
+              <div class="cal-day">08</div>
+              <div class="cal-week">周四</div>
+            </div>
+          </div>
           <div class="ov-grid">
             <div class="ov-cell"><b style="color:#3f8a6b">4</b><span>充裕 ›</span></div>
             <div class="ov-cell"><b style="color:#d18c2a">1</b><span>临近 ›</span></div>
@@ -437,6 +455,7 @@
         </div>
 
         <div style="margin-top:16px">
+          <div class="btn">此物品已使用完或丢弃</div>
           <div class="btn ghost">编辑信息</div>
           <div class="btn text">删除这件物品</div>
         </div>

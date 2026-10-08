@@ -53,6 +53,15 @@ Page({
         return
       }
       const form = Object.assign({}, baseForm, item)
+
+      // 从详情页「购置新物品」进来：保留原有信息，仅把日期重置为今天
+      if (options.reset === '1') {
+        form.produceDate = today
+        form.expireDate = ''
+        form.lastDate = today
+        this._resetTip = true
+      }
+
       this.setData({
         isEdit: true,
         id: options.id,
@@ -60,6 +69,10 @@ Page({
         unitIndex: Math.max(0, SHELF_UNITS.findIndex(u => u.key === form.shelfLifeUnit))
       })
       wx.setNavigationBarTitle({ title: '编辑物品' })
+      if (this._resetTip) {
+        this._resetTip = false
+        wx.showToast({ title: '日期已重置为今天', icon: 'none', duration: 1800 })
+      }
     } else {
       this.setData({ isEdit: false, form: baseForm })
       wx.setNavigationBarTitle({ title: '添加物品' })

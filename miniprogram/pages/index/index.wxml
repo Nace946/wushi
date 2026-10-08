@@ -13,11 +13,22 @@
 
   <!-- 概览卡 -->
   <view class="overview">
-    <view class="ov-row">
-      <text class="ov-num">{{attentionCount}}</text>
-      <text class="ov-unit">件</text>
-    </view>
-    <text class="ov-label">件物品需要你留意</text>
+        <view class="ov-top">
+          <view class="ov-main">
+            <view class="ov-row">
+              <text class="ov-num">{{attentionCount}}</text>
+              <text class="ov-unit">件</text>
+            </view>
+            <text class="ov-label">件物品需要你留意</text>
+          </view>
+
+          <!-- 当前日期日历 -->
+          <view class="ov-cal">
+            <text class="cal-month">{{calMonth}}</text>
+            <text class="cal-day">{{calDay}}</text>
+            <text class="cal-week">{{calWeek}}</text>
+          </view>
+        </view>
 
     <view class="ov-grid">
       <view

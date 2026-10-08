@@ -34,6 +34,9 @@
     <view wx:if="{{isCountUp}}" class="btn btn-primary op-btn" bindtap="onReset" hover-class="btn-hover" hover-stay-time="80">
       我刚处理过，重新开始计时
     </view>
+    <view wx:else class="btn btn-primary op-btn" bindtap="onFinish" hover-class="btn-hover" hover-stay-time="80">
+      此物品已使用完或丢弃
+    </view>
     <view class="btn btn-ghost op-btn" bindtap="onEdit" hover-class="btn-hover" hover-stay-time="80">
       编辑信息
     </view>

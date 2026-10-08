@@ -83,6 +83,36 @@ Page({
     })
   },
 
+  // 倒计时：已用完 / 丢弃 —— 弹窗二选一
+  onFinish() {
+    const item = this.data.item
+    if (!item) return
+    wx.showModal({
+      title: '此物品已使用完或丢弃？',
+      // 说明放在正文：官方限制 cancelText / confirmText 均最多 4 个字符
+      content: '已购新品：保留记录，日期更新为今天重新计时。\n不再需要：直接删除这条记录。',
+      cancelText: '已购新品',
+      confirmText: '删除物品',
+      confirmColor: '#D4553C',
+      success: res => {
+        if (res.confirm) {
+          // 右侧按钮：删除
+          storage.remove(item.id)
+          wx.showToast({ title: '已删除', icon: 'success' })
+          setTimeout(() => wx.navigateBack(), 600)
+        } else if (res.cancel) {
+          // 左侧按钮：保留信息，只把日期重置为今天
+          wx.navigateTo({ url: '/pages/edit/edit?id=' + item.id + '&reset=1' })
+        }
+      },
+      fail: err => {
+        // 兜底提示，避免再次出现"点了没反应"却没有任何反馈
+        console.error('[detail] showModal 失败', err)
+        wx.showToast({ title: '弹窗失败，请重试', icon: 'none' })
+      }
+    })
+  },
+
   onEdit() {
     wx.navigateTo({ url: '/pages/edit/edit?id=' + this.data.id })
   },

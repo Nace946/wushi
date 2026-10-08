@@ -5,6 +5,9 @@ Page({
   data: {
     greeting: '你好',
     dateText: '',
+    calMonth: '',
+    calDay: '',
+    calWeek: '',
     total: 0,
     attentionCount: 0,
     todoCount: 0,
@@ -45,9 +48,13 @@ Page({
     else greeting = '晚上好'
 
     const t = time.today()
+    const parts = String(t).split('-')
     this.setData({
       greeting,
-      dateText: time.formatCN(t) + ' · ' + time.weekday(t)
+      dateText: time.formatCN(t) + ' · ' + time.weekday(t),
+      calMonth: Number(parts[1]) + '月',
+      calDay: parts[2],
+      calWeek: time.weekday(t)
     })
   },
 
