@@ -2,7 +2,7 @@
 
   <!-- 预设模板 -->
   <view class="block">
-    <text class="block-title">快速开始 · 常见物品</text>
+    <text class="block-title">{{ktPresetTitle}}</text>
     <scroll-view scroll-x class="preset-scroll" show-scrollbar="{{false}}">
       <view class="preset-inner">
         <view
@@ -37,12 +37,12 @@
 
       <!-- 名称：加大突出 -->
       <view class="nb-main">
-        <text class="nb-label">物品名称</text>
+        <text class="nb-label">{{ktNameLabel}}</text>
         <input
           class="nb-input"
           value="{{form.name}}"
           bindinput="onNameInput"
-          placeholder="例如：鲜牛奶"
+          placeholder="{{ktNamePlaceholder}}"
           placeholder-class="nb-ph"
           maxlength="20"
         />
@@ -50,7 +50,57 @@
     </view>
   </view>
 
-  <!-- 分类 -->
+  <!-- 计时方式 -->
+  <view class="block">
+    <text class="block-title">计时方式</text>
+    <view class="modes">
+      <view
+        class="mode {{form.mode === 'countdown' ? 'mode-on' : ''}}"
+        data-mode="countdown"
+        bindtap="onMode"
+      >
+        <text class="mode-emoji">⏳</text>
+        <text class="mode-name">倒计时</text>
+        <text class="mode-desc">越用越近到期</text>
+      </view>
+      <view
+        class="mode {{form.mode === 'countup' ? 'mode-on' : ''}}"
+        data-mode="countup"
+        bindtap="onMode"
+      >
+        <text class="mode-emoji">🌱</text>
+        <text class="mode-name">正计时</text>
+        <text class="mode-desc">越久越该处理</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 记录类型（仅正计时可选） -->
+  <view class="block" wx:if="{{showKind}}">
+    <text class="block-title">记录什么</text>
+    <view class="modes">
+      <view
+        class="mode {{kind === 'item' ? 'mode-on' : ''}}"
+        data-kind="item"
+        bindtap="onKind"
+      >
+        <text class="mode-emoji">📦</text>
+        <text class="mode-name">物品</text>
+        <text class="mode-desc">床单、牙刷、滤芯…</text>
+      </view>
+      <view
+        class="mode {{kind === 'event' ? 'mode-on' : ''}}"
+        data-kind="event"
+        bindtap="onKind"
+      >
+        <text class="mode-emoji">🗓️</text>
+        <text class="mode-name">事件</text>
+        <text class="mode-desc">洗澡、吃火锅…</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类（随物品 / 事件变化） -->
   <view class="card">
     <view class="field field-col">
       <text class="flabel">分类</text>
@@ -66,222 +116,254 @@
     </view>
   </view>
 
-  <!-- 计时模式 -->
-  <view class="block">
-    <text class="block-title">计时方式</text>
-    <view class="modes">
-      <view
-        class="mode {{form.mode === 'countdown' ? 'mode-on' : ''}}"
-        data-mode="countdown"
-        bindtap="onMode"
-      >
-        <text class="mode-emoji">⏳</text>
-        <text class="mode-name">倒计时</text>
-        <text class="mode-desc">有保质期，还剩多久</text>
-      </view>
-      <view
-        class="mode {{form.mode === 'countup' ? 'mode-on' : ''}}"
-        data-mode="countup"
-        bindtap="onMode"
-      >
-        <text class="mode-emoji">🌱</text>
-        <text class="mode-name">正计时</text>
-        <text class="mode-desc">距上次处理已多久</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 倒计时字段 -->
-  <view class="card" wx:if="{{form.mode === 'countdown'}}">
-    <view class="switch-row">
-      <view>
-        <text class="flabel">直接填写到期日</text>
-        <text class="fhint">包装上只印了到期日时打开</text>
-      </view>
-      <switch
-        checked="{{form.expireManual}}"
-        bindchange="onExpireManual"
-        color="#3F8A6B"
-      />
-    </view>
-
-    <view wx:if="{{form.expireManual}}">
-      <view class="field">
-        <text class="flabel">到期日</text>
-        <picker
-          mode="date"
-          value="{{form.expireDate}}"
-          start="2000-01-01"
-          end="2040-12-31"
-          data-field="expireDate"
-          bindchange="onDate"
-        >
-          <view class="fvalue">{{form.expireDate || '请选择'}}</view>
-        </picker>
-      </view>
-    </view>
-
-    <view wx:else>
-      <view class="field">
-        <text class="flabel">生产日期</text>
-        <picker
-          mode="date"
-          value="{{form.produceDate}}"
-          start="2000-01-01"
-          end="2040-12-31"
-          data-field="produceDate"
-          bindchange="onDate"
-        >
-          <view class="fvalue">{{form.produceDate || '请选择'}}</view>
-        </picker>
+  <!-- ============ 倒计时：保质期信息 ============ -->
+  <view class="block" wx:if="{{form.mode === 'countdown'}}">
+    <text class="block-title">保质期信息</text>
+    <view class="card">
+      <view class="switch-row">
+        <view>
+          <text class="flabel">直接填写到期日</text>
+          <text class="fhint">包装上只印了到期日时打开</text>
+        </view>
+        <switch
+          checked="{{form.expireManual}}"
+          bindchange="onExpireManual"
+          color="#3F8A6B"
+        />
       </view>
 
-      <view class="field field-col">
-        <text class="flabel">保质期</text>
-        <view class="life-row">
-          <input
-            class="finput life-input"
-            type="digit"
-            value="{{form.shelfLife}}"
-            data-field="shelfLife"
-            bindinput="onInput"
-            placeholder="0"
-            placeholder-class="fph"
-            maxlength="4"
-          />
-          <view class="seg">
-            <view
-              class="seg-item {{form.shelfLifeUnit === item.key ? 'seg-on' : ''}}"
-              wx:for="{{units}}"
-              wx:key="key"
-              data-key="{{item.key}}"
-              bindtap="onUnitTap"
-            >{{item.name}}</view>
+      <view wx:if="{{form.expireManual}}">
+        <view class="field">
+          <text class="flabel">到期日</text>
+          <picker
+            mode="date"
+            value="{{form.expireDate}}"
+            start="2000-01-01"
+            end="2040-12-31"
+            data-field="expireDate"
+            bindchange="onDate"
+          >
+            <view class="fvalue">{{form.expireDate || '请选择'}}</view>
+          </picker>
+        </view>
+      </view>
+
+      <view wx:else>
+        <view class="field">
+          <text class="flabel">生产日期</text>
+          <picker
+            mode="date"
+            value="{{form.produceDate}}"
+            start="2000-01-01"
+            end="2040-12-31"
+            data-field="produceDate"
+            bindchange="onDate"
+          >
+            <view class="fvalue">{{form.produceDate || '请选择'}}</view>
+          </picker>
+        </view>
+
+        <view class="field field-col">
+          <text class="flabel">保质期</text>
+          <view class="life-row">
+            <input
+              class="finput life-input"
+              type="digit"
+              value="{{form.shelfLife}}"
+              data-field="shelfLife"
+              bindinput="onInput"
+              placeholder="0"
+              placeholder-class="fph"
+              maxlength="4"
+            />
+            <view class="seg">
+              <view
+                class="seg-item {{form.shelfLifeUnit === item.key ? 'seg-on' : ''}}"
+                wx:for="{{units}}"
+                wx:key="key"
+                data-key="{{item.key}}"
+                bindtap="onUnitTap"
+              >{{item.name}}</view>
+            </view>
           </view>
         </view>
       </view>
-    </view>
 
-    <view wx:if="{{expirePreview}}" class="preview">
-      <text class="preview-label">到期日</text>
-      <text class="preview-value">{{expirePreview}}</text>
+      <view wx:if="{{expirePreview}}" class="preview">
+        <text class="preview-label">到期日</text>
+        <text class="preview-value">{{expirePreview}}</text>
+      </view>
     </view>
   </view>
 
-  <!-- 正计时字段 -->
-  <view class="card" wx:else>
-    <view class="field">
-      <text class="flabel">上次处理日期</text>
-      <picker
-        mode="date"
-        value="{{form.lastDate}}"
-        start="2000-01-01"
-        end="2040-12-31"
-        data-field="lastDate"
-        bindchange="onDate"
-      >
-        <view class="fvalue">{{form.lastDate || '请选择'}}</view>
-      </picker>
-    </view>
+  <!-- ============ 正计时：时间记录 / 循环间隔 ============ -->
+  <view class="block" wx:else>
+    <text class="block-title">{{ktPeriodWord}}</text>
+    <view class="card">
+      <!-- 语义引导 -->
+      <view class="tip-line">
+        <text class="tip-emoji">🌿</text>
+        <text class="tip-text">{{ktTip}}</text>
+      </view>
 
-    <view class="field field-col">
-      <text class="flabel">建议周期（天）</text>
-      <input
-        class="finput"
-        type="number"
-        value="{{form.cycleDays}}"
-        data-field="cycleDays"
-        bindinput="onInput"
-        placeholder="例如：14"
-        placeholder-class="fph"
-        maxlength="4"
-      />
-      <view class="quick-row">
-        <view
-          class="quick {{form.cycleDays == item ? 'quick-on' : ''}}"
-          wx:for="{{cycleOptions}}"
-          wx:key="*this"
-          data-days="{{item}}"
-          bindtap="onCycleQuick"
-        >{{item}}天</view>
+      <view class="field">
+        <text class="flabel">{{ktLastLabel}}</text>
+        <picker
+          mode="date"
+          value="{{form.lastDate}}"
+          start="2000-01-01"
+          end="2040-12-31"
+          data-field="lastDate"
+          bindchange="onDate"
+        >
+          <view class="fvalue">{{form.lastDate || '请选择'}}</view>
+        </picker>
+      </view>
+
+      <!-- 事件：循环间隔为可选项，关闭即「只记录时间」 -->
+      <view wx:if="{{isEvent}}" class="field field-switch">
+        <view class="sw-main">
+          <text class="flabel">{{ktCycleSwitch}}</text>
+          <text class="fhint">{{ktCycleSwitchHint}}</text>
+        </view>
+        <switch
+          checked="{{cycleEnabled}}"
+          bindchange="onCycleToggle"
+          color="#3F8A6B"
+        />
+      </view>
+
+      <!-- 循环间隔（事件关闭时整块隐藏） -->
+      <block wx:if="{{!isEvent || cycleEnabled}}">
+        <view class="field field-col">
+          <text class="flabel">{{ktCycleLabel}}</text>
+          <input
+            class="finput"
+            type="number"
+            value="{{form.cycleDays}}"
+            data-field="cycleDays"
+            bindinput="onInput"
+            placeholder="例如：14"
+            placeholder-class="fph"
+            maxlength="4"
+          />
+          <view class="quick-row">
+            <view
+              class="quick {{form.cycleDays == item ? 'quick-on' : ''}}"
+              wx:for="{{cycleOptions}}"
+              wx:key="*this"
+              data-days="{{item}}"
+              bindtap="onCycleQuick"
+            >{{item}}天</view>
+          </view>
+        </view>
+
+        <view wx:if="{{cyclePreview}}" class="preview">
+          <text class="preview-label">{{ktNextLabel}}</text>
+          <text class="preview-value">{{cyclePreview}}</text>
+        </view>
+      </block>
+
+      <!-- 纯记录：不设循环间隔的说明 -->
+      <view wx:else class="open-line">
+        <text class="open-emoji">🕊️</text>
+        <text class="open-text">{{ktCycleOff}}</text>
+      </view>
+
+      <!-- 详细计时：开启后显示 年/月/日/时 细分 -->
+      <view class="field field-switch">
+        <view class="sw-main">
+          <text class="flabel">详细计时</text>
+          <text class="fhint">显示「1年2个月3天5小时」这样的细分时长</text>
+        </view>
+        <switch
+          checked="{{form.detailTiming}}"
+          bindchange="onDetailTiming"
+          color="#3F8A6B"
+        />
       </view>
     </view>
   </view>
 
   <!-- 其他信息 -->
-  <view class="card">
-    <view class="field field-col">
-      <text class="flabel">提前提醒</text>
-      <view class="quick-row">
-        <view
-          class="quick {{form.remindDays == item ? 'quick-on' : ''}}"
-          wx:for="{{remindOptions}}"
-          wx:key="*this"
-          data-days="{{item}}"
-          bindtap="onRemindQuick"
-        >{{item}}天</view>
+  <view class="block">
+    <text class="block-title">{{isCountUp ? '提醒与备注' : '其他信息'}}</text>
+    <view class="card">
+      <!-- 提前提醒只对「有循环间隔」的记录有意义 -->
+      <view wx:if="{{!isEvent || cycleEnabled}}" class="field field-col">
+        <text class="flabel">提前提醒</text>
+        <view class="quick-row">
+          <view
+            class="quick {{form.remindDays == item ? 'quick-on' : ''}}"
+            wx:for="{{remindOptions}}"
+            wx:key="*this"
+            data-days="{{item}}"
+            bindtap="onRemindQuick"
+          >{{item}}天</view>
+        </view>
       </view>
-    </view>
 
-    <view class="field">
-      <text class="flabel">数量</text>
-      <view class="qty-row">
+      <!-- 数量与存放位置只对倒计时有意义，正计时隐藏 -->
+      <view wx:if="{{!isCountUp}}" class="field">
+        <text class="flabel">数量</text>
+        <view class="qty-row">
+          <input
+            class="finput qty-input"
+            type="number"
+            value="{{form.quantity}}"
+            data-field="quantity"
+            bindinput="onInput"
+            placeholder="1"
+            placeholder-class="fph"
+            maxlength="3"
+          />
+          <input
+            class="finput unit-input"
+            value="{{form.unit}}"
+            data-field="unit"
+            bindinput="onInput"
+            placeholder="份"
+            placeholder-class="fph"
+            maxlength="4"
+          />
+        </view>
+      </view>
+
+      <view wx:if="{{!isCountUp}}" class="field">
+        <text class="flabel">存放位置</text>
         <input
-          class="finput qty-input"
-          type="number"
-          value="{{form.quantity}}"
-          data-field="quantity"
+          class="finput"
+          value="{{form.location}}"
+          data-field="location"
           bindinput="onInput"
-          placeholder="1"
+          placeholder="例如：冰箱冷藏"
           placeholder-class="fph"
-          maxlength="3"
-        />
-        <input
-          class="finput unit-input"
-          value="{{form.unit}}"
-          data-field="unit"
-          bindinput="onInput"
-          placeholder="份"
-          placeholder-class="fph"
-          maxlength="4"
+          maxlength="16"
         />
       </view>
-    </view>
 
-    <view class="field">
-      <text class="flabel">存放位置</text>
-      <input
-        class="finput"
-        value="{{form.location}}"
-        data-field="location"
-        bindinput="onInput"
-        placeholder="例如：冰箱冷藏"
-        placeholder-class="fph"
-        maxlength="16"
-      />
-    </view>
-
-    <view class="field field-col">
-      <text class="flabel">备注</text>
-      <textarea
-        class="ftextarea"
-        value="{{form.remark}}"
-        bindinput="onRemarkInput"
-        placeholder="补充说明（可选）"
-        placeholder-class="fph"
-        maxlength="100"
-        auto-height
-      />
+      <view class="field field-col">
+        <text class="flabel">备注</text>
+        <textarea
+          class="ftextarea"
+          value="{{form.remark}}"
+          bindinput="onRemarkInput"
+          placeholder="补充说明（可选）"
+          placeholder-class="fph"
+          maxlength="100"
+          auto-height
+        />
+      </view>
     </view>
   </view>
 
   <!-- 提交 -->
   <view class="submit-area">
     <view class="btn btn-primary" bindtap="onSave" hover-class="btn-hover" hover-stay-time="80">
-      {{isEdit ? '保存修改' : '添加物品'}}
+      {{isEdit ? '保存修改' : ktSubmitNew}}
     </view>
     <view wx:if="{{isEdit}}" class="btn btn-danger-text" bindtap="onDelete" hover-class="btn-hover" hover-stay-time="80">
-      删除这件物品
+      删除这条记录
     </view>
   </view>
 

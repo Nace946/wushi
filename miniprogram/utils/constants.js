@@ -5,18 +5,117 @@
 // 计时模式
 const MODE = {
   COUNTDOWN: 'countdown', // 倒计时：有保质期，越用越少（食品/药品/化妆品）
-  COUNTUP: 'countup' // 正计时：距上次换洗/更换多久，越久越该处理（日用品/耗材）
+  COUNTUP: 'countup' // 正计时：距上次发生多久，越久越该处理（物品换洗 / 生活事件）
+}
+
+// 记录类型：物品（有实体的东西）/ 事件（发生在自己身上的事）
+const KIND = {
+  ITEM: 'item',
+  EVENT: 'event'
 }
 
 // 物品分类
 const CATEGORIES = [
-  { key: 'food', name: '食品', icon: '🥛', mode: MODE.COUNTDOWN },
-  { key: 'medicine', name: '药品', icon: '💊', mode: MODE.COUNTDOWN },
-  { key: 'cosmetic', name: '化妆品', icon: '🧴', mode: MODE.COUNTDOWN },
-  { key: 'daily', name: '日用品', icon: '🧺', mode: MODE.COUNTUP },
-  { key: 'appliance', name: '家电耗材', icon: '🔌', mode: MODE.COUNTUP },
-  { key: 'other', name: '其他', icon: '📦', mode: MODE.COUNTDOWN }
+  { key: 'food', name: '食品', icon: '🥛', mode: MODE.COUNTDOWN, kind: KIND.ITEM },
+  { key: 'medicine', name: '药品', icon: '💊', mode: MODE.COUNTDOWN, kind: KIND.ITEM },
+  { key: 'cosmetic', name: '化妆品', icon: '🧴', mode: MODE.COUNTDOWN, kind: KIND.ITEM },
+  { key: 'daily', name: '日用品', icon: '🧺', mode: MODE.COUNTUP, kind: KIND.ITEM },
+  { key: 'appliance', name: '家电耗材', icon: '🔌', mode: MODE.COUNTUP, kind: KIND.ITEM },
+  { key: 'other', name: '其他', icon: '📦', mode: MODE.COUNTDOWN, kind: KIND.ITEM }
 ]
+
+/**
+ * 事件分类（仅正计时）：围绕「距离上次做某事多久」的生活场景
+ * 洗澡、上厕所、距离上次吃火锅……这些都不是"物品"，而是一次次发生的事
+ */
+const EVENT_CATEGORIES = [
+  { key: 'life', name: '生活起居', icon: '🛁', mode: MODE.COUNTUP, kind: KIND.EVENT },
+  { key: 'food', name: '美食', icon: '🍜', mode: MODE.COUNTUP, kind: KIND.EVENT },
+  { key: 'health', name: '健康', icon: '💪', mode: MODE.COUNTUP, kind: KIND.EVENT },
+  { key: 'house', name: '家务', icon: '🧹', mode: MODE.COUNTUP, kind: KIND.EVENT },
+  { key: 'other', name: '其他', icon: '📌', mode: MODE.COUNTUP, kind: KIND.EVENT }
+]
+
+/**
+ * 按记录类型区分的文案：物品说"更换/清洗"，事件说"发生/再来一次"
+ * 页面统一从这里取词，避免同一句话在物品和事件上读起来别扭
+ */
+const KIND_TEXT = {
+  item: {
+    tag: '物品',
+    lastLabel: '上次更换 / 清洗',
+    cycleLabel: '建议更换周期（天）',
+    nextLabel: '下次建议更换',
+    lastShort: '上次更换',
+    cycleShort: '建议周期',
+    nextShort: '下次建议',
+    presetTitle: '快速开始 · 常见物品',
+    nameLabel: '物品名称',
+    namePlaceholder: '例如：鲜牛奶',
+    submitNew: '开始计时',
+    countUnit: '件',
+    orderWord: '件',
+    resetBtn: '我刚处理过，重新开始计时',
+    resetModalTitle: '记录一次处理',
+    resetModal: n => '将「' + n + '」的上次处理时间更新为今天，计时重新开始。',
+    resetToast: '已重新开始计时',
+    resetBtnShort: '已重新开始计时',
+    periodWord: '使用周期',
+    tip: '记下上次更换的时间，之后由它自己数着走，到了周期会提醒你。',
+    countSteps: [7, 14, 21, 30, 60, 90, 180, 365],
+    subOver: n => '建议更换时间已过 ' + n + ' 天',
+    subDue: '已到建议周期，建议今天处理',
+    subSoon: d => '建议 ' + d + ' 前更换'
+  },
+  event: {
+    tag: '事件',
+    lastLabel: '上次发生',
+    cycleLabel: '循环间隔（天）',
+    nextLabel: '下次提醒',
+    lastShort: '上次发生',
+    cycleShort: '循环间隔',
+    nextShort: '下次提醒',
+    presetTitle: '快速开始 · 常见事件',
+    nameLabel: '事件名称',
+    namePlaceholder: '例如：洗澡、吃火锅',
+    submitNew: '开始记录',
+    countUnit: '条',
+    orderWord: '条',
+    resetBtn: '刚刚做过，重新计时',
+    resetModalTitle: '记录一次发生',
+    resetModal: n => '将「' + n + '」的上次发生时间更新为今天，重新计时。',
+    resetToast: '已重新计时',
+    resetBtnShort: '已重新计时',
+    periodWord: '记录方式',
+    tip: '记下这件事上次发生的时间，之后由它自己数着走。',
+    // —— 循环间隔（可选）：不设置时按「纯记录」处理 ——
+    cycleSwitchLabel: '设置循环间隔',
+    cycleSwitchHint: '关闭则只记录时间，不做提醒',
+    cycleOffText: '只记录「距离上次多久」，不会提醒你',
+    cycleOffShort: '不循环（仅记录）',
+    countSteps: [1, 2, 3, 5, 7, 14, 30],
+    subOver: n => '已经超过循环间隔 ' + n + ' 天',
+    subDue: '已到循环间隔，可以再来一次',
+    subSoon: d => '大约 ' + d + ' 后再来一次'
+  }
+}
+
+/**
+ * 「纯记录」事件档位：不设循环间隔时，按已经过去多少天给出说法
+ * 语义从「还剩多久」换成「有多久没做了」，因此不参与进度条计算
+ */
+const OPEN_LEVELS = [
+  { status: 'normal', maxDays: 0, label: '刚刚做完', color: '#3F8A6B', soft: '#DCEFE4', sub: '就是今天，不用惦记' },
+  { status: 'normal', maxDays: 3, label: '才做过不久', color: '#3F8A6B', soft: '#DCEFE4', sub: '刚做过不久，安心' },
+  { status: 'soon', maxDays: 14, label: '有一阵没做了', color: '#D18C2A', soft: '#FBEBD3', sub: '有一阵子了，想起来就做一下' },
+  { status: 'urgent', maxDays: 45, label: '很久没做了', color: '#D4553C', soft: '#FCE0D8', sub: '确实挺久了，要不要安排一下' },
+  { status: 'over', maxDays: 999999, label: '快忘记了', color: '#7C7C76', soft: '#E9E4D9', sub: '太久没做，小心彻底忘掉' }
+]
+
+/** 取某类型的文案，缺省按物品处理 */
+function kindText(kind) {
+  return KIND_TEXT[kind === KIND.EVENT ? 'event' : 'item']
+}
 
 // 状态定义（四档，颜色柔和，降低焦虑感）
 const STATUS = {
@@ -94,6 +193,45 @@ const PRESETS = [
 ]
 
 /**
+ * 事件预设：一键填入「日常会发生的事」，周期为常见经验值，可自行修改
+ * 对应需求里的洗澡、如厕、距离上次吃某样美食等场景
+ */
+const EVENT_PRESETS = [
+  // —— 生活起居 ——
+  { name: '洗澡', category: 'life', icon: '🛁', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 2, remindDays: 1 },
+  { name: '洗头', category: 'life', icon: '🧴', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 3, remindDays: 1 },
+  { name: '泡脚', category: 'life', icon: '🦶', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
+  { name: '喝水', category: 'life', icon: '💧', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
+  { name: '剪指甲', category: 'life', icon: '✂️', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 10, remindDays: 2 },
+  { name: '敷面膜', category: 'life', icon: '🎭', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 3, remindDays: 1 },
+  // —— 美食 ——
+  { name: '吃火锅', category: 'food', icon: '🍲', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
+  { name: '吃烧烤', category: 'food', icon: '🍢', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
+  { name: '喝奶茶', category: 'food', icon: '🧋', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
+  { name: '吃蛋糕', category: 'food', icon: '🍰', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 15, remindDays: 3 },
+  { name: '吃炸鸡', category: 'food', icon: '🍗', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 21, remindDays: 5 },
+  // —— 健康 ——
+  { name: '运动', category: 'health', icon: '🏃', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 2, remindDays: 1 },
+  { name: '体检', category: 'health', icon: '🩺', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 365, remindDays: 30 },
+  { name: '洗牙', category: 'health', icon: '🦷', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 180, remindDays: 15 },
+  { name: '量血压', category: 'health', icon: '🩸', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
+  { name: '早睡', category: 'health', icon: '🛌', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
+  // —— 家务 ——
+  { name: '拖地', category: 'house', icon: '🧹', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
+  { name: '浇花', category: 'house', icon: '🪴', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 5, remindDays: 1 },
+  { name: '遛狗', category: 'house', icon: '🐕', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
+  { name: '擦窗户', category: 'house', icon: '🪟', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
+  { name: '清理冰箱', category: 'house', icon: '🧊', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
+  // —— 其他 ——
+  { name: '联系家人', category: 'other', icon: '📞', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
+  { name: '写日记', category: 'other', icon: '✏️', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 3, remindDays: 1 },
+  { name: '看书', category: 'other', icon: '📚', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
+  // —— 纯记录型：不设循环间隔，只留一个「距离上次多久」的时间痕迹 ——
+  { name: '理发', category: 'life', icon: '💇', mode: MODE.COUNTUP, kind: KIND.EVENT, remindDays: 0 },
+  { name: '吃大餐', category: 'food', icon: '🍽️', mode: MODE.COUNTUP, kind: KIND.EVENT, remindDays: 0 }
+]
+
+/**
  * 图标库：按分类分组，点击图标区弹出面板选择（类似微信选表情）
  * 仅收录系统支持较广的常见 emoji
  */
@@ -136,6 +274,17 @@ const EMOJI_GROUPS = [
 ]
 
 /**
+ * 事件图标库：按事件分类分组，选中事件类型时使用
+ */
+const EVENT_EMOJI_GROUPS = [
+  { key: 'life', name: '生活', icons: ['🛁', '🚿', '🦶', '💧', '✂️', '💇', '🪥', '🧼', '🛌', '🎭', '🚽', '🧴', '👕'] },
+  { key: 'food', name: '美食', icons: ['🍲', '🍢', '🧋', '🍰', '🍗', '🍜', '🍕', '🍔', '🍦', '🍺', '🥘', '🍤'] },
+  { key: 'health', name: '健康', icons: ['💪', '🏃', '🩺', '🦷', '🩸', '🧘', '🚴', '🏊', '🧠', '👁️', '😷', '🌡️'] },
+  { key: 'house', name: '家务', icons: ['🧹', '🪴', '🐕', '🪟', '🧊', '🧺', '🛋️', '🧽', '🪣', '🧯', '🍽️', '🚪'] },
+  { key: 'other', name: '其他', icons: ['📌', '📞', '✏️', '📚', '🎯', '🎵', '🎨', '🧩', '☀️', '🌙', '🎮', '💌'] }
+]
+
+/**
  * 首页每日一句：舒缓治愈风格，贴合"记住物品时间"的定位
  * 进入首页时随机取一条，避免与上一条重复
  */
@@ -173,14 +322,21 @@ const SORT_OPTIONS = [
 
 module.exports = {
   MODE,
+  KIND,
   CATEGORIES,
+  EVENT_CATEGORIES,
+  KIND_TEXT,
+  kindText,
+  OPEN_LEVELS,
   STATUS,
   STATUS_META,
   STATUS_META_UP,
   SHELF_UNITS,
   QUANTITY_UNITS,
   PRESETS,
+  EVENT_PRESETS,
   EMOJI_GROUPS,
+  EVENT_EMOJI_GROUPS,
   SLOGANS,
   SORT_OPTIONS
 }

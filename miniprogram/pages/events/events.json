@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "item-card": "/components/item-card/index",
+    "empty-state": "/components/empty-state/index"
+  },
+  "navigationBarTitleText": "事件",
+  "enablePullDownRefresh": true
+}

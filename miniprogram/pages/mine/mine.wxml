@@ -6,7 +6,7 @@
       <text class="hero-emoji">🌿</text>
       <text class="hero-name">物时</text>
     </view>
-    <text class="hero-desc">记住每件物品的保质期与更换周期</text>
+    <text class="hero-desc">记住物品的保质期，也记住每件事的间隔</text>
   </view>
 
   <!-- 统计 -->
@@ -14,19 +14,19 @@
     <view class="stat-row">
       <view class="stat">
         <text class="stat-num">{{total}}</text>
-        <text class="stat-name">全部物品</text>
+        <text class="stat-name">全部记录</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{itemCount}}</text>
+        <text class="stat-name">物品</text>
+      </view>
+      <view class="stat">
+        <text class="stat-num">{{eventCount}}</text>
+        <text class="stat-name">事件</text>
       </view>
       <view class="stat">
         <text class="stat-num">{{attentionCount}}</text>
         <text class="stat-name">需要关注</text>
-      </view>
-      <view class="stat">
-        <text class="stat-num">{{countdownCount}}</text>
-        <text class="stat-name">倒计时</text>
-      </view>
-      <view class="stat">
-        <text class="stat-num">{{countupCount}}</text>
-        <text class="stat-name">正计时</text>
       </view>
     </view>
   </view>
@@ -65,7 +65,7 @@
         <text class="cell-value">›</text>
       </view>
       <view class="cell cell-last" bindtap="onAdd" hover-class="cell-hover" hover-stay-time="60">
-        <text class="cell-label">添加新物品</text>
+        <text class="cell-label">添加新记录</text>
         <text class="cell-value">›</text>
       </view>
     </view>

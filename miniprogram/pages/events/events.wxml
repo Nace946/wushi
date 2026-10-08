@@ -1,0 +1,89 @@
+<view class="page">
+
+  <!-- 筛选区（吸顶） -->
+  <view class="filters">
+    <view class="search">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        value="{{keyword}}"
+        placeholder="搜索事件名称"
+        placeholder-class="search-ph"
+        bindinput="onSearch"
+        confirm-type="search"
+        maxlength="20"
+      />
+      <text wx:if="{{keyword}}" class="search-clear" bindtap="clearSearch">✕</text>
+    </view>
+
+    <scroll-view scroll-x class="tabs" show-scrollbar="{{false}}">
+      <view class="tabs-inner">
+        <view
+          class="tab {{activeCategory === item.key ? 'tab-on' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="key"
+          data-key="{{item.key}}"
+          bindtap="onCategory"
+        >{{item.name}}<text wx:if="{{item.count}}" class="tab-count">{{item.count}}</text></view>
+      </view>
+    </scroll-view>
+
+    <view class="chips-row">
+      <scroll-view scroll-x class="chips-scroll" show-scrollbar="{{false}}">
+        <view class="chips-inner">
+          <view
+            class="fchip {{activeStatus === item.key ? 'fchip-on' : ''}}"
+            wx:for="{{statuses}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="onStatus"
+          >{{item.name}}</view>
+        </view>
+      </scroll-view>
+      <view class="fchip fchip-sort" bindtap="onSort">
+        <text class="sort-icon">⇅</text>
+        <text>排序</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 列表 -->
+  <view class="list">
+    <item-card
+      wx:for="{{list}}"
+      wx:key="id"
+      item="{{item}}"
+      bind:tap="onCardTap"
+      bind:longpress="onCardLongPress"
+      bind:reset="onResetCard"
+      class="card-item"
+    />
+  </view>
+
+  <view wx:if="{{list.length === 0}}" class="card empty-wrap">
+    <empty-state
+      wx:if="{{total === 0}}"
+      emoji="🗓️"
+      text="还没有记录的事件"
+      subText="记录「距离上次…多久了」，比如洗澡、吃火锅"
+      buttonText="添加事件"
+      bind:action="onAdd"
+    />
+    <empty-state
+      wx:else
+      emoji="🍃"
+      text="没有符合条件的事件"
+      subText="{{filteredTip}}"
+    />
+  </view>
+
+  <view wx:if="{{list.length > 0}}" class="list-foot">
+    <text>共 {{list.length}} 条</text>
+  </view>
+
+  <!-- 悬浮添加 -->
+  <view class="fab" bindtap="onAdd" hover-class="fab-hover" hover-stay-time="80">
+    <text class="fab-plus">+</text>
+  </view>
+
+</view>

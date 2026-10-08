@@ -1,13 +1,13 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
-const { SORT_OPTIONS } = require('../../utils/constants')
+const { SORT_OPTIONS, KIND } = require('../../utils/constants')
 
 Page({
   data: {
     version: '1.0.0',
     total: 0,
-    countdownCount: 0,
-    countupCount: 0,
+    itemCount: 0,
+    eventCount: 0,
     attentionCount: 0,
     sortName: '最紧急优先',
     sortKey: 'urgent',
@@ -26,8 +26,8 @@ Page({
 
     this.setData({
       total: list.length,
-      countdownCount: list.filter(i => i.mode === 'countdown').length,
-      countupCount: list.filter(i => i.mode === 'countup').length,
+      itemCount: list.filter(i => i.kind !== KIND.EVENT).length,
+      eventCount: list.filter(i => i.kind === KIND.EVENT).length,
       attentionCount: list.filter(i => i._state.status !== 'normal').length,
       sortKey: settings.sortKey,
       sortName: opt.name,
@@ -76,7 +76,7 @@ Page({
       return
     }
     wx.showModal({
-      title: '清空所有物品',
+      title: '清空所有数据',
       content: '将删除本机保存的全部 ' + this.data.total + ' 条记录，且无法恢复。建议先确认无需保留。',
       confirmColor: '#D4553C',
       success: res => {

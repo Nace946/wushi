@@ -2,7 +2,7 @@
 
   <view class="lead">
     <text class="lead-title">物时怎么用</text>
-    <text class="lead-desc">两个计时模式，覆盖大部分生活物品。选对模式，剩下的交给物时。</text>
+    <text class="lead-desc">两个计时模式，覆盖物品与生活事件。选对模式，剩下的交给物时。</text>
   </view>
 
   <!-- 两种模式 -->
@@ -46,7 +46,7 @@
   </view>
 
   <view class="cta">
-    <view class="btn" bindtap="onAdd" hover-class="btn-hover" hover-stay-time="80">添加第一件物品</view>
+    <view class="btn" bindtap="onAdd" hover-class="btn-hover" hover-stay-time="80">添加第一条记录</view>
   </view>
 
 </view>

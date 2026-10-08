@@ -3,6 +3,8 @@
  * 全部按「自然日」计算，使用 UTC 时间戳避免时区/夏令时误差
  */
 
+const { kindText, OPEN_LEVELS } = require('./constants')
+
 const DAY = 86400000
 
 function pad(n) {
@@ -110,6 +112,57 @@ function clamp01(v) {
 }
 
 /**
+ * 把「上次处理日期（当天 0 点）」到现在的时长拆成 年 / 月 / 日 / 时
+ * 为 0 的段不显示，例如：3个月5天、1年2个月、2天6小时
+ */
+function formatDuration(startDate, now) {
+  if (!startDate) return ''
+  const s = new Date(String(startDate).slice(0, 10) + 'T00:00:00')
+  if (isNaN(s.getTime())) return ''
+  const n = now || new Date()
+  if (n.getTime() < s.getTime()) return ''
+
+  let years = n.getFullYear() - s.getFullYear()
+  let months = n.getMonth() - s.getMonth()
+  let days = n.getDate() - s.getDate()
+
+  // 天数不够时向上借一个月
+  if (days < 0) {
+    months -= 1
+    const prevMonthLast = new Date(n.getFullYear(), n.getMonth(), 0).getDate()
+    days += prevMonthLast
+  }
+  if (months < 0) {
+    years -= 1
+    months += 12
+  }
+
+  // 天已按整天计，不足一天的部分即今天的小时数
+  const hours = n.getHours()
+
+  const parts = []
+  if (years) parts.push(years + '年')
+  if (months) parts.push(months + '个月')
+  if (days) parts.push(days + '天')
+  if (hours) parts.push(hours + '小时')
+
+  if (!parts.length) return '不足 1 小时'
+  return parts.join('')
+}
+
+/**
+ * 「纯记录」档位：不设循环间隔时，按已过去天数取一档说法
+ * @param {Number} days 距上次发生的天数
+ */
+function pickOpenLevel(days) {
+  const d = Math.max(0, Number(days) || 0)
+  for (let i = 0; i < OPEN_LEVELS.length; i++) {
+    if (d <= OPEN_LEVELS[i].maxDays) return OPEN_LEVELS[i]
+  }
+  return OPEN_LEVELS[OPEN_LEVELS.length - 1]
+}
+
+/**
  * 计算单个物品的运行状态
  * @param {Object} item 物品对象
  * @returns {Object} state
@@ -124,10 +177,12 @@ function getItemState(item) {
     remainDays: 0, // 还可处理的剩余天数（倒计时=距过期；正计时=距建议更换）
     usedDays: 0,
     percent: 0, // 进度环填充比例 0~1
+    hasProgress: true, // 是否显示进度条/进度环（纯记录型事件为 false）
     mainValue: '0',
     mainUnit: '天',
     mainLabel: '剩余',
     subText: '',
+    detailText: '', // 正计时且开启「详细计时」时的 年/月/日/时 细分
     targetDate: ''
   }
 
@@ -136,16 +191,47 @@ function getItemState(item) {
   const remind = Number(item.remindDays) || 7
 
   if (item.mode === 'countup') {
-    // —— 正计时：距上次换洗/更换已过去多久 ——
-    const cycle = Number(item.cycleDays) || 30
-    const used = diffDays(item.lastDate, t)
+    // —— 正计时：距上次换洗/更换 / 上次发生某事已过去多久 ——
+    const kt = kindText(item.kind)
+    const cycle = Number(item.cycleDays) || 0
+    const used = Math.max(0, diffDays(item.lastDate, t))
+    // 详细时长：用户开启「详细计时」时给出 年/月/日/时 细分
+    const detailText = item.detailTiming ? formatDuration(item.lastDate) : ''
+
+    if (cycle <= 0) {
+      // —— 纯记录：没有循环间隔，只是一直数着「距离上次多久」 ——
+      const lv = pickOpenLevel(used)
+      return Object.assign(base, {
+        status: lv.status,
+        statusLabel: lv.label,
+        color: lv.color,
+        soft: lv.soft,
+        remainDays: -used, // 越久没做排得越前
+        usedDays: used,
+        percent: 0,
+        hasProgress: false, // 取消进度条
+        mainValue: String(used),
+        mainUnit: '天',
+        mainLabel: '已过去',
+        subText: lv.sub,
+        detailText: detailText,
+        targetDate: '',
+        nextLabel: kt.nextLabel
+      })
+    }
+
     const remain = cycle - used
     const nextDate = addDays(item.lastDate, cycle)
 
+    // 阈值随周期缩放：周期只有 1~2 天时，固定的「3 天」会把刚做完的事判成紧急
+    // 周期 ≥ 7 天时保持原有口径（3 天以内紧急），短周期按比例收紧
+    const urgentDays = cycle >= 7 ? 3 : Math.floor(cycle * 0.25)
+    const soonDays = Math.max(urgentDays, Math.min(remind, Math.floor(cycle / 2)))
+
     let status = 'normal'
     if (remain < 0) status = 'over'
-    else if (remain <= 3) status = 'urgent'
-    else if (remain <= remind) status = 'soon'
+    else if (remain <= urgentDays) status = 'urgent'
+    else if (remain <= soonDays) status = 'soon'
 
     const meta = {
       normal: { label: '正常', color: '#3F8A6B', soft: '#DCEFE4' },
@@ -162,16 +248,19 @@ function getItemState(item) {
       remainDays: remain,
       usedDays: used,
       percent: clamp01(cycle > 0 ? used / cycle : 0),
+      hasProgress: true,
       mainValue: String(used),
       mainUnit: '天',
-      mainLabel: '已使用',
+      mainLabel: '已过去',
       subText:
         remain < 0
-          ? '建议更换时间已过 ' + Math.abs(remain) + ' 天'
+          ? kt.subOver(Math.abs(remain))
           : remain === 0
-            ? '已到建议周期，建议今天处理'
-            : '建议 ' + formatCN(nextDate) + ' 前更换',
-      targetDate: nextDate
+            ? kt.subDue
+            : kt.subSoon(formatCN(nextDate)),
+      detailText: detailText,
+      targetDate: nextDate,
+      nextLabel: kt.nextLabel
     })
   }
 
@@ -236,6 +325,7 @@ function sortItems(list, sortKey) {
 }
 
 module.exports = {
+  formatDuration,
   DAY,
   formatDate,
   toStamp,

@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/items/items",
+    "pages/events/events",
     "pages/mine/mine",
     "pages/detail/detail",
     "pages/edit/edit",
@@ -33,6 +34,12 @@
         "text": "物品",
         "iconPath": "assets/tabbar/box.png",
         "selectedIconPath": "assets/tabbar/box-active.png"
+      },
+      {
+        "pagePath": "pages/events/events",
+        "text": "事件",
+        "iconPath": "assets/tabbar/event.png",
+        "selectedIconPath": "assets/tabbar/event-active.png"
       },
       {
         "pagePath": "pages/mine/mine",

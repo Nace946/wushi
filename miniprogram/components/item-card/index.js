@@ -43,9 +43,11 @@ Component({
         return
       }
       const state = item._state || time.getItemState(item)
+      const isCountUp = item.mode === MODE_COUNTUP
       const parts = []
       if (item.location) parts.push(item.location)
-      if (item.quantity) parts.push('×' + item.quantity)
+      // 正计时不展示数量
+      if (item.quantity && !isCountUp) parts.push('×' + item.quantity)
       this.setData({
         state,
         percentWidth: Math.round(state.percent * 100) + '%',

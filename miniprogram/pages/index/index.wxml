@@ -19,7 +19,7 @@
               <text class="ov-num">{{attentionCount}}</text>
               <text class="ov-unit">件</text>
             </view>
-            <text class="ov-label">件物品需要你留意</text>
+            <text class="ov-label">件需要你留意</text>
           </view>
 
           <!-- 当前日期日历 -->
@@ -46,7 +46,7 @@
     </view>
 
     <view wx:if="{{total === 0}}" class="ov-zero">
-      <text>还没有物品，点击下方 + 添加第一件</text>
+      <text>还没有记录，点击下方 + 添加第一条</text>
     </view>
   </view>
 
@@ -83,8 +83,8 @@
     <view wx:else class="card">
       <empty-state
         emoji="🌿"
-        text="暂无临近物品"
-        subText="没有临近或紧急到期的物品"
+        text="暂无需要关注"
+        subText="没有临近或该处理的记录"
       />
     </view>
   </view>
@@ -116,8 +116,8 @@
     <view wx:else class="card">
       <empty-state
         emoji="✨"
-        text="没有待处理物品"
-        subText="没有已过期或超出使用期限的物品"
+        text="没有待处理的"
+        subText="没有已过期或超出期限的记录"
       />
     </view>
   </view>

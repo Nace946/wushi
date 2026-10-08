@@ -5,7 +5,7 @@
 
 const time = require('./time')
 const util = require('./util')
-const { MODE, PRESETS } = require('./constants')
+const { MODE, KIND, PRESETS } = require('./constants')
 
 const KEY_ITEMS = 'wushi_items_v1'
 const KEY_INIT = 'wushi_inited_v1'
@@ -18,15 +18,26 @@ const DEFAULT_SETTINGS = {
   reduceMotion: false // 降低动效（舒缓式可访问性选项）
 }
 
-/** 读取全部物品 */
+/** 读取全部物品（含事件）；旧数据无 kind 字段时按「物品」补齐 */
 function getAll() {
   try {
     const list = wx.getStorageSync(KEY_ITEMS)
-    return Array.isArray(list) ? list : []
+    if (!Array.isArray(list)) return []
+    return list.map(i => (i && i.kind ? i : Object.assign({}, i, { kind: KIND.ITEM })))
   } catch (e) {
     console.error('[storage] 读取失败', e)
     return []
   }
+}
+
+/** 只取物品（不含事件） */
+function getItems() {
+  return getAll().filter(i => i.kind !== KIND.EVENT)
+}
+
+/** 只取事件 */
+function getEvents() {
+  return getAll().filter(i => i.kind === KIND.EVENT)
 }
 
 /** 整体写回 */
@@ -55,6 +66,7 @@ function add(item) {
       name: '',
       icon: '📦',
       category: 'other',
+      kind: KIND.ITEM, // item 物品 | event 事件
       mode: MODE.COUNTDOWN,
       produceDate: '',
       shelfLife: '',
@@ -67,6 +79,7 @@ function add(item) {
       unit: '份',
       location: '',
       remindDays: 7,
+      detailTiming: false, // 正计时：是否显示 年/月/日/时 细分时长
       remark: '',
       createdAt: now,
       updatedAt: now
@@ -297,6 +310,36 @@ function ensureInit() {
       unit: '支',
       location: '卫生间',
       remindDays: 7
+    },
+    {
+      name: '洗澡',
+      icon: '🛁',
+      category: 'life',
+      kind: KIND.EVENT,
+      mode: MODE.COUNTUP,
+      lastDate: time.addDays(t, -1),
+      cycleDays: 2,
+      remindDays: 1
+    },
+    {
+      name: '吃火锅',
+      icon: '🍲',
+      category: 'food',
+      kind: KIND.EVENT,
+      mode: MODE.COUNTUP,
+      lastDate: time.addDays(t, -38),
+      cycleDays: 30,
+      remindDays: 7
+    },
+    {
+      // 纯记录型示例：不设循环间隔，只留一个时间痕迹
+      name: '理发',
+      icon: '💇',
+      category: 'life',
+      kind: KIND.EVENT,
+      mode: MODE.COUNTUP,
+      lastDate: time.addDays(t, -23),
+      remindDays: 0
     }
   ].map(i =>
     Object.assign({}, i, {
@@ -317,10 +360,12 @@ function ensureInit() {
 
 /** 从预设模板创建（补全字段） */
 function buildFromPreset(preset) {
+  const kind = preset.kind || KIND.ITEM
   return {
     name: preset.name,
     icon: preset.icon,
     category: preset.category,
+    kind,
     mode: preset.mode,
     produceDate: preset.mode === MODE.COUNTDOWN ? time.today() : '',
     shelfLife: preset.shelfLife || '',
@@ -330,9 +375,11 @@ function buildFromPreset(preset) {
     lastDate: preset.mode === MODE.COUNTUP ? time.today() : '',
     cycleDays: preset.cycleDays || '',
     quantity: 1,
-    unit: preset.unit || '份',
+    unit: preset.unit || (kind === KIND.EVENT ? '次' : '份'),
     location: preset.location || '',
-    remindDays: preset.remindDays || 7,
+    // 纯记录型事件预设的 remindDays 为 0，不能用 || 兜底
+    remindDays: preset.remindDays === undefined ? 7 : Number(preset.remindDays),
+    detailTiming: false,
     remark: ''
   }
 }
@@ -341,6 +388,8 @@ module.exports = {
   KEY_ITEMS,
   DEFAULT_SETTINGS,
   getAll,
+  getItems,
+  getEvents,
   saveAll,
   getById,
   add,

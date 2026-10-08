@@ -1,6 +1,6 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
-const { CATEGORIES, MODE } = require('../../utils/constants')
+const { CATEGORIES, EVENT_CATEGORIES, MODE, KIND, kindText } = require('../../utils/constants')
 
 Page({
   data: {
@@ -10,6 +10,9 @@ Page({
     categoryName: '',
     rows: [],
     isCountUp: false,
+    isEvent: false,
+    resetBtn: '',
+    detailText: '',
     ringPercent: 0
   },
 
@@ -30,14 +33,21 @@ Page({
     }
 
     const state = time.getItemState(item)
-    const cat = CATEGORIES.find(c => c.key === item.category)
+    const cat = CATEGORIES.concat(EVENT_CATEGORIES).find(c => c.key === item.category)
     const isCountUp = item.mode === MODE.COUNTUP
+    const isEvent = item.kind === KIND.EVENT
+    const kt = kindText(item.kind)
 
     const rows = []
     if (isCountUp) {
-      rows.push({ label: '上次处理', value: time.formatCN(item.lastDate) })
-      rows.push({ label: '建议周期', value: (item.cycleDays || '-') + ' 天' })
-      rows.push({ label: '下次建议', value: time.formatCN(state.targetDate) })
+      rows.push({ label: kt.lastShort, value: time.formatCN(item.lastDate) })
+      if (state.hasProgress) {
+        rows.push({ label: kt.cycleShort, value: (item.cycleDays || '-') + ' 天' })
+        rows.push({ label: kt.nextShort, value: time.formatCN(state.targetDate) })
+      } else {
+        // 纯记录型事件：没有循环间隔，只是安静地数着天数
+        rows.push({ label: kt.cycleShort, value: kt.cycleOffShort })
+      }
     } else {
       rows.push({ label: '生产日期', value: time.formatCN(item.produceDate) || '-' })
       if (item.expireManual) {
@@ -50,11 +60,17 @@ Page({
         rows.push({ label: '到期日', value: time.formatCN(state.targetDate) })
       }
     }
-    rows.push({ label: '提前提醒', value: (item.remindDays || 0) + ' 天' })
-    if (item.location) rows.push({ label: '存放位置', value: item.location })
-    // 注意：数量可能为 0，不能用 || 1 兜底（会显示成 1）
-    const qty = item.quantity === 0 || item.quantity ? Number(item.quantity) : 1
-    rows.push({ label: '数量', value: qty + ' ' + (item.unit || '') })
+    // 没有循环间隔就没有提醒
+    if (state.hasProgress) {
+      rows.push({ label: '提前提醒', value: (item.remindDays || 0) + ' 天' })
+    }
+    // 正计时不涉及数量与存放位置
+    if (!isCountUp) {
+      if (item.location) rows.push({ label: '存放位置', value: item.location })
+      // 注意：数量可能为 0，不能用 || 1 兜底（会显示成 1）
+      const qty = item.quantity === 0 || item.quantity ? Number(item.quantity) : 1
+      rows.push({ label: '数量', value: qty + ' ' + (item.unit || '') })
+    }
     if (item.remark) rows.push({ label: '备注', value: item.remark })
 
     this.setData({
@@ -62,25 +78,30 @@ Page({
       state,
       rows,
       isCountUp,
+      isEvent,
+      resetBtn: kt.resetBtn,
+      detailLabel: isEvent ? '已过去' : '已使用',
+      detailText: state.detailText || '',
       categoryName: cat ? cat.name : '其他',
       ringPercent: state.percent
     })
     wx.setNavigationBarTitle({ title: item.name || '物品详情' })
   },
 
-  // 正计时：记录一次「已更换 / 已清洗」
+  // 正计时：记录一次「已更换 / 已清洗」或「刚刚发生过」
   onReset() {
     const item = this.data.item
     if (!item) return
+    const kt = kindText(item.kind)
     wx.showModal({
-      title: '记录一次处理',
-      content: '将「' + item.name + '」的上次处理时间更新为今天，计时重新开始。',
+      title: kt.resetModalTitle,
+      content: kt.resetModal(item.name),
       confirmColor: '#3F8A6B',
       success: res => {
         if (!res.confirm) return
         storage.resetCycle(item.id)
         this.load()
-        wx.showToast({ title: '已重新开始计时', icon: 'success' })
+        wx.showToast({ title: kt.resetToast, icon: 'success' })
       }
     })
   },

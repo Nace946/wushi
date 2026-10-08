@@ -110,9 +110,9 @@ Page({
       if (counter.over > 0 && counter.urgent > 0) {
         urgentText = `有 ${counter.over} 件需要处理、${counter.urgent} 件即将到期`
       } else if (counter.over > 0) {
-        urgentText = `有 ${counter.over} 件已过期，建议尽快处理`
+        urgentText = `有 ${counter.over} 件已过期或超期，建议尽快处理`
       } else if (counter.urgent > 0) {
-        urgentText = `有 ${counter.urgent} 件即将到期，记得优先使用`
+        urgentText = `有 ${counter.urgent} 件即将到期，记得优先处理`
       }
     }
 

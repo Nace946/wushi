@@ -8,16 +8,27 @@
       <view class="main-cat">{{categoryName}}</view>
     </view>
 
-    <view class="ring-area">
+    <!-- 有循环间隔：环形进度；纯记录型事件：只显示天数，不画进度 -->
+    <view class="ring-area" wx:if="{{state.hasProgress}}">
       <time-ring percent="{{ringPercent}}" size="{{320}}" stroke="{{24}}" color="{{state.color}}" track="#E8E6E0" hole="#FFFFFF">
         <text class="ring-num" style="color:{{state.color}}">{{state.mainValue}}</text>
         <text class="ring-unit">{{state.mainUnit}} · {{state.mainLabel}}</text>
       </time-ring>
     </view>
+    <view class="plain-area" wx:else>
+      <text class="plain-num" style="color:{{state.color}}">{{state.mainValue}}</text>
+      <text class="plain-unit">{{state.mainUnit}} · {{state.mainLabel}}</text>
+    </view>
 
     <view class="state-bar" style="background:{{state.soft}};color:{{state.color}}">
       <text class="state-dot" style="background:{{state.color}}"></text>
       <text class="state-text">{{state.statusLabel}} · {{state.subText}}</text>
+    </view>
+
+    <!-- 正计时且开启详细计时：显示 年/月/日/时 细分 -->
+    <view wx:if="{{detailText}}" class="detail-time">
+      <text class="dt-label">{{detailLabel}}</text>
+      <text class="dt-value">{{detailText}}</text>
     </view>
   </view>
 
@@ -32,7 +43,7 @@
   <!-- 操作 -->
   <view class="ops">
     <view wx:if="{{isCountUp}}" class="btn btn-primary op-btn" bindtap="onReset" hover-class="btn-hover" hover-stay-time="80">
-      我刚处理过，重新开始计时
+      {{resetBtn}}
     </view>
     <view wx:else class="btn btn-primary op-btn" bindtap="onFinish" hover-class="btn-hover" hover-stay-time="80">
       此物品已使用完或丢弃

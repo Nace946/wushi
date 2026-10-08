@@ -257,6 +257,71 @@
 
   /* ---------- 用掉一个按钮 ---------- */
   .ic-use.ic-use-reset { background: #dcefe4; }
+
+  /* 详细计时徽标 */
+  .ic-detail-badge {
+    display: inline-block; margin-top: 4px; font-size: 11px; color: var(--text-2);
+    background: var(--surface-soft); padding: 2px 7px; border-radius: 8px;
+  }
+
+  /* 开关示意（编辑页：详细计时） */
+  .sw-row { display: flex; align-items: center; justify-content: space-between; }
+  .sw-demo {
+    width: 40px; height: 22px; border-radius: 999px; background: var(--primary);
+    position: relative; flex-shrink: 0; margin-left: 10px;
+  }
+  .sw-demo i { position: absolute; right: 2px; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+  .sw-demo.off { background: #d8d6d0; }
+  .sw-demo.off i { right: auto; left: 2px; }
+  .fhint-demo { font-size: 11px; color: var(--text-3); margin-top: 2px; display: block; }
+
+  /* 纯记录（未设循环间隔）提示 */
+  .open-line {
+    display: flex; align-items: flex-start; gap: 7px; padding: 11px 12px; margin-top: 6px;
+    background: var(--surface-soft); border-radius: var(--radius);
+  }
+  .open-line .oe { font-size: 15px; line-height: 1.3; }
+  .open-line .ot { flex: 1; font-size: 11.5px; color: var(--text-2); line-height: 1.6; }
+  .big-num-area { display: flex; flex-direction: column; align-items: center; padding: 22px 0 16px; }
+  .big-num-area b { font-size: 62px; font-weight: 600; line-height: 1; }
+  .big-num-area em { margin-top: 6px; font-size: 12px; color: var(--text-2); font-style: normal; }
+  .detail-time {
+    display: flex; align-items: baseline; gap: 7px; margin-top: 10px; padding: 9px 11px;
+    border-radius: var(--radius); background: var(--surface-soft);
+  }
+  .detail-time .dt-label { font-size: 11px; color: var(--text-3); }
+  .detail-time .dt-value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+  /* ---------- 编辑页：计时方式 / 正计时添加界面 ---------- */
+  .blk-title { font-size: 12px; font-weight: 600; color: var(--text); padding: 0 3px 8px; }
+  .modes-demo { display: flex; gap: 8px; }
+  .mode-card {
+    flex: 1; background: var(--surface); border-radius: var(--radius); padding: 12px 10px;
+    box-shadow: 0 3px 14px rgba(43,47,44,.07); border: 1.5px solid transparent;
+  }
+  .mode-card.on { border-color: var(--primary); background: var(--primary-soft); }
+  .mode-card .me { font-size: 20px; line-height: 1; }
+  .mode-card .mn { margin-top: 5px; font-size: 13px; font-weight: 600; color: var(--text); }
+  .mode-card .md { margin-top: 2px; font-size: 10.5px; color: var(--text-3); }
+  .tip-line {
+    display: flex; align-items: flex-start; gap: 7px; padding: 11px 12px; margin-bottom: 4px;
+    background: var(--primary-soft); border-radius: var(--radius);
+  }
+  .tip-line .te { font-size: 15px; line-height: 1.4; }
+  .tip-line .tt { flex: 1; font-size: 11.5px; color: var(--primary); line-height: 1.55; }
+  .pfield {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1.5px solid var(--line);
+  }
+  .pfield .pl { font-size: 12.5px; color: var(--text); }
+  .pfield .pv { font-size: 12.5px; color: var(--primary); }
+  .ppreview {
+    margin-top: 10px; padding: 11px 12px; border-radius: var(--radius);
+    background: var(--primary-soft); display: flex; align-items: center; justify-content: space-between;
+  }
+  .ppreview .pl { font-size: 11.5px; color: var(--primary); }
+  .ppreview .pv { font-size: 14px; font-weight: 600; color: var(--primary); }
+
   .ic-use {
     width: 32px; height: 32px; border-radius: 50%; background: var(--primary-soft);
     display: flex; align-items: center; justify-content: center;
@@ -410,7 +475,7 @@
                 <span class="status" style="color:#d4553c;background:#fce0d8">已超期</span>
               </div>
               <div class="metric">
-                <b style="color:#d4553c">95</b><em>天</em><i>已使用</i><u>卫生间 · ×1</u>
+                <b style="color:#d4553c">95</b><em>天</em><i>已过去</i><u>卫生间 · ×1</u>
               </div>
             </div>
           </div>
@@ -419,6 +484,7 @@
       <div class="tabbar">
         <div class="on"><span>🏠</span>总览</div>
         <div><span>📦</span>物品</div>
+        <div><span>🗓️</span>事件</div>
         <div><span>👤</span>我的</div>
       </div>
     </div>
@@ -459,9 +525,10 @@
                 <span class="item-name">床单被套</span>
                 <span class="status" style="color:#3f8a6b;background:#dcefe4">正常</span>
               </div>
-              <div class="metric"><b style="color:#3f8a6b">9</b><em>天</em><i>已使用</i><u>×1</u></div>
+              <div class="metric"><b style="color:#3f8a6b">9</b><em>天</em><i>已过去</i><u>×1</u></div>
               <div class="bar"><i style="width:64%;background:#3f8a6b"></i></div>
               <span class="item-sub">建议 2026.10.12 前更换</span>
+              <span class="ic-detail-badge">9天4小时</span>
             </div>
             <div class="ic-use ic-use-reset">↺</div>
           </div>
@@ -473,9 +540,10 @@
                 <span class="item-name">牙刷</span>
                 <span class="status" style="color:#d4553c;background:#fce0d8">已超期</span>
               </div>
-              <div class="metric"><b style="color:#d4553c">95</b><em>天</em><i>已使用</i><u>×1</u></div>
+              <div class="metric"><b style="color:#d4553c">95</b><em>天</em><i>已过去</i><u>×1</u></div>
               <div class="bar"><i style="width:100%;background:#d4553c"></i></div>
               <span class="item-sub">建议更换时间已过 5 天</span>
+              <span class="ic-detail-badge">3个月4天4小时</span>
             </div>
             <div class="ic-use ic-use-reset">↺</div>
           </div>
@@ -485,6 +553,7 @@
       <div class="tabbar">
         <div><span>🏠</span>总览</div>
         <div class="on"><span>📦</span>物品</div>
+        <div><span>🗓️</span>事件</div>
         <div><span>👤</span>我的</div>
       </div>
 
@@ -492,6 +561,89 @@
       <div class="snack-demo">
         <span>已用掉 3瓶 · 还剩 2瓶</span>
         <b>撤销</b>
+      </div>
+    </div>
+
+    <!-- ============ 事件页（v1.6 新增底部标签） ============ -->
+    <div class="phone">
+      <div class="nav">事件</div>
+      <div class="screen">
+        <div class="search"><span>🔍</span><i>搜索事件名称</i></div>
+        <div class="tabs">
+          <div class="tab on">全部<span class="tab-count">7</span></div><div class="tab">生活起居<span class="tab-count">3</span></div><div class="tab">美食<span class="tab-count">2</span></div><div class="tab">健康<span class="tab-count">1</span></div><div class="tab">家务<span class="tab-count">1</span></div>
+        </div>
+        <div class="chips">
+          <div class="chip on">全部</div><div class="chip">需关注</div><div class="chip">正常</div><div class="chip">有点久了</div><div class="chip">该做一下</div><div class="chip">拖很久了</div>
+          <div class="chip sort">⇅ 排序</div>
+        </div>
+
+        <div class="sec" style="margin-top:14px">
+
+          <div class="item">
+            <div class="item-icon" style="background:#fce0d8">🍲</div>
+            <div class="item-body">
+              <div class="item-hd">
+                <span class="item-name">吃火锅</span>
+                <span class="status" style="color:#d4553c;background:#fce0d8">已超期</span>
+              </div>
+              <div class="metric"><b style="color:#d4553c">38</b><em>天</em><i>已过去</i></div>
+              <div class="bar"><i style="width:100%;background:#d4553c"></i></div>
+              <span class="item-sub">已经超过循环间隔 8 天</span>
+              <span class="ic-detail-badge">1个月8天5小时</span>
+            </div>
+            <div class="ic-use ic-use-reset">↺</div>
+          </div>
+
+          <div class="item">
+            <div class="item-icon" style="background:#fce0d8">✂️</div>
+            <div class="item-body">
+              <div class="item-hd">
+                <span class="item-name">剪指甲</span>
+                <span class="status" style="color:#d4553c;background:#fce0d8">该处理了</span>
+              </div>
+              <div class="metric"><b style="color:#d4553c">9</b><em>天</em><i>已过去</i></div>
+              <div class="bar"><i style="width:90%;background:#d4553c"></i></div>
+              <span class="item-sub">大约 2026.10.11 后再来一次</span>
+            </div>
+            <div class="ic-use ic-use-reset">↺</div>
+          </div>
+
+          <div class="item">
+            <div class="item-icon" style="background:#dcefe4">🛁</div>
+            <div class="item-body">
+              <div class="item-hd">
+                <span class="item-name">洗澡</span>
+                <span class="status" style="color:#3f8a6b;background:#dcefe4">正常</span>
+              </div>
+              <div class="metric"><b style="color:#3f8a6b">1</b><em>天</em><i>已过去</i></div>
+              <div class="bar"><i style="width:50%;background:#3f8a6b"></i></div>
+              <span class="item-sub">大约 2026.10.10 后再来一次</span>
+              <span class="ic-detail-badge">1天5小时</span>
+            </div>
+            <div class="ic-use ic-use-reset">↺</div>
+          </div>
+
+          <!-- 纯记录型：不设循环间隔，无进度条 -->
+          <div class="item">
+            <div class="item-icon" style="background:#fce0d8">💇</div>
+            <div class="item-body">
+              <div class="item-hd">
+                <span class="item-name">理发</span>
+                <span class="status" style="color:#d4553c;background:#fce0d8">很久没做了</span>
+              </div>
+              <div class="metric"><b style="color:#d4553c">23</b><em>天</em><i>已过去</i></div>
+              <span class="item-sub">确实挺久了，要不要安排一下</span>
+            </div>
+            <div class="ic-use ic-use-reset">↺</div>
+          </div>
+
+        </div>
+      </div>
+      <div class="tabbar">
+        <div><span>🏠</span>总览</div>
+        <div><span>📦</span>物品</div>
+        <div class="on"><span>🗓️</span>事件</div>
+        <div><span>👤</span>我的</div>
       </div>
     </div>
 
@@ -539,11 +691,58 @@
       <div class="tabbar">
         <div><span>🏠</span>总览</div>
         <div><span>📦</span>物品</div>
+        <div><span>🗓️</span>事件</div>
         <div class="on"><span>👤</span>我的</div>
       </div>
     </div>
 
-    <!-- ============ 添加/编辑页 ============ -->
+    <!-- ============ 详情页 · 事件（不设循环间隔：无进度环） ============ -->
+    <div class="phone">
+      <div class="nav">理发</div>
+      <div class="screen">
+        <div class="card">
+          <div class="d-top">
+            <span class="d-emoji">💇</span>
+            <span class="d-name">理发</span>
+            <span class="d-cat">生活起居</span>
+          </div>
+
+          <div class="big-num-area">
+            <b style="color:#d4553c">23</b>
+            <em>天 · 已过去</em>
+          </div>
+
+          <div class="state-bar" style="background:#fce0d8;color:#d4553c">
+            <i style="background:#d4553c"></i>
+            <p>很久没做了 · 确实挺久了，要不要安排一下</p>
+          </div>
+
+          <div class="detail-time">
+            <span class="dt-label">已过去</span>
+            <span class="dt-value">23天6小时</span>
+          </div>
+        </div>
+
+        <div class="card sec" style="margin-top:12px">
+          <div class="row"><span>上次发生</span><b>2026.09.16</b></div>
+          <div class="row"><span>循环间隔</span><b>不循环（仅记录）</b></div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="btn" style="background:var(--primary);color:#fff">刚刚做过，重新计时</div>
+          <div class="btn ghost">编辑信息</div>
+          <div class="btn text">删除这条记录</div>
+        </div>
+      </div>
+      <div class="tabbar">
+        <div><span>🏠</span>总览</div>
+        <div><span>📦</span>物品</div>
+        <div class="on"><span>🗓️</span>事件</div>
+        <div><span>👤</span>我的</div>
+      </div>
+    </div>
+
+    <!-- ============ 添加页 · 物品（倒计时） ============ -->
     <div class="phone">
       <div class="nav">添加物品</div>
       <div class="screen">
@@ -568,6 +767,29 @@
           </div>
         </div>
 
+        <div style="margin-top:16px">
+          <div class="blk-title">计时方式</div>
+          <div class="modes-demo">
+            <div class="mode-card on">
+              <div class="me">⏳</div><div class="mn">倒计时</div><div class="md">越用越近到期</div>
+            </div>
+            <div class="mode-card">
+              <div class="me">🌱</div><div class="mn">正计时</div><div class="md">越久越该处理</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">保质期信息</div>
+          <div class="card">
+            <div class="pfield"><span class="pl">生产日期</span><span class="pv">2026.10.06</span></div>
+            <div class="pfield" style="border-bottom:none"><span class="pl">保质期</span><span class="pv">7 天</span></div>
+            <div class="ppreview">
+              <span class="pl">到期日</span><span class="pv">2026.10.13</span>
+            </div>
+          </div>
+        </div>
+
         <div class="ip-tip">↓ 点击左侧图标后展开</div>
         <div class="ip-preview">
           <div class="ip-head"><span class="ip-title">选择图标</span><span class="ip-close">✕</span></div>
@@ -588,6 +810,288 @@
       <div class="tabbar">
         <div><span>🏠</span>总览</div>
         <div><span>📦</span>物品</div>
+        <div><span>🗓️</span>事件</div>
+        <div><span>👤</span>我的</div>
+      </div>
+    </div>
+
+    <!-- ============ 添加页 · 正计时（v1.6 独立界面） ============ -->
+    <div class="phone">
+      <div class="nav">添加物品</div>
+      <div class="screen">
+
+        <div class="card name-card">
+          <div class="nb-row">
+            <div class="nb-icon-btn">
+              <span class="nb-emoji">🛏️</span>
+              <span class="nb-caret">▾</span>
+            </div>
+            <div class="nb-main">
+              <div class="nb-label">物品 / 项目名称</div>
+              <div class="nb-input">床单被套</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="chips" style="flex-wrap:wrap;margin-top:0">
+            <div class="chip">🥛 食品</div><div class="chip">💊 药品</div><div class="chip">🧴 化妆品</div>
+            <div class="chip on">🧺 日用品</div><div class="chip">🔌 家电耗材</div><div class="chip">📦 其他</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">计时方式</div>
+          <div class="modes-demo">
+            <div class="mode-card">
+              <div class="me">⏳</div><div class="mn">倒计时</div><div class="md">越用越近到期</div>
+            </div>
+            <div class="mode-card on">
+              <div class="me">🌱</div><div class="mn">正计时</div><div class="md">越久越该处理</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">记录什么</div>
+          <div class="modes-demo">
+            <div class="mode-card on">
+              <div class="me">📦</div><div class="mn">物品</div><div class="md">床单、牙刷、滤芯…</div>
+            </div>
+            <div class="mode-card">
+              <div class="me">🗓️</div><div class="mn">事件</div><div class="md">洗澡、吃火锅…</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">使用周期</div>
+          <div class="card">
+            <div class="tip-line">
+              <span class="te">🌿</span>
+              <span class="tt">记下「上次更换」的时间，之后由它自己数着走，到了周期会提醒你。</span>
+            </div>
+            <div class="pfield"><span class="pl">上次更换 / 清洗</span><span class="pv">2026.09.30</span></div>
+            <div class="pfield" style="border-bottom:none"><span class="pl">建议更换周期（天）</span><span class="pv">14</span></div>
+            <div class="chips" style="flex-wrap:wrap;margin-top:0">
+              <div class="chip">7天</div><div class="chip on">14天</div><div class="chip">21天</div><div class="chip">30天</div>
+            </div>
+            <div class="sw-row" style="margin-top:12px;border-top:1.5px solid var(--line);padding-top:12px">
+              <div>
+                <div class="nb-label">详细计时</div>
+                <span class="fhint-demo">显示「1年2个月3天5小时」这样的细分时长</span>
+              </div>
+              <div class="sw-demo"><i></i></div>
+            </div>
+            <div class="ppreview">
+              <span class="pl">下次建议更换</span><span class="pv">2026.10.14</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="blk-title" style="padding:0 0 8px">提醒与备注</div>
+          <div class="chips" style="flex-wrap:wrap;margin-top:0">
+            <div class="chip">1天</div><div class="chip">2天</div><div class="chip on">3天</div><div class="chip">5天</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <div class="btn" style="background:var(--primary);color:#fff;text-align:center">开始计时</div>
+        </div>
+
+      </div>
+      <div class="tabbar">
+        <div><span>🏠</span>总览</div>
+        <div><span>📦</span>物品</div>
+        <div><span>🗓️</span>事件</div>
+        <div><span>👤</span>我的</div>
+      </div>
+    </div>
+
+    <!-- ============ 添加页 · 事件（v1.6 新增） ============ -->
+    <div class="phone">
+      <div class="nav">添加事件</div>
+      <div class="screen">
+
+        <div class="card name-card">
+          <div class="nb-row">
+            <div class="nb-icon-btn">
+              <span class="nb-emoji">🍲</span>
+              <span class="nb-caret">▾</span>
+            </div>
+            <div class="nb-main">
+              <div class="nb-label">事件名称</div>
+              <div class="nb-input">吃火锅</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">计时方式</div>
+          <div class="modes-demo">
+            <div class="mode-card">
+              <div class="me">⏳</div><div class="mn">倒计时</div><div class="md">越用越近到期</div>
+            </div>
+            <div class="mode-card on">
+              <div class="me">🌱</div><div class="mn">正计时</div><div class="md">越久越该处理</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">记录什么</div>
+          <div class="modes-demo">
+            <div class="mode-card">
+              <div class="me">📦</div><div class="mn">物品</div><div class="md">床单、牙刷、滤芯…</div>
+            </div>
+            <div class="mode-card on">
+              <div class="me">🗓️</div><div class="mn">事件</div><div class="md">洗澡、吃火锅…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="blk-title" style="padding:0 0 8px">分类</div>
+          <div class="chips" style="flex-wrap:wrap;margin-top:0">
+            <div class="chip">🛁 生活起居</div><div class="chip on">🍜 美食</div><div class="chip">💪 健康</div>
+            <div class="chip">🧹 家务</div><div class="chip">📌 其他</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">记录方式</div>
+          <div class="card">
+            <div class="tip-line">
+              <span class="te">🌿</span>
+              <span class="tt">记下这件事上次发生的时间，之后由它自己数着走。</span>
+            </div>
+            <div class="pfield"><span class="pl">上次发生</span><span class="pv">2026.09.01</span></div>
+            <div class="sw-row" style="border-top:1.5px solid var(--line);padding-top:12px">
+              <div>
+                <div class="nb-label">设置循环间隔</div>
+                <span class="fhint-demo">关闭则只记录时间，不做提醒</span>
+              </div>
+              <div class="sw-demo"><i></i></div>
+            </div>
+            <div class="pfield" style="border-bottom:none"><span class="pl">循环间隔（天）</span><span class="pv">30</span></div>
+            <div class="chips" style="flex-wrap:wrap;margin-top:0">
+              <div class="chip">7天</div><div class="chip">14天</div><div class="chip on">30天</div>
+            </div>
+            <div class="sw-row" style="margin-top:12px;border-top:1.5px solid var(--line);padding-top:12px">
+              <div>
+                <div class="nb-label">详细计时</div>
+                <span class="fhint-demo">显示「1年2个月3天5小时」这样的细分时长</span>
+              </div>
+              <div class="sw-demo"><i></i></div>
+            </div>
+            <div class="ppreview">
+              <span class="pl">下次提醒</span><span class="pv">2026.10.01</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <div class="btn" style="background:var(--primary);color:#fff;text-align:center">开始记录</div>
+        </div>
+
+      </div>
+      <div class="tabbar">
+        <div><span>🏠</span>总览</div>
+        <div><span>📦</span>物品</div>
+        <div class="on"><span>🗓️</span>事件</div>
+        <div><span>👤</span>我的</div>
+      </div>
+    </div>
+
+    <!-- ============ 添加页 · 事件（不设循环间隔：只记录时间） ============ -->
+    <div class="phone">
+      <div class="nav">添加事件</div>
+      <div class="screen">
+
+        <div class="card name-card">
+          <div class="nb-row">
+            <div class="nb-icon-btn">
+              <span class="nb-emoji">💇</span>
+              <span class="nb-caret">▾</span>
+            </div>
+            <div class="nb-main">
+              <div class="nb-label">事件名称</div>
+              <div class="nb-input">理发</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">计时方式</div>
+          <div class="modes-demo">
+            <div class="mode-card">
+              <div class="me">⏳</div><div class="mn">倒计时</div><div class="md">越用越近到期</div>
+            </div>
+            <div class="mode-card on">
+              <div class="me">🌱</div><div class="mn">正计时</div><div class="md">越久越该处理</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">记录什么</div>
+          <div class="modes-demo">
+            <div class="mode-card">
+              <div class="me">📦</div><div class="mn">物品</div><div class="md">床单、牙刷、滤芯…</div>
+            </div>
+            <div class="mode-card on">
+              <div class="me">🗓️</div><div class="mn">事件</div><div class="md">洗澡、吃火锅…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="blk-title" style="padding:0 0 8px">分类</div>
+          <div class="chips" style="flex-wrap:wrap;margin-top:0">
+            <div class="chip on">🛁 生活起居</div><div class="chip">🍜 美食</div><div class="chip">💪 健康</div>
+            <div class="chip">🧹 家务</div><div class="chip">📌 其他</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px">
+          <div class="blk-title">记录方式</div>
+          <div class="card">
+            <div class="tip-line">
+              <span class="te">🌿</span>
+              <span class="tt">记下这件事上次发生的时间，之后由它自己数着走。</span>
+            </div>
+            <div class="pfield"><span class="pl">上次发生</span><span class="pv">2026.09.16</span></div>
+            <div class="sw-row" style="border-top:1.5px solid var(--line);padding-top:12px">
+              <div>
+                <div class="nb-label">设置循环间隔</div>
+                <span class="fhint-demo">关闭则只记录时间，不做提醒</span>
+              </div>
+              <div class="sw-demo off"><i></i></div>
+            </div>
+            <div class="open-line">
+              <span class="oe">🕊️</span>
+              <span class="ot">只记录「距离上次多久」，不会提醒你</span>
+            </div>
+            <div class="sw-row" style="margin-top:12px;border-top:1.5px solid var(--line);padding-top:12px">
+              <div>
+                <div class="nb-label">详细计时</div>
+                <span class="fhint-demo">显示「1年2个月3天5小时」这样的细分时长</span>
+              </div>
+              <div class="sw-demo"><i></i></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px">
+          <div class="btn" style="background:var(--primary);color:#fff;text-align:center">开始记录</div>
+        </div>
+
+      </div>
+      <div class="tabbar">
+        <div><span>🏠</span>总览</div>
+        <div><span>📦</span>物品</div>
+        <div class="on"><span>🗓️</span>事件</div>
         <div><span>👤</span>我的</div>
       </div>
     </div>
@@ -633,6 +1137,7 @@
       <div class="tabbar">
         <div><span>🏠</span>总览</div>
         <div><span>📦</span>物品</div>
+        <div><span>🗓️</span>事件</div>
         <div class="on"><span>👤</span>我的</div>
       </div>
     </div>

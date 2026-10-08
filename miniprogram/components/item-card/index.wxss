@@ -191,3 +191,18 @@
   pointer-events: none;
   animation: icFly 0.8s ease-out forwards;
 }
+
+/* ---------- 详细计时徽标 ---------- */
+.ic-detail {
+  margin-top: 8rpx;
+}
+
+.ic-detail-badge {
+  display: inline-block;
+  font-size: 22rpx;
+  color: var(--text-2, #535b55);
+  background: var(--surface-soft, #fbfaf7);
+  padding: 4rpx 14rpx;
+  border-radius: var(--r-sm, 16rpx);
+  font-variant-numeric: tabular-nums;
+}

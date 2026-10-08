@@ -44,6 +44,27 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* 纯记录型事件：不画进度环，只放大天数 */
+.plain-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 56rpx 0 42rpx;
+}
+
+.plain-num {
+  font-size: 132rpx;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.plain-unit {
+  margin-top: 14rpx;
+  font-size: 28rpx;
+  color: var(--text-2);
+}
+
 .ring-unit {
   margin-top: 8rpx;
   font-size: 26rpx;
@@ -71,6 +92,30 @@
 }
 
 /* ---------- 信息 ---------- */
+/* ---------- 详细计时（年/月/日/时） ---------- */
+.detail-time {
+  margin-top: 20rpx;
+  padding: 18rpx 22rpx;
+  border-radius: var(--r-md, 24rpx);
+  background: var(--surface-soft, #fbfaf7);
+  display: flex;
+  align-items: baseline;
+}
+
+.dt-label {
+  font-size: 24rpx;
+  color: var(--text-3, #798178);
+  margin-right: 14rpx;
+  flex-shrink: 0;
+}
+
+.dt-value {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text, #1f2420);
+  font-variant-numeric: tabular-nums;
+}
+
 .info {
   margin-top: 24rpx;
 }

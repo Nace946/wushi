@@ -20,7 +20,13 @@
       <text wx:if="{{meta}}" class="ic-meta">{{meta}}</text>
     </view>
 
-    <view wx:if="{{!compact}}" class="ic-bar">
+    <!-- 正计时 + 详细计时：年/月/日/时 细分 -->
+    <view wx:if="{{state.detailText}}" class="ic-detail">
+      <text class="ic-detail-badge">{{state.detailText}}</text>
+    </view>
+
+    <!-- 进度条：纯记录型事件（无循环间隔）不显示 -->
+    <view wx:if="{{!compact && state.hasProgress}}" class="ic-bar">
       <view class="ic-bar-fill" style="width:{{percentWidth}};background:{{state.color}}"></view>
     </view>
 

@@ -71,6 +71,16 @@ SHAPES = {
         ('ring', 40.5, 26, 11, 5.5),
         ('arc', 40.5, 52, 21, 5.5, 12, 168),
     ],
+    # 日历：外框 + 挂耳 + 中间标记点（代表"事件 / 日程"）
+    'event': [
+        ('seg', 15, 28, 66, 28, 5.5),
+        ('seg', 15, 28, 15, 66, 5.5),
+        ('seg', 66, 28, 66, 66, 5.5),
+        ('seg', 15, 66, 66, 66, 5.5),
+        ('seg', 26, 17, 26, 31, 5.5),
+        ('seg', 55, 17, 55, 31, 5.5),
+        ('ring', 40.5, 48, 6.5, 5.5),
+    ],
 }
 
 
@@ -127,7 +137,7 @@ def main():
 
     normal = '#A3AAA5'
     active = '#5E8C7A'
-    for name in ('home', 'box', 'user'):
+    for name in ('home', 'box', 'event', 'user'):
         for suffix, color in (('', normal), ('-active', active)):
             path = os.path.join(base, name + suffix + '.png')
             with open(path, 'wb') as f:
