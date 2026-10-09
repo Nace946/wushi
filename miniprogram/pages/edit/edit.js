@@ -11,7 +11,9 @@ const {
   kindText,
   SHELF_UNITS,
   EMOJI_GROUPS,
-  EVENT_EMOJI_GROUPS
+  EVENT_EMOJI_GROUPS,
+  PIN_LIMIT,
+  PIN_TEXT
 } = require('../../utils/constants')
 
 const REMIND_OPTIONS = [1, 2, 3, 5, 7, 15, 30]
@@ -40,6 +42,13 @@ Page({
     presets: [],
     expirePreview: '',
     cyclePreview: '',
+    atText: '', // 起点精确时刻的展示文案
+    showAtRow: false, // 是否展示「精确时刻」行（日期是今天、或已记过时刻）
+    // 首页置顶
+    pinEnabled: false,
+    pinUsed: 0,
+    pinLimit: PIN_LIMIT,
+    pinText: PIN_TEXT,
     // 按类型变化的文案
     ktLastLabel: KIND_TEXT.item.lastLabel,
     ktCycleLabel: KIND_TEXT.item.cycleLabel,
@@ -73,12 +82,15 @@ Page({
       expireDate: '',
       expireManual: false,
       lastDate: today,
+      lastAt: 0, // 起点精确时刻（毫秒）；日期是今天时，保存会自动记为此刻
       cycleDays: '',
       quantity: 1,
       unit: isEvent ? '次' : '份',
       location: '',
       remindDays: isEvent ? 2 : 7,
       detailTiming: false,
+      pinned: false, // 是否置顶到首页
+      pinnedAt: 0,
       remark: ''
     }
 
@@ -107,6 +119,7 @@ Page({
         kind: form.kind,
         isCountUp: form.mode === MODE.COUNTUP,
         showKind: form.mode === MODE.COUNTUP,
+        pinEnabled: !!form.pinned,
         unitIndex: Math.max(0, SHELF_UNITS.findIndex(u => u.key === form.shelfLifeUnit))
       })
       wx.setNavigationBarTitle({
@@ -122,13 +135,56 @@ Page({
         form: baseForm,
         kind,
         isCountUp: baseForm.mode === MODE.COUNTUP,
-        showKind: baseForm.mode === MODE.COUNTUP
+        showKind: baseForm.mode === MODE.COUNTUP,
+        pinEnabled: false
       })
       wx.setNavigationBarTitle({ title: isEvent ? '添加事件' : '添加物品' })
     }
 
+    this.refreshPinCount()
     this.syncKindMeta()
     this.updatePreview()
+  },
+
+  /** 刷新置顶用量（把「当前这条是否已勾选」算进去） */
+  refreshPinCount() {
+    const others = storage.countPinned(this.data.id || '')
+    const self = this.data.form && this.data.form.pinned ? 1 : 0
+    this.setData({ pinUsed: others + self })
+  },
+
+  /**
+   * 置顶开关：名额已满时不写入，并明确提示
+   * （需求：在列表中添加置顶但已存在 5 个置顶时要进行提示）
+   */
+  onPinToggle(e) {
+    const on = !!e.detail.value
+    const others = storage.countPinned(this.data.id || '')
+
+    if (on && others >= PIN_LIMIT) {
+      this.setData({ pinEnabled: false, 'form.pinned': false, 'form.pinnedAt': 0 })
+      this.refreshPinCount()
+      wx.showModal({
+        title: '置顶已满',
+        content: PIN_TEXT.full + '。可在首页「置顶」分组点开记录，编辑时关闭其中一个，再来置顶这条。',
+        showCancel: false,
+        confirmText: '知道了',
+        confirmColor: '#3F8A6B'
+      })
+      return
+    }
+
+    this.setData(
+      {
+        pinEnabled: on,
+        'form.pinned': on,
+        'form.pinnedAt': on ? Date.now() : 0
+      },
+      () => {
+        this.refreshPinCount()
+        wx.showToast({ title: on ? PIN_TEXT.on : PIN_TEXT.off, icon: 'none' })
+      }
+    )
   },
 
   /** 依据当前 kind / mode 同步分类、图标库、预设与文案 */
@@ -168,6 +224,12 @@ Page({
   /** 实时计算预览：倒计时=到期日；正计时=下次建议更换 / 下次提醒 */
   updatePreview() {
     const f = this.data.form
+    // 起点精确时刻的展示：日期是今天（保存时记为此刻）或已经记过时刻时都显示
+    const isToday = f.lastDate === time.today()
+    this.setData({
+      atText: f.lastAt ? time.formatCN(f.lastDate) + ' ' + time.formatTime(f.lastAt) : '',
+      showAtRow: f.mode === MODE.COUNTUP && (isToday || Number(f.lastAt) > 0)
+    })
     if (f.mode === MODE.COUNTUP) {
       const next = f.lastDate && Number(f.cycleDays) > 0
         ? time.addDays(f.lastDate, Number(f.cycleDays))
@@ -201,9 +263,48 @@ Page({
     this.setData({ 'form.remark': e.detail.value })
   },
 
-  /** 正计时：详细计时开关 */
+  /**
+   * 正计时：详细计时开关
+   * 它只决定「超过一天时是否展示 年/月/日/时 细分」；
+   * 起点精确时刻是所有正计时共有的，不会因为关掉开关被清空
+   */
   onDetailTiming(e) {
-    this.setData({ 'form.detailTiming': !!e.detail.value })
+    const on = !!e.detail.value
+    const f = this.data.form
+    const patch = { 'form.detailTiming': on }
+    if (on && !Number(f.lastAt) && f.lastDate === time.today()) {
+      // 开启时顺手补一个起点，立刻就能看到细分效果
+      patch['form.lastAt'] = Date.now()
+    }
+    this.setData(patch, () => {
+      this.updatePreview()
+      if (patch['form.lastAt']) {
+        wx.showToast({
+          title: '已记录当前时刻 ' + time.formatTime(patch['form.lastAt']),
+          icon: 'none'
+        })
+      }
+    })
+  },
+
+  /** 取当前系统时间作为计时起点（同时把日期拉到今天） */
+  onPickNow() {
+    const now = Date.now()
+    this.setData(
+      {
+        'form.lastDate': time.today(),
+        'form.lastAt': now
+      },
+      () => {
+        this.updatePreview()
+        try {
+          wx.vibrateShort({ type: 'light', fail: () => {} })
+        } catch (err) {
+          // 忽略
+        }
+        wx.showToast({ title: '起点已更新为 ' + time.formatTime(now), icon: 'none' })
+      }
+    )
   },
 
   /** 正计时：切换「物品 / 事件」 */
@@ -293,7 +394,13 @@ Page({
 
   onDate(e) {
     const field = e.currentTarget.dataset.field
-    this.setData({ ['form.' + field]: e.detail.value }, () => this.updatePreview())
+    const val = e.detail.value
+    const patch = { ['form.' + field]: val }
+    if (field === 'lastDate') {
+      // 日期一改，原先记的精确时刻就对不上了：改成今天则取此刻，改成过去某天则清空（按 0 点计）
+      patch['form.lastAt'] = val === time.today() ? Date.now() : 0
+    }
+    this.setData(patch, () => this.updatePreview())
   },
 
   onUnitChange(e) {
@@ -350,11 +457,13 @@ Page({
         kind: form.kind,
         isCountUp: form.mode === MODE.COUNTUP,
         showKind: form.mode === MODE.COUNTUP,
+        pinEnabled: !!form.pinned,
         unitIndex: Math.max(0, SHELF_UNITS.findIndex(u => u.key === form.shelfLifeUnit))
       },
       () => {
         this.syncKindMeta()
         this.updatePreview()
+        this.refreshPinCount()
       }
     )
     wx.showToast({ title: '已填入「' + preset.name + '」', icon: 'none' })
@@ -407,6 +516,13 @@ Page({
     f.name = String(f.name).trim()
     f.quantity = Number(f.quantity) || 1
     f.remindDays = Number(f.remindDays) || 7
+    // 置顶：兜底校验名额，超出时按不置顶保存（开关处已提示过一次）
+    f.pinned = !!f.pinned
+    f.pinnedAt = f.pinned ? Number(f.pinnedAt) || Date.now() : 0
+    if (f.pinned && storage.countPinned(this.data.id || '') >= PIN_LIMIT) {
+      f.pinned = false
+      f.pinnedAt = 0
+    }
     if (f.mode === MODE.COUNTDOWN) {
       f.shelfLife = Number(f.shelfLife) || ''
       // 自动算出到期日，便于列表直接读取
@@ -426,6 +542,9 @@ Page({
       f.quantity = 1
       f.location = ''
       f.detailTiming = !!f.detailTiming
+      // 起点精确时刻：所有正计时都记，跟「详细计时」开关无关
+      // （否则今天刚创建的事件会从 0 点开始算，显示成「已过去 8 小时」）
+      f.lastAt = time.resolveStartAt(f.lastDate, f.lastAt)
       if (!f.cycleDays) f.remindDays = 0
     }
 

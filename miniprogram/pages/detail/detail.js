@@ -40,7 +40,11 @@ Page({
 
     const rows = []
     if (isCountUp) {
-      rows.push({ label: kt.lastShort, value: time.formatCN(item.lastDate) })
+      // 记过精确时刻就一起显示，方便回头对照「到底是几点发生的事」
+      const lastVal = item.lastAt
+        ? time.formatCN(item.lastDate) + ' ' + time.formatTime(item.lastAt)
+        : time.formatCN(item.lastDate)
+      rows.push({ label: kt.lastShort, value: lastVal })
       if (state.hasProgress) {
         rows.push({ label: kt.cycleShort, value: (item.cycleDays || '-') + ' 天' })
         rows.push({ label: kt.nextShort, value: time.formatCN(state.targetDate) })
@@ -72,6 +76,7 @@ Page({
       rows.push({ label: '数量', value: qty + ' ' + (item.unit || '') })
     }
     if (item.remark) rows.push({ label: '备注', value: item.remark })
+    if (item.pinned) rows.push({ label: '首页展示', value: '📌 已置顶' })
 
     this.setData({
       item,

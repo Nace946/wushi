@@ -1,6 +1,6 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
-const { SLOGANS } = require('../../utils/constants')
+const { SLOGANS, PIN_LIMIT, PIN_TEXT } = require('../../utils/constants')
 
 Page({
   data: {
@@ -21,6 +21,11 @@ Page({
     ],
     attention: [],
     todo: [],
+    // 置顶：手动钉在首页的记录（最多 PIN_LIMIT 条）
+    pinned: [],
+    pinLimit: PIN_LIMIT,
+    pinText: PIN_TEXT,
+    pinFull: false,
     // 最近一次「用掉一个」的结果（连续点击合并为一批）
     lastUse: null,
     // 底部提示条
@@ -80,18 +85,42 @@ Page({
     const list = time.decorate(raw)
     const total = list.length
 
+    // 纯记录型事件（没设循环间隔）没有提醒日期，不该出现在关注/处理列表里
+    const reminding = list.filter(i => i._state.remindable !== false)
+
+    // 四档统计：仍按全部记录算（对应列表页的全量分布）
     const counter = { normal: 0, soon: 0, urgent: 0, over: 0 }
     list.forEach(i => {
       const s = i._state.status
       if (counter[s] !== undefined) counter[s]++
     })
 
+    // 关注/处理的口径：只算会提醒的记录，和列表内容保持一致
+    const cr = { normal: 0, soon: 0, urgent: 0, over: 0 }
+    reminding.forEach(i => {
+      const s = i._state.status
+      if (cr[s] !== undefined) cr[s]++
+    })
+
     const stats = this.data.stats.map(s => Object.assign({}, s, { count: counter[s.key] }))
 
-    // 需要关注：临近 + 紧急（还未过期，提醒优先使用）
+    // 置顶：按置顶先后排列，超出上限的只取前 PIN_LIMIT 条
+    const pinned = []
+    const pinnedIds = {}
+    storage.getPinned().forEach(p => {
+      pinnedIds[p.id] = true
+      if (pinned.length < PIN_LIMIT) {
+        const hit = list.find(i => i.id === p.id)
+        if (hit) pinned.push(hit)
+      }
+    })
+
+    // 需要关注：临近 + 紧急（还未过期，提醒优先使用）；已置顶的不重复出现
     const attention = time
       .sortItems(
-        list.filter(i => i._state.status === 'soon' || i._state.status === 'urgent'),
+        reminding.filter(
+          i => !pinnedIds[i.id] && (i._state.status === 'soon' || i._state.status === 'urgent')
+        ),
         'urgent'
       )
       .slice(0, 5)
@@ -99,7 +128,7 @@ Page({
     // 需要处理：已过期（倒计时）/ 已超期（正计时），必须动手处理
     const todo = time
       .sortItems(
-        list.filter(i => i._state.status === 'over'),
+        reminding.filter(i => !pinnedIds[i.id] && i._state.status === 'over'),
         'urgent'
       )
       .slice(0, 5)
@@ -107,24 +136,34 @@ Page({
     let urgentText = ''
     // 用户可在「我的」关闭该提示条
     if (storage.getSettings().dailyRemind) {
-      if (counter.over > 0 && counter.urgent > 0) {
-        urgentText = `有 ${counter.over} 件需要处理、${counter.urgent} 件即将到期`
-      } else if (counter.over > 0) {
-        urgentText = `有 ${counter.over} 件已过期或超期，建议尽快处理`
-      } else if (counter.urgent > 0) {
-        urgentText = `有 ${counter.urgent} 件即将到期，记得优先处理`
+      if (cr.over > 0 && cr.urgent > 0) {
+        urgentText = `有 ${cr.over} 件需要处理、${cr.urgent} 件即将到期`
+      } else if (cr.over > 0) {
+        urgentText = `有 ${cr.over} 件已过期或超期，建议尽快处理`
+      } else if (cr.urgent > 0) {
+        urgentText = `有 ${cr.urgent} 件即将到期，记得优先处理`
       }
     }
 
     this.setData({
       total,
       stats,
+      pinned,
+      pinFull: pinned.length >= PIN_LIMIT,
       attention,
       todo,
-      attentionCount: counter.soon + counter.urgent + counter.over,
-      todoCount: counter.over,
+      attentionCount: cr.soon + cr.urgent + cr.over,
+      todoCount: cr.over,
       urgentText,
       hasData: total > 0
+    })
+  },
+
+  /** 置顶分组标题下方的提示（已满 / 剩余名额） */
+  onPinTip() {
+    wx.showToast({
+      title: this.data.pinFull ? PIN_TEXT.full : '还可置顶 ' + (PIN_LIMIT - this.data.pinned.length) + ' 条',
+      icon: 'none'
     })
   },
 

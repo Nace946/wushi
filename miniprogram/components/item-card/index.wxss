@@ -39,6 +39,20 @@
   justify-content: space-between;
 }
 
+.ic-name-wrap {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+}
+
+.ic-pin {
+  font-size: 24rpx;
+  line-height: 1;
+  margin-right: 6rpx;
+  flex-shrink: 0;
+}
+
 .ic-name {
   font-size: 32rpx;
   font-weight: 600;

@@ -220,6 +220,17 @@
         </picker>
       </view>
 
+      <!-- 起点精确时刻：所有正计时通用，不足一天时按小时/分钟统计已过去多久 -->
+      <view wx:if="{{showAtRow}}" class="field field-col">
+        <text class="flabel">精确时刻</text>
+        <view class="at-row">
+          <text class="at-value {{form.lastAt ? '' : 'at-empty'}}">{{atText || '保存时记为此刻'}}</text>
+          <view class="at-btn" bindtap="onPickNow" hover-class="at-btn-hover" hover-stay-time="60">
+            ↻ 取当前时间
+          </view>
+        </view>
+      </view>
+
       <!-- 事件：循环间隔为可选项，关闭即「只记录时间」 -->
       <view wx:if="{{isEvent}}" class="field field-switch">
         <view class="sw-main">
@@ -270,11 +281,11 @@
         <text class="open-text">{{ktCycleOff}}</text>
       </view>
 
-      <!-- 详细计时：开启后显示 年/月/日/时 细分 -->
+      <!-- 详细计时：超过一天后显示 年/月/日/时 细分（起点时刻不受它影响） -->
       <view class="field field-switch">
         <view class="sw-main">
           <text class="flabel">详细计时</text>
-          <text class="fhint">显示「1年2个月3天5小时」这样的细分时长</text>
+          <text class="fhint">超过一天后显示「1年2个月3天5小时」这样的细分时长</text>
         </view>
         <switch
           checked="{{form.detailTiming}}"
@@ -289,6 +300,19 @@
   <view class="block">
     <text class="block-title">{{isCountUp ? '提醒与备注' : '其他信息'}}</text>
     <view class="card">
+      <!-- 置顶到首页：最多 5 条，名额满时切换会给出提示 -->
+      <view class="field field-switch">
+        <view class="sw-main">
+          <text class="flabel">{{pinText.label}}</text>
+          <text class="fhint">{{form.pinned ? pinText.hintOn : pinText.hint}}（{{pinUsed}}/{{pinLimit}}）</text>
+        </view>
+        <switch
+          checked="{{pinEnabled}}"
+          bindchange="onPinToggle"
+          color="#3F8A6B"
+        />
+      </view>
+
       <!-- 提前提醒只对「有循环间隔」的记录有意义 -->
       <view wx:if="{{!isEvent || cycleEnabled}}" class="field field-col">
         <text class="flabel">提前提醒</text>

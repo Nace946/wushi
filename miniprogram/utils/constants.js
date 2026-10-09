@@ -320,6 +320,25 @@ const SORT_OPTIONS = [
   { key: 'recent', name: '按添加时间' }
 ]
 
+/**
+ * 首页置顶：最多同时钉住 5 条记录（物品倒计时/物品正计时/事件都可）
+ * 置顶的记录会固定显示在首页「置顶」分组里，不再重复出现在关注/处理列表
+ */
+const PIN_LIMIT = 5
+
+/** 置顶相关文案 */
+const PIN_TEXT = {
+  label: '置顶到首页',
+  hint: '固定在首页最上方，方便随时看到',
+  hintOn: '已置顶，会一直显示在首页最上方',
+  hintOff: '最多可置顶 ' + PIN_LIMIT + ' 条',
+  full: '置顶已满 ' + PIN_LIMIT + ' 条，请先取消一个置顶',
+  on: '已置顶到首页',
+  off: '已取消置顶',
+  section: '置顶',
+  empty: '还没有置顶的记录，在编辑页打开「置顶到首页」即可'
+}
+
 module.exports = {
   MODE,
   KIND,
@@ -338,5 +357,7 @@ module.exports = {
   EMOJI_GROUPS,
   EVENT_EMOJI_GROUPS,
   SLOGANS,
-  SORT_OPTIONS
+  SORT_OPTIONS,
+  PIN_LIMIT,
+  PIN_TEXT
 }

@@ -7,7 +7,10 @@
   <!-- 右侧主体 -->
   <view class="ic-body">
     <view class="ic-head">
-      <text class="ic-name">{{item.name}}</text>
+      <view class="ic-name-wrap">
+        <text wx:if="{{item.pinned}}" class="ic-pin">📌</text>
+        <text class="ic-name">{{item.name}}</text>
+      </view>
       <view class="ic-status" style="color:{{state.color}};background:{{state.soft}}">
         {{state.statusLabel}}
       </view>

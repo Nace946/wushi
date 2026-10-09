@@ -477,6 +477,41 @@
   line-height: 1.6;
 }
 
+/* ---------- 精确时刻（详细计时起点） ---------- */
+.at-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14rpx;
+}
+
+.at-value {
+  flex: 1;
+  font-size: 30rpx;
+  color: var(--text, #1f2420);
+  font-variant-numeric: tabular-nums;
+}
+
+.at-empty {
+  font-size: 26rpx;
+  color: var(--text-3, #798178);
+}
+
+.at-btn {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  padding: 14rpx 26rpx;
+  border-radius: var(--r-pill, 999rpx);
+  background: var(--primary-soft, #dcefe4);
+  color: var(--primary, #3f8a6b);
+  font-size: 26rpx;
+  line-height: 1;
+}
+
+.at-btn-hover {
+  opacity: 0.72;
+}
+
 /* ---------- 纯记录（未设循环间隔）提示 ---------- */
 .open-line {
   display: flex;
@@ -501,7 +536,7 @@
   line-height: 1.6;
 }
 
-/* ---------- 开关行（详细计时） ---------- */
+/* ---------- 开关行（详细计时 / 置顶到首页） ---------- */
 .field-switch {
   display: flex;
   align-items: center;

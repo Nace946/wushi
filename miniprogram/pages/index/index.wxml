@@ -56,6 +56,30 @@
     <text class="tip-text">{{urgentText}}</text>
   </view>
 
+  <!-- 置顶：手动钉在首页最上方的记录（最多 5 条，正计时/倒计时均可） -->
+  <view wx:if="{{pinned.length > 0}}" class="sec">
+    <view class="sec-hd">
+      <view class="sec-title">
+        <text class="sec-pin">📌</text>
+        <text class="t-title">{{pinText.section}}</text>
+      </view>
+      <text class="sec-count" bindtap="onPinTip">{{pinned.length}}/{{pinLimit}}</text>
+    </view>
+
+    <view class="card-list pin-list">
+      <item-card
+        wx:for="{{pinned}}"
+        wx:key="id"
+        item="{{item}}"
+        compact="{{true}}"
+        last-use="{{lastUse}}"
+        bind:tap="goDetail"
+        bind:use="onUse"
+        bind:reset="onResetCard"
+      />
+    </view>
+  </view>
+
   <!-- 需要关注：临近 / 紧急（还没过期，提醒优先使用） -->
   <view class="sec">
     <view class="sec-hd">

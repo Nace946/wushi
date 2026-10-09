@@ -5,7 +5,7 @@
 
 const time = require('./time')
 const util = require('./util')
-const { MODE, KIND, PRESETS } = require('./constants')
+const { MODE, KIND, PRESETS, PIN_LIMIT } = require('./constants')
 
 const KEY_ITEMS = 'wushi_items_v1'
 const KEY_INIT = 'wushi_inited_v1'
@@ -74,12 +74,15 @@ function add(item) {
       expireDate: '',
       expireManual: false,
       lastDate: '',
+      lastAt: 0, // 正计时起点精确时刻（毫秒，所有正计时都写）；0 = 按上次日期当天 0 点计
       cycleDays: '',
       quantity: 1,
       unit: '份',
       location: '',
       remindDays: 7,
       detailTiming: false, // 正计时：是否显示 年/月/日/时 细分时长
+      pinned: false, // 是否置顶到首页「置顶」分组
+      pinnedAt: 0, // 置顶时间（毫秒），用于按置顶先后排序
       remark: '',
       createdAt: now,
       updatedAt: now
@@ -111,13 +114,52 @@ function clearAll() {
   return saveAll([])
 }
 
-/** 正计时：记录一次「已更换/已清洗」，重置计时 */
+/** 正计时：记录一次「已更换/已清洗」或「刚刚发生过」，重置计时（起点落到此刻） */
 function resetCycle(id) {
-  return update(id, { lastDate: time.today() })
+  // 起点精确时刻对所有正计时都有效，不必等用户开「详细计时」
+  return update(id, { lastDate: time.today(), lastAt: Date.now() })
 }
 
 /** 每件物品最多保留的消耗流水条数 */
 const USAGE_LOG_LIMIT = 40
+
+/** 取全部置顶记录（按置顶时间先后，先置顶的排前面） */
+function getPinned() {
+  return getAll()
+    .filter(i => i && i.pinned)
+    .sort((a, b) => (Number(a.pinnedAt) || 0) - (Number(b.pinnedAt) || 0))
+}
+
+/** 已置顶数量（可排除某条，用于判断「改这条时是否还占着名额」） */
+function countPinned(excludeId) {
+  return getAll().filter(i => i && i.pinned && i.id !== excludeId).length
+}
+
+/**
+ * 置顶 / 取消置顶
+ * 置顶名额满时不会写入，返回 { ok:false, reason:'full' } 交由页面提示
+ * @param {String} id
+ * @param {Boolean} on
+ * @returns {{ok:Boolean, reason?:String, item?:Object, limit:Number, used:Number}}
+ */
+function setPinned(id, on) {
+  const list = getAll()
+  const idx = list.findIndex(i => i.id === id)
+  if (idx === -1) return { ok: false, reason: 'missing', limit: PIN_LIMIT, used: 0 }
+
+  const used = list.filter(i => i && i.pinned && i.id !== id).length
+  if (on && used >= PIN_LIMIT) {
+    return { ok: false, reason: 'full', limit: PIN_LIMIT, used }
+  }
+
+  list[idx] = Object.assign({}, list[idx], {
+    pinned: !!on,
+    pinnedAt: on ? Date.now() : 0,
+    updatedAt: Date.now()
+  })
+  saveAll(list)
+  return { ok: true, item: list[idx], limit: PIN_LIMIT, used: on ? used + 1 : used }
+}
 
 /**
  * 用掉 n 个：减少数量并记一笔消耗流水
@@ -246,13 +288,16 @@ function ensureInit() {
   if (inited) return false
 
   const t = time.today()
+  const nowMs = Date.now()
+  // 「洗澡」示例：几小时前发生的事，用来演示「不足一天按小时显示」
+  const washAt = nowMs - (new Date(nowMs).getHours() >= 5 ? 5 : 1) * 3600000
   const demo = [
     {
       name: '鲜牛奶',
       icon: '🥛',
       category: 'food',
       mode: MODE.COUNTDOWN,
-      produceDate: time.addDays(t, -3),
+      produceDate: time.addDays(t, -5),
       shelfLife: 7,
       shelfLifeUnit: 'day',
       quantity: 2,
@@ -285,7 +330,10 @@ function ensureInit() {
       quantity: 1,
       unit: '盒',
       location: '药箱',
-      remindDays: 30
+      remindDays: 30,
+      // 示例：置顶一条倒计时，首启即可看到首页「置顶」分组
+      pinned: true,
+      pinnedAt: nowMs - 2000
     },
     {
       name: '床单被套',
@@ -297,7 +345,10 @@ function ensureInit() {
       quantity: 1,
       unit: '套',
       location: '卧室',
-      remindDays: 3
+      remindDays: 3,
+      // 示例：置顶一条正计时，说明置顶对两种计时都适用
+      pinned: true,
+      pinnedAt: nowMs - 1000
     },
     {
       name: '牙刷',
@@ -317,7 +368,9 @@ function ensureInit() {
       category: 'life',
       kind: KIND.EVENT,
       mode: MODE.COUNTUP,
-      lastDate: time.addDays(t, -1),
+      lastDate: t,
+      lastAt: washAt, // 5 小时前：列表里直接显示「5 小时」，而不是「0 天」
+      detailTiming: true,
       cycleDays: 2,
       remindDays: 1
     },
@@ -373,6 +426,7 @@ function buildFromPreset(preset) {
     expireDate: '',
     expireManual: false,
     lastDate: preset.mode === MODE.COUNTUP ? time.today() : '',
+    lastAt: 0,
     cycleDays: preset.cycleDays || '',
     quantity: 1,
     unit: preset.unit || (kind === KIND.EVENT ? '次' : '份'),
@@ -380,6 +434,8 @@ function buildFromPreset(preset) {
     // 纯记录型事件预设的 remindDays 为 0，不能用 || 兜底
     remindDays: preset.remindDays === undefined ? 7 : Number(preset.remindDays),
     detailTiming: false,
+    pinned: false,
+    pinnedAt: 0,
     remark: ''
   }
 }
@@ -402,6 +458,9 @@ module.exports = {
   undoUseBatch,
   clearUsage,
   getAllUsage,
+  getPinned,
+  countPinned,
+  setPinned,
   getSettings,
   saveSettings,
   ensureInit,

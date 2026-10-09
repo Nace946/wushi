@@ -45,6 +45,33 @@ function addDays(str, n) {
   return formatDate(new Date(t + n * DAY))
 }
 
+/** 'YYYY-MM-DD' -> 本地时区当天 0 点的毫秒时间戳（用于分钟/小时级精算） */
+function dayStart(str) {
+  const p = String(str || '').split('-')
+  if (p.length !== 3) return NaN
+  return new Date(+p[0], +p[1] - 1, +p[2]).getTime()
+}
+
+/**
+ * 正计时的起点时刻：优先用精确时刻 lastAt，没有则退回「上次日期当天 0 点」
+ * @param {Object} item
+ * @returns {Number} 毫秒时间戳，无法解析时返回 NaN
+ */
+function startStamp(item) {
+  if (!item) return NaN
+  const at = Number(item.lastAt)
+  if (at > 0) return at
+  return dayStart(item.lastDate)
+}
+
+/** 毫秒时间戳 -> 'HH:mm' */
+function formatTime(stamp) {
+  const n = Number(stamp)
+  if (!n) return ''
+  const d = new Date(n)
+  return pad(d.getHours()) + ':' + pad(d.getMinutes())
+}
+
 /** 日期加月（处理月末溢出，如 1/31 + 1 月 = 2/28） */
 function addMonths(str, n) {
   const t = toStamp(str)
@@ -112,33 +139,55 @@ function clamp01(v) {
 }
 
 /**
- * 把「上次处理日期（当天 0 点）」到现在的时长拆成 年 / 月 / 日 / 时
+ * 起点到「现在」的时长，拆成 年 / 月 / 日 / 时
  * 为 0 的段不显示，例如：3个月5天、1年2个月、2天6小时
+ *
+ * 起点优先取精确时刻 atStamp（新建 / 重新计时 / 用户点「取当前时间」时写入），
+ * 这样小时数才是真的「过了几小时」，而不是「从当天 0 点算起几小时」；
+ * 没有精确时刻时退回 startDate 当天 0 点。
+ *
+ * @param {String} startDate 'YYYY-MM-DD'
+ * @param {Number} atStamp 精确起始时刻（毫秒，可选）
+ * @param {Date} now 参照时间，默认当前
  */
-function formatDuration(startDate, now) {
-  if (!startDate) return ''
-  const s = new Date(String(startDate).slice(0, 10) + 'T00:00:00')
+function formatDuration(startDate, atStamp, now) {
+  let s
+  const at = Number(atStamp)
+  if (at > 0) {
+    s = new Date(at)
+  } else {
+    const t = dayStart(startDate)
+    if (isNaN(t)) return ''
+    s = new Date(t)
+  }
   if (isNaN(s.getTime())) return ''
+
   const n = now || new Date()
   if (n.getTime() < s.getTime()) return ''
 
   let years = n.getFullYear() - s.getFullYear()
   let months = n.getMonth() - s.getMonth()
   let days = n.getDate() - s.getDate()
+  let hours = n.getHours() - s.getHours()
+  let mins = n.getMinutes() - s.getMinutes()
 
-  // 天数不够时向上借一个月
+  // 分不够向小时借，小时不够向天借，天不够向上个月借
+  if (mins < 0) {
+    mins += 60
+    hours -= 1
+  }
+  if (hours < 0) {
+    hours += 24
+    days -= 1
+  }
   if (days < 0) {
     months -= 1
-    const prevMonthLast = new Date(n.getFullYear(), n.getMonth(), 0).getDate()
-    days += prevMonthLast
+    days += new Date(n.getFullYear(), n.getMonth(), 0).getDate()
   }
   if (months < 0) {
     years -= 1
     months += 12
   }
-
-  // 天已按整天计，不足一天的部分即今天的小时数
-  const hours = n.getHours()
 
   const parts = []
   if (years) parts.push(years + '年')
@@ -148,6 +197,27 @@ function formatDuration(startDate, now) {
 
   if (!parts.length) return '不足 1 小时'
   return parts.join('')
+}
+
+/**
+ * 求解正计时的「起点精确时刻」（所有正计时记录共有，与「详细计时」开关无关）
+ *
+ * 没有它，起点只能退回「上次日期当天 0 点」，今天刚记的事也会显示成
+ * 「已过去 8 小时」，既不准也容易让人误会。
+ *
+ * @param {String} lastDate 'YYYY-MM-DD' 上次发生 / 更换日期
+ * @param {Number} lastAt 已记录的精确时刻（毫秒，可为 0）
+ * @returns {Number} 毫秒时间戳；0 表示按当天 0 点计
+ */
+function resolveStartAt(lastDate, lastAt) {
+  if (!lastDate) return 0
+  const at = Number(lastAt) || 0
+  // 已记过「与上次日期同一天」的时刻：沿用原值，避免每次保存都把起点往后推
+  if (at > 0 && formatDate(new Date(at)) === lastDate) return at
+  // 日期就是今天（新建、或老数据从没记过）：以此刻为起点
+  if (lastDate === today()) return Date.now()
+  // 过去某天发生的事无从得知几点，交给当天 0 点
+  return 0
 }
 
 /**
@@ -178,6 +248,7 @@ function getItemState(item) {
     usedDays: 0,
     percent: 0, // 进度环填充比例 0~1
     hasProgress: true, // 是否显示进度条/进度环（纯记录型事件为 false）
+    remindable: true, // 是否具备提醒语义（纯记录型事件为 false，不进首页关注/处理列表）
     mainValue: '0',
     mainUnit: '天',
     mainLabel: '剩余',
@@ -194,9 +265,34 @@ function getItemState(item) {
     // —— 正计时：距上次换洗/更换 / 上次发生某事已过去多久 ——
     const kt = kindText(item.kind)
     const cycle = Number(item.cycleDays) || 0
-    const used = Math.max(0, diffDays(item.lastDate, t))
-    // 详细时长：用户开启「详细计时」时给出 年/月/日/时 细分
-    const detailText = item.detailTiming ? formatDuration(item.lastDate) : ''
+
+    // 起点精确时刻 lastAt 是所有正计时记录共有的（新建 / 重新计时 / 取当前时间时写入），
+    // 有了它小时数才是真的「过了几小时」；只有历史数据没有它，才退回「上次日期当天 0 点」
+    const startMs = startStamp(item)
+    const elapsedMs = isNaN(startMs) ? NaN : Math.max(0, Date.now() - startMs)
+
+    // 「已过去多少天」也按真实时长折算：否则跨天时会冒出「0 天」配「1天6小时」这种自相矛盾
+    const used = isNaN(elapsedMs)
+      ? Math.max(0, diffDays(item.lastDate, t))
+      : Math.floor(elapsedMs / DAY)
+    const underDay = !isNaN(elapsedMs) && elapsedMs < DAY
+
+    // 不足一天：主数值改用「小时 / 分钟」，比「0 天」更贴近真实感受
+    let mainValue = String(used)
+    let mainUnit = '天'
+    if (underDay) {
+      if (elapsedMs < 3600000) {
+        mainValue = String(Math.max(1, Math.floor(elapsedMs / 60000)))
+        mainUnit = '分钟'
+      } else {
+        mainValue = String(Math.floor(elapsedMs / 3600000))
+        mainUnit = '小时'
+      }
+    }
+
+    // 详细时长：超过一天时补充 年/月/日/时 细分；不足一天时主数值已经足够精确，不重复展示
+    const detailText =
+      item.detailTiming && !underDay ? formatDuration(item.lastDate, item.lastAt) : ''
 
     if (cycle <= 0) {
       // —— 纯记录：没有循环间隔，只是一直数着「距离上次多久」 ——
@@ -210,8 +306,9 @@ function getItemState(item) {
         usedDays: used,
         percent: 0,
         hasProgress: false, // 取消进度条
-        mainValue: String(used),
-        mainUnit: '天',
+        remindable: false, // 没有提醒日期，就不该出现在首页「需要关注 / 需要处理」里
+        mainValue: mainValue,
+        mainUnit: mainUnit,
         mainLabel: '已过去',
         subText: lv.sub,
         detailText: detailText,
@@ -247,10 +344,13 @@ function getItemState(item) {
       soft: meta.soft,
       remainDays: remain,
       usedDays: used,
-      percent: clamp01(cycle > 0 ? used / cycle : 0),
+      // 进度条按真实时长算：短周期（如洗澡 2 天）才不会整天停在 0%
+      percent: clamp01(
+        cycle > 0 ? (isNaN(elapsedMs) ? used / cycle : elapsedMs / (cycle * DAY)) : 0
+      ),
       hasProgress: true,
-      mainValue: String(used),
-      mainUnit: '天',
+      mainValue: mainValue,
+      mainUnit: mainUnit,
       mainLabel: '已过去',
       subText:
         remain < 0
@@ -326,9 +426,13 @@ function sortItems(list, sortKey) {
 
 module.exports = {
   formatDuration,
+  resolveStartAt,
   DAY,
   formatDate,
   toStamp,
+  dayStart,
+  startStamp,
+  formatTime,
   today,
   diffDays,
   addDays,

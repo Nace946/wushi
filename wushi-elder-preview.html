@@ -126,6 +126,10 @@
   .sec { margin-top: 22px; }
   .sec-hd { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
   .sec-title { font-size: var(--fs-title); font-weight: 600; color: var(--text); }
+  .sec-pin-row { display: flex; align-items: center; }
+  .sec-pin { font-size: var(--fs-sub); margin-right: 4px; }
+  .sec-count { font-size: var(--fs-tag); color: var(--text-3); background: var(--surface); border-radius: 999px; padding: 2px 10px; box-shadow: 0 2px 8px rgba(43,47,44,.06); }
+  .pin-mark { font-size: var(--fs-tag); margin-right: 4px; }
   .sec-more { font-size: var(--fs-sub); color: var(--text-3); }
 
   /* ---------- 首页 ---------- */
@@ -275,6 +279,15 @@
   .sw-demo.off i { right: auto; left: 2px; }
   .fhint-demo { font-size: 11px; color: var(--text-3); margin-top: 2px; display: block; }
 
+  /* 精确时刻（详细计时起点） */
+  .at-demo { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0 2px; }
+  .at-val { font-size: 13px; color: var(--text); }
+  .at-val.empty { font-size: 11.5px; color: var(--text-3); }
+  .at-btn-demo {
+    flex-shrink: 0; padding: 6px 12px; border-radius: 999px;
+    background: var(--primary-soft); color: var(--primary); font-size: 11.5px;
+  }
+
   /* 纯记录（未设循环间隔）提示 */
   .open-line {
     display: flex; align-items: flex-start; gap: 7px; padding: 11px 12px; margin-top: 6px;
@@ -421,6 +434,40 @@
 
         <div class="tip"><i></i><p>有 2 件需要处理、1 件即将到期</p></div>
 
+        <!-- 置顶（v1.8 新增）：手动钉住的记录固定在最上方，最多 5 条 -->
+        <div class="sec">
+          <div class="sec-hd">
+            <span class="sec-title sec-pin-row"><span class="sec-pin">📌</span>置顶</span>
+            <span class="sec-count">2/5</span>
+          </div>
+
+          <div class="item">
+            <div class="item-icon" style="background:#dcefe4">💊</div>
+            <div class="item-body">
+              <div class="item-hd">
+                <span class="item-name"><span class="pin-mark">📌</span>感冒药</span>
+                <span class="status" style="color:#3f8a6b;background:#dcefe4">充裕</span>
+              </div>
+              <div class="metric">
+                <b style="color:#3f8a6b">330</b><em>天</em><i>剩余</i><u>药箱 · ×1</u>
+              </div>
+            </div>
+          </div>
+
+          <div class="item">
+            <div class="item-icon" style="background:#dcefe4">🛏️</div>
+            <div class="item-body">
+              <div class="item-hd">
+                <span class="item-name"><span class="pin-mark">📌</span>床单被套</span>
+                <span class="status" style="color:#3f8a6b;background:#dcefe4">正常</span>
+              </div>
+              <div class="metric">
+                <b style="color:#3f8a6b">9</b><em>天</em><i>已过去</i><u>卧室</u>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="sec">
           <div class="sec-hd"><span class="sec-title">需要关注</span><span class="sec-more">查看全部 ›</span></div>
 
@@ -475,7 +522,7 @@
                 <span class="status" style="color:#d4553c;background:#fce0d8">已超期</span>
               </div>
               <div class="metric">
-                <b style="color:#d4553c">95</b><em>天</em><i>已过去</i><u>卫生间 · ×1</u>
+                <b style="color:#d4553c">95</b><em>天</em><i>已过去</i><u>卫生间</u>
               </div>
             </div>
           </div>
@@ -615,10 +662,9 @@
                 <span class="item-name">洗澡</span>
                 <span class="status" style="color:#3f8a6b;background:#dcefe4">正常</span>
               </div>
-              <div class="metric"><b style="color:#3f8a6b">1</b><em>天</em><i>已过去</i></div>
-              <div class="bar"><i style="width:50%;background:#3f8a6b"></i></div>
-              <span class="item-sub">大约 2026.10.10 后再来一次</span>
-              <span class="ic-detail-badge">1天5小时</span>
+              <div class="metric"><b style="color:#3f8a6b">5</b><em>小时</em><i>已过去</i></div>
+              <div class="bar"><i style="width:10%;background:#3f8a6b"></i></div>
+              <span class="item-sub">大约 2026.10.11 后再来一次</span>
             </div>
             <div class="ic-use ic-use-reset">↺</div>
           </div>
@@ -724,7 +770,7 @@
         </div>
 
         <div class="card sec" style="margin-top:12px">
-          <div class="row"><span>上次发生</span><b>2026.09.16</b></div>
+          <div class="row"><span>上次发生</span><b>2026.09.16 08:10</b></div>
           <div class="row"><span>循环间隔</span><b>不循环（仅记录）</b></div>
         </div>
 
@@ -891,7 +937,15 @@
 
         <div class="card" style="margin-top:12px">
           <div class="blk-title" style="padding:0 0 8px">提醒与备注</div>
-          <div class="chips" style="flex-wrap:wrap;margin-top:0">
+          <!-- 置顶到首页（v1.8 新增）：名额满 5 条时切换会弹提示 -->
+          <div class="sw-row" style="border-bottom:1.5px solid var(--line);padding-bottom:12px">
+            <div>
+              <div class="nb-label">置顶到首页</div>
+              <span class="fhint-demo">固定在首页最上方，方便随时看到（2/5）</span>
+            </div>
+            <div class="sw-demo"><i></i></div>
+          </div>
+          <div class="chips" style="flex-wrap:wrap;margin-top:12px">
             <div class="chip">1天</div><div class="chip">2天</div><div class="chip on">3天</div><div class="chip">5天</div>
           </div>
         </div>
@@ -966,7 +1020,14 @@
               <span class="te">🌿</span>
               <span class="tt">记下这件事上次发生的时间，之后由它自己数着走。</span>
             </div>
-            <div class="pfield"><span class="pl">上次发生</span><span class="pv">2026.09.01</span></div>
+            <div class="pfield"><span class="pl">上次发生</span><span class="pv">2026.10.09</span></div>
+            <div class="at-demo">
+              <div>
+                <div class="nb-label">精确时刻</div>
+                <span class="at-val">2026.10.09 07:32</span>
+              </div>
+              <div class="at-btn-demo">↻ 取当前时间</div>
+            </div>
             <div class="sw-row" style="border-top:1.5px solid var(--line);padding-top:12px">
               <div>
                 <div class="nb-label">设置循环间隔</div>
@@ -986,8 +1047,23 @@
               <div class="sw-demo"><i></i></div>
             </div>
             <div class="ppreview">
-              <span class="pl">下次提醒</span><span class="pv">2026.10.01</span>
+              <span class="pl">下次提醒</span><span class="pv">2026.11.08</span>
             </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <div class="blk-title" style="padding:0 0 8px">提醒与备注</div>
+          <!-- 置顶到首页（v1.8 新增）：事件同样可以置顶 -->
+          <div class="sw-row" style="border-bottom:1.5px solid var(--line);padding-bottom:12px">
+            <div>
+              <div class="nb-label">置顶到首页</div>
+              <span class="fhint-demo">固定在首页最上方，方便随时看到（1/5）</span>
+            </div>
+            <div class="sw-demo off"><i></i></div>
+          </div>
+          <div class="chips" style="flex-wrap:wrap;margin-top:12px">
+            <div class="chip on">1天</div><div class="chip">2天</div><div class="chip">3天</div><div class="chip">5天</div>
           </div>
         </div>
 
@@ -1062,6 +1138,13 @@
               <span class="tt">记下这件事上次发生的时间，之后由它自己数着走。</span>
             </div>
             <div class="pfield"><span class="pl">上次发生</span><span class="pv">2026.09.16</span></div>
+            <div class="at-demo">
+              <div>
+                <div class="nb-label">精确时刻</div>
+                <span class="at-val empty">未记录，按当天 0 点计</span>
+              </div>
+              <div class="at-btn-demo">↻ 取当前时间</div>
+            </div>
             <div class="sw-row" style="border-top:1.5px solid var(--line);padding-top:12px">
               <div>
                 <div class="nb-label">设置循环间隔</div>

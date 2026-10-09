@@ -199,6 +199,32 @@
   color: var(--text-3);
 }
 
+/* ---------- 置顶分组 ---------- */
+.sec-title {
+  display: flex;
+  align-items: center;
+}
+
+.sec-pin {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+  line-height: 1;
+}
+
+.sec-count {
+  font-size: 24rpx;
+  color: var(--text-3);
+  background: var(--surface);
+  border-radius: var(--r-pill);
+  padding: 6rpx 18rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.pin-list > item-card {
+  display: block;
+  margin-bottom: 20rpx;
+}
+
 .card-list > item-card {
   display: block;
   margin-bottom: 20rpx;
