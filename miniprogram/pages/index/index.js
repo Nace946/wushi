@@ -12,7 +12,9 @@ Page({
     total: 0,
     attentionCount: 0,
     todoCount: 0,
-    urgentText: '',
+    // 首页两个分组的显示开关（可在「我的 → 偏好」里调整）
+    showAttention: true,
+    showTodo: true,
     stats: [
       { key: 'normal', name: '充裕', count: 0, color: '#3F8A6B' },
       { key: 'soon', name: '临近', count: 0, color: '#D18C2A' },
@@ -133,17 +135,8 @@ Page({
       )
       .slice(0, 5)
 
-    let urgentText = ''
-    // 用户可在「我的」关闭该提示条
-    if (storage.getSettings().dailyRemind) {
-      if (cr.over > 0 && cr.urgent > 0) {
-        urgentText = `有 ${cr.over} 件需要处理、${cr.urgent} 件即将到期`
-      } else if (cr.over > 0) {
-        urgentText = `有 ${cr.over} 件已过期或超期，建议尽快处理`
-      } else if (cr.urgent > 0) {
-        urgentText = `有 ${cr.urgent} 件即将到期，记得优先处理`
-      }
-    }
+    // 首页两个分组可由「我的 → 偏好」控制显隐
+    const settings = storage.getSettings()
 
     this.setData({
       total,
@@ -154,7 +147,8 @@ Page({
       todo,
       attentionCount: cr.soon + cr.urgent + cr.over,
       todoCount: cr.over,
-      urgentText,
+      showAttention: settings.showAttention !== false,
+      showTodo: settings.showTodo !== false,
       hasData: total > 0
     })
   },

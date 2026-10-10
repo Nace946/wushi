@@ -14,7 +14,8 @@ const KEY_SETTINGS = 'wushi_settings_v1'
 const DEFAULT_SETTINGS = {
   sortKey: 'urgent', // urgent | name | recent
   showOver: true, // 列表是否显示已过期物品
-  dailyRemind: true, // 进入时是否提示待处理物品
+  showAttention: true, // 首页是否显示「需要关注」分组
+  showTodo: true, // 首页是否显示「需要处理」分组
   reduceMotion: false // 降低动效（舒缓式可访问性选项）
 }
 
@@ -84,6 +85,7 @@ function add(item) {
       pinned: false, // 是否置顶到首页「置顶」分组
       pinnedAt: 0, // 置顶时间（毫秒），用于按置顶先后排序
       remark: '',
+      eventLog: [], // 事件/正计时「重新计时」流水（时间倒序，最多 EVENT_LOG_LIMIT 条）
       createdAt: now,
       updatedAt: now
     },
@@ -114,14 +116,22 @@ function clearAll() {
   return saveAll([])
 }
 
-/** 正计时：记录一次「已更换/已清洗」或「刚刚发生过」，重置计时（起点落到此刻） */
-function resetCycle(id) {
-  // 起点精确时刻对所有正计时都有效，不必等用户开「详细计时」
-  return update(id, { lastDate: time.today(), lastAt: Date.now() })
-}
-
 /** 每件物品最多保留的消耗流水条数 */
 const USAGE_LOG_LIMIT = 40
+
+/** 每条记录最多保留的「重新计时」流水条数（事件记录页数据源） */
+const EVENT_LOG_LIMIT = 40
+
+/** 正计时：记录一次「已更换/已清洗」或「刚刚发生过」，重置计时（起点落到此刻）并留一条流水 */
+function resetCycle(id) {
+  const item = getById(id)
+  const now = Date.now()
+  const log = { id: util.uuid(), t: time.today(), ts: now }
+  const logs = Array.isArray(item && item.eventLog) ? item.eventLog.slice(0, EVENT_LOG_LIMIT - 1) : []
+  logs.unshift(log)
+  // 起点精确时刻对所有正计时都有效，不必等用户开「详细计时」
+  return update(id, { lastDate: time.today(), lastAt: now, eventLog: logs })
+}
 
 /** 取全部置顶记录（按置顶时间先后，先置顶的排前面） */
 function getPinned() {
@@ -250,6 +260,26 @@ function getAllUsage() {
         ts: l.ts || 0,
         n: Number(l.n) || 1,
         unit: l.unit || item.unit || ''
+      })
+    })
+  })
+  out.sort((a, b) => (b.ts || 0) - (a.ts || 0))
+  return out
+}
+
+/** 汇总全部「事件」的重新计时流水（时间倒序），供事件记录页使用 */
+function getAllEventLogs() {
+  const out = []
+  getEvents().forEach(item => {
+    const logs = Array.isArray(item.eventLog) ? item.eventLog : []
+    logs.forEach(l => {
+      out.push({
+        logId: l.id,
+        itemId: item.id,
+        name: item.name,
+        icon: item.icon,
+        date: l.t,
+        ts: l.ts || 0
       })
     })
   })
@@ -436,7 +466,8 @@ function buildFromPreset(preset) {
     detailTiming: false,
     pinned: false,
     pinnedAt: 0,
-    remark: ''
+    remark: '',
+    eventLog: []
   }
 }
 
@@ -458,6 +489,7 @@ module.exports = {
   undoUseBatch,
   clearUsage,
   getAllUsage,
+  getAllEventLogs,
   getPinned,
   countPinned,
   setPinned,

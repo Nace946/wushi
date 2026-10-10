@@ -19,7 +19,7 @@
               <text class="ov-num">{{attentionCount}}</text>
               <text class="ov-unit">件</text>
             </view>
-            <text class="ov-label">件需要你留意</text>
+            <text class="ov-label">需要你留意</text>
           </view>
 
           <!-- 当前日期日历 -->
@@ -50,12 +50,6 @@
     </view>
   </view>
 
-  <!-- 温和提醒条 -->
-  <view wx:if="{{urgentText}}" class="tip">
-    <text class="tip-dot"></text>
-    <text class="tip-text">{{urgentText}}</text>
-  </view>
-
   <!-- 置顶：手动钉在首页最上方的记录（最多 5 条，正计时/倒计时均可） -->
   <view wx:if="{{pinned.length > 0}}" class="sec">
     <view class="sec-hd">
@@ -81,7 +75,7 @@
   </view>
 
   <!-- 需要关注：临近 / 紧急（还没过期，提醒优先使用） -->
-  <view class="sec">
+  <view wx:if="{{showAttention}}" class="sec">
     <view class="sec-hd">
       <text class="t-title">需要关注</text>
       <text
@@ -114,7 +108,7 @@
   </view>
 
   <!-- 需要处理：已过期 / 已超期 -->
-  <view class="sec">
+  <view wx:if="{{showTodo}}" class="sec">
     <view class="sec-hd">
       <text class="t-title">需要处理</text>
       <text

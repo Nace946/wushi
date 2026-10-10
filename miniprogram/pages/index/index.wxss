@@ -156,32 +156,6 @@
   text-align: center;
 }
 
-/* ---------- 提醒条 ---------- */
-.tip {
-  margin-top: 24rpx;
-  padding: 22rpx 26rpx;
-  background: var(--surface);
-  border-radius: var(--r-md);
-  display: flex;
-  align-items: center;
-  box-shadow: var(--shadow-sm);
-}
-
-.tip-dot {
-  width: 12rpx;
-  height: 12rpx;
-  border-radius: 50%;
-  background: var(--warn);
-  margin-right: 16rpx;
-  flex-shrink: 0;
-}
-
-.tip-text {
-  font-size: 27rpx;
-  color: var(--text-2);
-  flex: 1;
-}
-
 /* ---------- 区块 ---------- */
 .sec {
   margin-top: 44rpx;

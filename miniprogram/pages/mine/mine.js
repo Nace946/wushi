@@ -8,11 +8,12 @@ Page({
     total: 0,
     itemCount: 0,
     eventCount: 0,
-    attentionCount: 0,
     sortName: '最紧急优先',
     sortKey: 'urgent',
-    dailyRemind: true,
-    usageCount: 0
+    showAttention: true,
+    showTodo: true,
+    usageCount: 0,
+    eventLogCount: 0
   },
 
   onShow() {
@@ -28,11 +29,12 @@ Page({
       total: list.length,
       itemCount: list.filter(i => i.kind !== KIND.EVENT).length,
       eventCount: list.filter(i => i.kind === KIND.EVENT).length,
-      attentionCount: list.filter(i => i._state.status !== 'normal').length,
       sortKey: settings.sortKey,
       sortName: opt.name,
-      dailyRemind: settings.dailyRemind,
-      usageCount: storage.getAllUsage().length
+      showAttention: settings.showAttention !== false,
+      showTodo: settings.showTodo !== false,
+      usageCount: storage.getAllUsage().length,
+      eventLogCount: storage.getAllEventLogs().length
     })
   },
 
@@ -52,14 +54,24 @@ Page({
     })
   },
 
-  onRemindChange(e) {
+  onAttentionChange(e) {
     const on = e.detail.value
-    storage.saveSettings({ dailyRemind: on })
-    this.setData({ dailyRemind: on })
+    storage.saveSettings({ showAttention: on })
+    this.setData({ showAttention: on })
+  },
+
+  onTodoChange(e) {
+    const on = e.detail.value
+    storage.saveSettings({ showTodo: on })
+    this.setData({ showTodo: on })
   },
 
   goUsage() {
     wx.navigateTo({ url: '/pages/usage/usage' })
+  },
+
+  goEventLog() {
+    wx.navigateTo({ url: '/pages/eventlog/eventlog' })
   },
 
   goGuide() {
