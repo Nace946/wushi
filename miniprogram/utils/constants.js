@@ -105,11 +105,11 @@ const KIND_TEXT = {
  * 语义从「还剩多久」换成「有多久没做了」，因此不参与进度条计算
  */
 const OPEN_LEVELS = [
-  { status: 'normal', maxDays: 0, label: '刚刚做完', color: '#3F8A6B', soft: '#DCEFE4', sub: '就是今天，不用惦记' },
-  { status: 'normal', maxDays: 3, label: '才做过不久', color: '#3F8A6B', soft: '#DCEFE4', sub: '刚做过不久，安心' },
-  { status: 'soon', maxDays: 14, label: '有一阵没做了', color: '#D18C2A', soft: '#FBEBD3', sub: '有一阵子了，想起来就做一下' },
-  { status: 'urgent', maxDays: 45, label: '很久没做了', color: '#D4553C', soft: '#FCE0D8', sub: '确实挺久了，要不要安排一下' },
-  { status: 'over', maxDays: 999999, label: '快忘记了', color: '#7C7C76', soft: '#E9E4D9', sub: '太久没做，小心彻底忘掉' }
+  { status: 'normal', maxDays: 0, label: '刚刚做完', color: '#0A7F4E', soft: '#DCEFE4', sub: '就是今天，不用惦记' },
+  { status: 'normal', maxDays: 3, label: '才做过不久', color: '#0A7F4E', soft: '#DCEFE4', sub: '刚做过不久，安心' },
+  { status: 'soon', maxDays: 14, label: '有一阵没做了', color: '#D97B00', soft: '#FBEBD3', sub: '有一阵子了，想起来就做一下' },
+  { status: 'urgent', maxDays: 45, label: '很久没做了', color: '#E0341F', soft: '#FCE0D8', sub: '确实挺久了，要不要安排一下' },
+  { status: 'over', maxDays: 999999, label: '快忘记了', color: '#5F5F57', soft: '#E9E4D9', sub: '太久没做，小心彻底忘掉' }
 ]
 
 /** 取某类型的文案，缺省按物品处理 */
@@ -126,18 +126,18 @@ const STATUS = {
 }
 
 const STATUS_META = {
-  normal: { label: '充裕', color: '#3F8A6B', soft: '#DCEFE4' },
-  soon: { label: '临近', color: '#D18C2A', soft: '#FBEBD3' },
-  urgent: { label: '紧急', color: '#D4553C', soft: '#FCE0D8' },
-  over: { label: '已过期', color: '#7C7C76', soft: '#E9E4D9' }
+  normal: { label: '充裕', color: '#0A7F4E', soft: '#DCEFE4' },
+  soon: { label: '临近', color: '#D97B00', soft: '#FBEBD3' },
+  urgent: { label: '紧急', color: '#E0341F', soft: '#FCE0D8' },
+  over: { label: '已过期', color: '#5F5F57', soft: '#E9E4D9' }
 }
 
 // 正计时超期文案
 const STATUS_META_UP = {
-  normal: { label: '正常', color: '#3F8A6B', soft: '#DCEFE4' },
-  soon: { label: '快到期', color: '#D18C2A', soft: '#FBEBD3' },
-  urgent: { label: '该处理了', color: '#D4553C', soft: '#FCE0D8' },
-  over: { label: '已超期', color: '#7C7C76', soft: '#E9E4D9' }
+  normal: { label: '正常', color: '#0A7F4E', soft: '#DCEFE4' },
+  soon: { label: '快到期', color: '#D97B00', soft: '#FBEBD3' },
+  urgent: { label: '该处理了', color: '#E0341F', soft: '#FCE0D8' },
+  over: { label: '已超期', color: '#5F5F57', soft: '#E9E4D9' }
 }
 
 // 保质期单位
@@ -317,7 +317,7 @@ const SLOGANS = [
 const SORT_OPTIONS = [
   { key: 'urgent', name: '最紧急优先' },
   { key: 'name', name: '按名称' },
-  { key: 'recent', name: '按添加时间' }
+  { key: 'recent', name: '按时间排序' }
 ]
 
 /**
@@ -339,6 +339,26 @@ const PIN_TEXT = {
   empty: '还没有置顶的记录，在编辑页打开「置顶到首页」即可'
 }
 
+/**
+ * 首页概览的两组四档统计（物品 / 事件各一组）
+ * - 颜色与物品一致：充裕绿 → 临近琥珀 → 紧急红 → 已过期灰
+ * - 事件用两个字命名，便于四宫格排版；依次对应事件列表的
+ *   刚刚进行 / 有点久了 / 该做一下 / 快忘记了
+ */
+const ITEM_STAT_META = [
+  { key: 'normal', name: '充裕', color: '#0A7F4E' },
+  { key: 'soon', name: '临近', color: '#D97B00' },
+  { key: 'urgent', name: '紧急', color: '#E0341F' },
+  { key: 'over', name: '已过期', color: '#5F5F57' }
+]
+
+const EVENT_STAT_META = [
+  { key: 'normal', name: '最近', color: '#0A7F4E' },
+  { key: 'soon', name: '偏久', color: '#D97B00' },
+  { key: 'urgent', name: '该做', color: '#E0341F' },
+  { key: 'over', name: '快忘', color: '#5F5F57' }
+]
+
 module.exports = {
   MODE,
   KIND,
@@ -359,5 +379,7 @@ module.exports = {
   SLOGANS,
   SORT_OPTIONS,
   PIN_LIMIT,
+  ITEM_STAT_META,
+  EVENT_STAT_META,
   PIN_TEXT
 }

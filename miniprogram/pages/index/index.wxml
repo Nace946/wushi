@@ -1,51 +1,62 @@
 <view class="page">
 
-  <!-- 顶部问候 -->
-  <view class="hd">
-    <view class="hd-left">
-      <text class="hd-hello">{{greeting}}</text>
-      <text class="hd-slogan">{{slogan}}</text>
-    </view>
-    <view class="hd-btn" bindtap="goGuide">
-      <text class="hd-btn-text">使用说明</text>
-    </view>
-  </view>
-
-  <!-- 概览卡 -->
+  <!-- 概览卡：问候 + 一句话文案 + 当前日期 + 物品/事件四档统计 -->
   <view class="overview">
-        <view class="ov-top">
-          <view class="ov-main">
-            <view class="ov-row">
-              <text class="ov-num">{{attentionCount}}</text>
-              <text class="ov-unit">件</text>
-            </view>
-            <text class="ov-label">需要你留意</text>
-          </view>
+    <view class="ov-top">
+      <view class="ov-hello">
+        <text class="ov-hello-text">{{greeting}}</text>
+        <text class="ov-hello-slogan">{{slogan}}</text>
+      </view>
 
-          <!-- 当前日期日历 -->
-          <view class="ov-cal">
-            <text class="cal-month">{{calMonth}}</text>
-            <text class="cal-day">{{calDay}}</text>
-            <text class="cal-week">{{calWeek}}</text>
-          </view>
-        </view>
-
-    <view class="ov-grid">
-      <view
-        class="ov-cell"
-        wx:for="{{stats}}"
-        wx:key="key"
-        data-key="{{item.key}}"
-        bindtap="onStatTap"
-        hover-class="ov-cell-hover"
-        hover-stay-time="60"
-      >
-        <text class="ov-cell-num" style="color:{{item.color}}">{{item.count}}</text>
-        <text class="ov-cell-name">{{item.name}} ›</text>
+      <!-- 当前日期日历 -->
+      <view class="ov-cal">
+        <text class="cal-month">{{calMonth}}</text>
+        <text class="cal-day">{{calDay}}</text>
+        <text class="cal-week">{{calWeek}}</text>
       </view>
     </view>
 
-    <view wx:if="{{total === 0}}" class="ov-zero">
+    <!-- 物品四档统计：组名在左，格子内数字在上、名称在下，点一下直达物品页对应筛选 -->
+    <block wx:if="{{total > 0}}">
+      <view class="ov-stat">
+        <text class="ov-stat-tag">物品</text>
+        <view class="ov-stat-cells">
+          <view
+            class="ov-cell"
+            wx:for="{{stats}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="onStatTap"
+            hover-class="ov-cell-hover"
+            hover-stay-time="60"
+          >
+            <text class="ov-cell-num" style="color:{{item.color}}">{{item.count}}</text>
+            <text class="ov-cell-name">{{item.name}} ›</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 事件四档统计：最近 / 偏久 / 该做 / 快忘（依次对应事件列表的四档） -->
+      <view class="ov-stat">
+        <text class="ov-stat-tag">事件</text>
+        <view class="ov-stat-cells">
+          <view
+            class="ov-cell"
+            wx:for="{{eventStats}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            bindtap="onEventStatTap"
+            hover-class="ov-cell-hover"
+            hover-stay-time="60"
+          >
+            <text class="ov-cell-num" style="color:{{item.color}}">{{item.count}}</text>
+            <text class="ov-cell-name">{{item.name}} ›</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view wx:else class="ov-zero">
       <text>还没有记录，点击下方 + 添加第一条</text>
     </view>
   </view>

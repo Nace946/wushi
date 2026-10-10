@@ -128,7 +128,7 @@
         <switch
           checked="{{form.expireManual}}"
           bindchange="onExpireManual"
-          color="#3F8A6B"
+          color="#0A7F4E"
         />
       </view>
 
@@ -240,7 +240,7 @@
         <switch
           checked="{{cycleEnabled}}"
           bindchange="onCycleToggle"
-          color="#3F8A6B"
+          color="#0A7F4E"
         />
       </view>
 
@@ -290,7 +290,7 @@
         <switch
           checked="{{form.detailTiming}}"
           bindchange="onDetailTiming"
-          color="#3F8A6B"
+          color="#0A7F4E"
         />
       </view>
     </view>
@@ -309,7 +309,7 @@
         <switch
           checked="{{pinEnabled}}"
           bindchange="onPinToggle"
-          color="#3F8A6B"
+          color="#0A7F4E"
         />
       </view>
 

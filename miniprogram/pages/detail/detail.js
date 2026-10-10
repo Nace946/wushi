@@ -12,8 +12,7 @@ Page({
     isCountUp: false,
     isEvent: false,
     resetBtn: '',
-    detailText: '',
-    ringPercent: 0
+    detailText: ''
   },
 
   onLoad(options) {
@@ -87,8 +86,7 @@ Page({
       resetBtn: kt.resetBtn,
       detailLabel: isEvent ? '已过去' : '已使用',
       detailText: state.detailText || '',
-      categoryName: cat ? cat.name : '其他',
-      ringPercent: state.percent
+      categoryName: cat ? cat.name : '其他'
     })
     wx.setNavigationBarTitle({ title: item.name || '物品详情' })
   },
@@ -101,7 +99,7 @@ Page({
     wx.showModal({
       title: kt.resetModalTitle,
       content: kt.resetModal(item.name),
-      confirmColor: '#3F8A6B',
+      confirmColor: '#0A7F4E',
       success: res => {
         if (!res.confirm) return
         storage.resetCycle(item.id)
@@ -121,7 +119,7 @@ Page({
       content: '已购新品：保留记录，日期更新为今天重新计时。\n不再需要：直接删除这条记录。',
       cancelText: '已购新品',
       confirmText: '删除物品',
-      confirmColor: '#D4553C',
+      confirmColor: '#E0341F',
       success: res => {
         if (res.confirm) {
           // 右侧按钮：删除
@@ -175,7 +173,7 @@ Page({
     wx.showModal({
       title: '删除「' + item.name + '」',
       content: '删除后无法恢复，确定继续吗？',
-      confirmColor: '#D4553C',
+      confirmColor: '#E0341F',
       success: res => {
         if (!res.confirm) return
         storage.remove(item.id)

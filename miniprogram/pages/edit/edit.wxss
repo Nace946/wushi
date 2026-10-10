@@ -503,7 +503,7 @@
   padding: 14rpx 26rpx;
   border-radius: var(--r-pill, 999rpx);
   background: var(--primary-soft, #dcefe4);
-  color: var(--primary, #3f8a6b);
+  color: var(--primary, #0a7f4e);
   font-size: 26rpx;
   line-height: 1;
 }

@@ -31,44 +31,57 @@
   color: var(--text-2);
 }
 
-.ring-area {
-  display: flex;
-  justify-content: center;
-  padding: 40rpx 0 30rpx;
-}
-
-.ring-num {
-  font-size: 84rpx;
-  font-weight: 600;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-/* 纯记录型事件：不画进度环，只放大天数 */
+/* 主数值区：不画进度环，只放大时间 */
 .plain-area {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 56rpx 0 42rpx;
+  padding: 50rpx 0 40rpx;
 }
 
+/* 状态文字（剩余 / 已过期 / 已过去）放在时间前面 */
+.plain-label {
+  font-size: 30rpx;
+  color: var(--text-2);
+  margin-bottom: 10rpx;
+}
+
+.plain-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+/* 主数值：单独天数与复合单位共用同一基准字号（76rpx），
+   再按状态档位（mainSize 1~4）逐级放大 —— 越紧迫，数字越大 */
 .plain-num {
-  font-size: 132rpx;
+  font-size: 76rpx;
   font-weight: 600;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
-.plain-unit {
-  margin-top: 14rpx;
-  font-size: 28rpx;
-  color: var(--text-2);
+.plain-num-s1 {
+  font-size: 76rpx;
 }
 
-.ring-unit {
-  margin-top: 8rpx;
-  font-size: 26rpx;
+.plain-num-s2 {
+  font-size: 92rpx;
+}
+
+.plain-num-s3 {
+  font-size: 108rpx;
+}
+
+.plain-num-s4 {
+  font-size: 124rpx;
+}
+
+.plain-unit {
+  font-size: 40rpx;
   color: var(--text-2);
+  margin-left: 6rpx;
+  margin-right: 12rpx;
 }
 
 .state-bar {

@@ -169,7 +169,7 @@ Page({
         content: PIN_TEXT.full + '。可在首页「置顶」分组点开记录，编辑时关闭其中一个，再来置顶这条。',
         showCancel: false,
         confirmText: '知道了',
-        confirmColor: '#3F8A6B'
+        confirmColor: '#0A7F4E'
       })
       return
     }
@@ -571,7 +571,7 @@ Page({
     wx.showModal({
       title: '删除记录',
       content: '删除后无法恢复，确定继续吗？',
-      confirmColor: '#D4553C',
+      confirmColor: '#E0341F',
       success: res => {
         if (!res.confirm) return
         storage.remove(this.data.id)

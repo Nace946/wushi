@@ -136,7 +136,7 @@ def main():
     os.makedirs(base, exist_ok=True)
 
     normal = '#A3AAA5'
-    active = '#5E8C7A'
+    active = '#0A7F4E'
     for name in ('home', 'box', 'event', 'user'):
         for suffix, color in (('', normal), ('-active', active)):
             path = os.path.join(base, name + suffix + '.png')

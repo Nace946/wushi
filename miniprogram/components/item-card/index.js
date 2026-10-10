@@ -15,7 +15,7 @@ Component({
         this.compute(val)
       }
     },
-    // 简洁模式（首页关注列表用，隐藏进度条）
+    // 简洁模式（首页列表用，只保留核心信息，不显示副文案）
     compact: {
       type: Boolean,
       value: false
@@ -29,7 +29,6 @@ Component({
 
   data: {
     state: null,
-    percentWidth: '0%',
     meta: '',
     isCountUp: false,
     popping: false,
@@ -50,7 +49,6 @@ Component({
       if (item.quantity && !isCountUp) parts.push('×' + item.quantity)
       this.setData({
         state,
-        percentWidth: Math.round(state.percent * 100) + '%',
         meta: parts.join(' · '),
         isCountUp: item.mode === MODE_COUNTUP
       })

@@ -8,16 +8,15 @@
       <view class="main-cat">{{categoryName}}</view>
     </view>
 
-    <!-- 有循环间隔：环形进度；纯记录型事件：只显示天数，不画进度 -->
-    <view class="ring-area" wx:if="{{state.hasProgress}}">
-      <time-ring percent="{{ringPercent}}" size="{{320}}" stroke="{{24}}" color="{{state.color}}" track="#E8E6E0" hole="#FFFFFF">
-        <text class="ring-num" style="color:{{state.color}}">{{state.mainValue}}</text>
-        <text class="ring-unit">{{state.mainUnit}} · {{state.mainLabel}}</text>
-      </time-ring>
-    </view>
-    <view class="plain-area" wx:else>
-      <text class="plain-num" style="color:{{state.color}}">{{state.mainValue}}</text>
-      <text class="plain-unit">{{state.mainUnit}} · {{state.mainLabel}}</text>
+    <!-- 主数值：不画进度环，把时间放大；状态文字在数字之前 -->
+    <view class="plain-area">
+      <text class="plain-label">{{state.mainLabel}}</text>
+      <view class="plain-value">
+        <block wx:for="{{state.mainParts}}" wx:key="index">
+          <text class="plain-num plain-num-s{{state.mainSize}}" style="color:{{state.color}}">{{item.v}}</text>
+          <text class="plain-unit">{{item.u}}</text>
+        </block>
+      </view>
     </view>
 
     <view class="state-bar" style="background:{{state.soft}};color:{{state.color}}">

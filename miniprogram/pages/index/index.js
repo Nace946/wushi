@@ -1,6 +1,13 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
-const { SLOGANS, PIN_LIMIT, PIN_TEXT } = require('../../utils/constants')
+const {
+  SLOGANS,
+  PIN_LIMIT,
+  PIN_TEXT,
+  KIND,
+  ITEM_STAT_META,
+  EVENT_STAT_META
+} = require('../../utils/constants')
 
 Page({
   data: {
@@ -10,17 +17,12 @@ Page({
     calDay: '',
     calWeek: '',
     total: 0,
-    attentionCount: 0,
-    todoCount: 0,
     // 首页两个分组的显示开关（可在「我的 → 偏好」里调整）
     showAttention: true,
     showTodo: true,
-    stats: [
-      { key: 'normal', name: '充裕', count: 0, color: '#3F8A6B' },
-      { key: 'soon', name: '临近', count: 0, color: '#D18C2A' },
-      { key: 'urgent', name: '紧急', count: 0, color: '#D4553C' },
-      { key: 'over', name: '已过期', count: 0, color: '#7C7C76' }
-    ],
+    stats: ITEM_STAT_META.map(s => Object.assign({ count: 0 }, s)),
+    // 事件四档统计（与物品同色，名称为两个字）
+    eventStats: EVENT_STAT_META.map(s => Object.assign({ count: 0 }, s)),
     attention: [],
     todo: [],
     // 置顶：手动钉在首页的记录（最多 PIN_LIMIT 条）
@@ -90,21 +92,19 @@ Page({
     // 纯记录型事件（没设循环间隔）没有提醒日期，不该出现在关注/处理列表里
     const reminding = list.filter(i => i._state.remindable !== false)
 
-    // 四档统计：仍按全部记录算（对应列表页的全量分布）
-    const counter = { normal: 0, soon: 0, urgent: 0, over: 0 }
+    // 四档统计：物品与事件各一组（对应各自列表页的状态分布）
+    const itemCounter = { normal: 0, soon: 0, urgent: 0, over: 0 }
+    const eventCounter = { normal: 0, soon: 0, urgent: 0, over: 0 }
     list.forEach(i => {
       const s = i._state.status
-      if (counter[s] !== undefined) counter[s]++
+      const bucket = i.kind === KIND.EVENT ? eventCounter : itemCounter
+      if (bucket[s] !== undefined) bucket[s]++
     })
 
-    // 关注/处理的口径：只算会提醒的记录，和列表内容保持一致
-    const cr = { normal: 0, soon: 0, urgent: 0, over: 0 }
-    reminding.forEach(i => {
-      const s = i._state.status
-      if (cr[s] !== undefined) cr[s]++
-    })
-
-    const stats = this.data.stats.map(s => Object.assign({}, s, { count: counter[s.key] }))
+    const stats = this.data.stats.map(s => Object.assign({}, s, { count: itemCounter[s.key] }))
+    const eventStats = this.data.eventStats.map(s =>
+      Object.assign({}, s, { count: eventCounter[s.key] })
+    )
 
     // 置顶：按置顶先后排列，超出上限的只取前 PIN_LIMIT 条
     const pinned = []
@@ -141,12 +141,11 @@ Page({
     this.setData({
       total,
       stats,
+      eventStats,
       pinned,
       pinFull: pinned.length >= PIN_LIMIT,
       attention,
       todo,
-      attentionCount: cr.soon + cr.urgent + cr.over,
-      todoCount: cr.over,
       showAttention: settings.showAttention !== false,
       showTodo: settings.showTodo !== false,
       hasData: total > 0
@@ -167,6 +166,14 @@ Page({
     if (!key) return
     getApp().globalData.filterStatus = key
     wx.switchTab({ url: '/pages/items/items' })
+  },
+
+  // 事件四档统计点击：跳到事件页并筛选对应状态
+  onEventStatTap(e) {
+    const key = e.currentTarget.dataset.key
+    if (!key) return
+    getApp().globalData.filterEventStatus = key
+    wx.switchTab({ url: '/pages/events/events' })
   },
 
   // 「查看全部」：可带状态筛选跳转物品页
@@ -239,10 +246,6 @@ Page({
 
   onAdd() {
     wx.navigateTo({ url: '/pages/edit/edit' })
-  },
-
-  goGuide() {
-    wx.navigateTo({ url: '/pages/guide/guide' })
   },
 
   onShareAppMessage() {

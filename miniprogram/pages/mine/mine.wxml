@@ -40,14 +40,14 @@
           <text class="cell-label">首页显示「需要关注」</text>
           <text class="cell-hint">临近或即将到期的记录</text>
         </view>
-        <switch checked="{{showAttention}}" bindchange="onAttentionChange" color="#3F8A6B" />
+        <switch checked="{{showAttention}}" bindchange="onAttentionChange" color="#0A7F4E" />
       </view>
       <view class="cell cell-last">
         <view>
           <text class="cell-label">首页显示「需要处理」</text>
           <text class="cell-hint">已过期或超出期限的记录</text>
         </view>
-        <switch checked="{{showTodo}}" bindchange="onTodoChange" color="#3F8A6B" />
+        <switch checked="{{showTodo}}" bindchange="onTodoChange" color="#0A7F4E" />
       </view>
     </view>
   </view>

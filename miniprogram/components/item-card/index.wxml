@@ -17,20 +17,17 @@
     </view>
 
     <view class="ic-metric">
-      <text class="ic-num" style="color:{{state.color}}">{{state.mainValue}}</text>
-      <text class="ic-unit">{{state.mainUnit}}</text>
       <text class="ic-label">{{state.mainLabel}}</text>
+      <block wx:for="{{state.mainParts}}" wx:key="index">
+        <text class="ic-num ic-num-s{{state.mainSize}}" style="color:{{state.color}}">{{item.v}}</text>
+        <text class="ic-unit">{{item.u}}</text>
+      </block>
       <text wx:if="{{meta}}" class="ic-meta">{{meta}}</text>
     </view>
 
     <!-- 正计时 + 详细计时：年/月/日/时 细分 -->
     <view wx:if="{{state.detailText}}" class="ic-detail">
       <text class="ic-detail-badge">{{state.detailText}}</text>
-    </view>
-
-    <!-- 进度条：纯记录型事件（无循环间隔）不显示 -->
-    <view wx:if="{{!compact && state.hasProgress}}" class="ic-bar">
-      <view class="ic-bar-fill" style="width:{{percentWidth}};background:{{state.color}}"></view>
     </view>
 
     <text wx:if="{{!compact}}" class="ic-sub">{{state.subText}}</text>

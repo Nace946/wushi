@@ -1,6 +1,6 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
-const { EVENT_CATEGORIES, KIND } = require('../../utils/constants')
+const { EVENT_CATEGORIES, KIND, SORT_OPTIONS } = require('../../utils/constants')
 
 Page({
   data: {
@@ -32,6 +32,10 @@ Page({
     if (app.globalData.filterEventCategory) {
       this.setData({ activeCategory: app.globalData.filterEventCategory })
       app.globalData.filterEventCategory = ''
+    }
+    if (app.globalData.filterEventStatus) {
+      this.setData({ activeStatus: app.globalData.filterEventStatus })
+      app.globalData.filterEventStatus = ''
     }
     this.refresh()
   },
@@ -99,15 +103,14 @@ Page({
   },
 
   onSort() {
-    const keys = ['urgent', 'name', 'recent']
-    const names = ['最紧急优先', '按名称', '按添加时间']
+    const names = SORT_OPTIONS.map(o => o.name)
     wx.showActionSheet({
       itemList: names,
       success: res => {
-        const key = keys[res.tapIndex]
-        if (!key) return
-        storage.saveSettings({ sortKey: key })
-        this.setData({ sortKey: key })
+        const opt = SORT_OPTIONS[res.tapIndex]
+        if (!opt) return
+        storage.saveSettings({ sortKey: opt.key })
+        this.setData({ sortKey: opt.key })
         this.refresh()
       },
       fail: () => {}
@@ -123,7 +126,7 @@ Page({
     wx.showModal({
       title: '记录一次发生',
       content: '将「' + item.name + '」的上次发生时间更新为今天，重新计时。',
-      confirmColor: '#3F8A6B',
+      confirmColor: '#0A7F4E',
       success: res => {
         if (!res.confirm) return
         storage.resetCycle(id)
@@ -152,7 +155,7 @@ Page({
           wx.showModal({
             title: '删除「' + item.name + '」',
             content: '删除后无法恢复，确定继续吗？',
-            confirmColor: '#D4553C',
+            confirmColor: '#E0341F',
             success: r => {
               if (r.confirm) {
                 storage.remove(id)

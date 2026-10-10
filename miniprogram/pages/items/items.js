@@ -1,6 +1,6 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
-const { CATEGORIES, KIND } = require('../../utils/constants')
+const { CATEGORIES, KIND, SORT_OPTIONS } = require('../../utils/constants')
 
 Page({
   data: {
@@ -119,16 +119,14 @@ Page({
   },
 
   onSort() {
-    const keys = ['urgent', 'name', 'recent']
-    const names = ['最紧急优先', '按名称', '按添加时间']
-    const idx = keys.indexOf(this.data.sortKey)
+    const names = SORT_OPTIONS.map(o => o.name)
     wx.showActionSheet({
       itemList: names,
       success: res => {
-        const key = keys[res.tapIndex]
-        if (!key) return
-        storage.saveSettings({ sortKey: key })
-        this.setData({ sortKey: key })
+        const opt = SORT_OPTIONS[res.tapIndex]
+        if (!opt) return
+        storage.saveSettings({ sortKey: opt.key })
+        this.setData({ sortKey: opt.key })
         this.refresh()
       },
       fail: () => {}
@@ -216,7 +214,7 @@ Page({
           wx.showModal({
             title: '删除「' + item.name + '」',
             content: '删除后无法恢复，确定继续吗？',
-            confirmColor: '#D4553C',
+            confirmColor: '#E0341F',
             success: r => {
               if (r.confirm) {
                 storage.remove(id)

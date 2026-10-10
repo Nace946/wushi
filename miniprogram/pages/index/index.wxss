@@ -1,40 +1,3 @@
-/* ---------- 顶部 ---------- */
-.hd {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 12rpx 8rpx 28rpx;
-}
-
-.hd-hello {
-  display: block;
-  font-size: 46rpx;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 1rpx;
-}
-
-.hd-slogan {
-  display: block;
-  margin-top: 6rpx;
-  font-size: 26rpx;
-  color: var(--text-3);
-  line-height: 1.5;
-  max-width: 460rpx;
-}
-
-.hd-btn {
-  padding: 10rpx 22rpx;
-  border-radius: var(--r-pill);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-}
-
-.hd-btn-text {
-  font-size: 24rpx;
-  color: var(--text-2);
-}
-
 /* ---------- 概览卡 ---------- */
 .overview {
   background: linear-gradient(158deg, #e2ece6 0%, #ffffff 62%);
@@ -45,39 +8,38 @@
 
 .ov-top {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
 }
 
-.ov-main {
+/* 问候 + 一句话文案（已从页面顶部移进概览卡内）
+   问候置于顶、文案沉到底，靠 space-between 把两者拉开，
+   文案同时贴近下方统计行的横线 */
+.ov-hello {
   flex: 1;
   min-width: 0;
-}
-
-.ov-row {
+  padding-top: 4rpx;
   display: flex;
-  align-items: baseline;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.ov-num {
-  font-size: 96rpx;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-}
-
-.ov-unit {
-  font-size: 30rpx;
-  color: var(--text-2);
-  margin-left: 8rpx;
-}
-
-.ov-label {
+.ov-hello-text {
   display: block;
-  margin-top: 8rpx;
-  font-size: 28rpx;
-  color: var(--text-2);
+  font-size: 64rpx;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 1rpx;
+  line-height: 1.3;
+}
+
+.ov-hello-slogan {
+  display: block;
+  margin-top: 24rpx;
+  font-size: 26rpx;
+  color: var(--text-3);
+  line-height: 1.5;
+  max-width: 420rpx;
 }
 
 /* ---------- 日历 ---------- */
@@ -119,11 +81,33 @@
   padding-bottom: 10rpx;
 }
 
-.ov-grid {
+/* 物品 / 事件 四档统计：横线分隔，组名在左，格子「数字在上、名称在下」 */
+.ov-stat {
   display: flex;
-  margin-top: 32rpx;
-  padding-top: 26rpx;
+  align-items: center;
+  margin-top: 26rpx;
+  padding-top: 24rpx;
   border-top: 2rpx solid rgba(43, 47, 44, 0.06);
+}
+
+.ov-stat + .ov-stat {
+  margin-top: 22rpx;
+}
+
+.ov-stat-tag {
+  flex-shrink: 0;
+  margin-right: 10rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 1rpx;
+}
+
+.ov-stat-cells {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 .ov-cell {
@@ -131,17 +115,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 4rpx 0;
+  min-width: 0;
 }
 
 .ov-cell-num {
   font-size: 40rpx;
   font-weight: 600;
+  line-height: 1.15;
   font-variant-numeric: tabular-nums;
 }
 
 .ov-cell-name {
   margin-top: 4rpx;
   font-size: 24rpx;
+  line-height: 1.4;
   color: var(--text-3);
 }
 

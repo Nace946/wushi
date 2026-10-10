@@ -232,6 +232,81 @@ function pickOpenLevel(days) {
   return OPEN_LEVELS[OPEN_LEVELS.length - 1]
 }
 
+/** 从时间戳 t 往后推 n 个月（月末溢出时截断，如 1/31 + 1 月 = 2/28） */
+function addMonthsUTC(t, n) {
+  const d = new Date(t)
+  const day = d.getUTCDate()
+  const target = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, 1))
+  const last = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate()
+  return Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), Math.min(day, last))
+}
+
+/**
+ * 两个日期之间的 年 / 月 / 日 跨度（日历法）
+ * 用于倒计时的复合单位显示，如「1个月4天」「1年4个月」
+ * @returns {{y:Number, m:Number, d:Number}|null} toStr 不晚于 fromStr 时返回 null
+ */
+function dateSpan(fromStr, toStr) {
+  const a = toStamp(fromStr)
+  const b = toStamp(toStr)
+  if (isNaN(a) || isNaN(b) || b <= a) return null
+
+  const da = new Date(a)
+  const db = new Date(b)
+  // 先按月推进，超出就回退一个月，余下的按天补
+  let months = (db.getUTCFullYear() - da.getUTCFullYear()) * 12 + (db.getUTCMonth() - da.getUTCMonth())
+  let stamp = addMonthsUTC(a, months)
+  if (stamp > b) {
+    months -= 1
+    stamp = addMonthsUTC(a, months)
+  }
+  const days = Math.round((b - stamp) / DAY)
+  return { y: Math.floor(months / 12), m: months % 12, d: days }
+}
+
+/**
+ * 把 dateSpan 的结果拼成中文串：1年4个月 / 1个月4天 / 30天
+ * 年与月同时存在时不显示天数（跨度大时天数意义不大）
+ */
+function spanText(s) {
+  if (!s) return ''
+  const parts = []
+  if (s.y > 0) {
+    parts.push(s.y + '年')
+    if (s.m > 0) parts.push(s.m + '个月')
+    else if (s.d > 0) parts.push(s.d + '天')
+  } else {
+    if (s.m > 0) parts.push(s.m + '个月')
+    if (s.d > 0) parts.push(s.d + '天')
+  }
+  return parts.join('') || '0天'
+}
+
+/**
+ * 把 dateSpan 的结果拆成 [{v,u}] 段，供渲染层按「数字 + 小号单位」的统一格式显示
+ * 与「只有天」的显示格式保持一致（数字大字、单位小字），避免复合单位整串同号
+ * @returns {Array<{v:String,u:String}>}
+ */
+function spanParts(s) {
+  if (!s) return [{ v: '0', u: '天' }]
+  const parts = []
+  if (s.y > 0) {
+    parts.push({ v: String(s.y), u: '年' })
+    if (s.m > 0) parts.push({ v: String(s.m), u: '个月' })
+    else if (s.d > 0) parts.push({ v: String(s.d), u: '天' })
+  } else {
+    if (s.m > 0) parts.push({ v: String(s.m), u: '个月' })
+    if (s.d > 0) parts.push({ v: String(s.d), u: '天' })
+  }
+  return parts.length ? parts : [{ v: '0', u: '天' }]
+}
+
+/**
+ * 主数值字号档位：以「复合单位」的字号为基准（1 档），
+ * 状态每递进一档，数字再放大一级 —— 颜色之外多一层「大小」提示
+ */
+const MAIN_SIZE = { normal: 1, soon: 2, urgent: 3, over: 4 }
+
 /**
  * 计算单个物品的运行状态
  * @param {Object} item 物品对象
@@ -242,15 +317,17 @@ function getItemState(item) {
   const base = {
     status: 'normal',
     statusLabel: '正常',
-    color: '#3F8A6B',
+    color: '#0A7F4E',
     soft: '#DCEFE4',
     remainDays: 0, // 还可处理的剩余天数（倒计时=距过期；正计时=距建议更换）
     usedDays: 0,
-    percent: 0, // 进度环填充比例 0~1
-    hasProgress: true, // 是否显示进度条/进度环（纯记录型事件为 false）
+    percent: 0, // 进度比例 0~1（v2.1 起不再渲染进度条/进度环，保留供扩展与排序参考）
+    hasProgress: true, // 是否有循环间隔（决定详情页是否显示周期相关行；进度可视化已取消）
     remindable: true, // 是否具备提醒语义（纯记录型事件为 false，不进首页关注/处理列表）
     mainValue: '0',
     mainUnit: '天',
+    mainParts: [{ v: '0', u: '天' }], // 渲染用：[{v,u}]，数字与单位分段排版（复合单位也走这里）
+    mainSize: 1, // 主数值字号档位 1~4（随状态递进放大，1 = 复合单位基准字号）
     mainLabel: '剩余',
     subText: '',
     detailText: '', // 正计时且开启「详细计时」时的 年/月/日/时 细分
@@ -294,6 +371,8 @@ function getItemState(item) {
     const detailText =
       item.detailTiming && !underDay ? formatDuration(item.lastDate, item.lastAt) : ''
 
+    const mainParts = [{ v: mainValue, u: mainUnit }]
+
     if (cycle <= 0) {
       // —— 纯记录：没有循环间隔，只是一直数着「距离上次多久」 ——
       const lv = pickOpenLevel(used)
@@ -305,10 +384,12 @@ function getItemState(item) {
         remainDays: -used, // 越久没做排得越前
         usedDays: used,
         percent: 0,
-        hasProgress: false, // 取消进度条
+        hasProgress: false, // 没有循环间隔
         remindable: false, // 没有提醒日期，就不该出现在首页「需要关注 / 需要处理」里
         mainValue: mainValue,
         mainUnit: mainUnit,
+        mainParts: mainParts,
+        mainSize: MAIN_SIZE[lv.status] || 1,
         mainLabel: '已过去',
         subText: lv.sub,
         detailText: detailText,
@@ -331,10 +412,10 @@ function getItemState(item) {
     else if (remain <= soonDays) status = 'soon'
 
     const meta = {
-      normal: { label: '正常', color: '#3F8A6B', soft: '#DCEFE4' },
-      soon: { label: '快到期', color: '#D18C2A', soft: '#FBEBD3' },
-      urgent: { label: '该处理了', color: '#D4553C', soft: '#FCE0D8' },
-      over: { label: '已超期', color: '#D4553C', soft: '#FCE0D8' }
+      normal: { label: '正常', color: '#0A7F4E', soft: '#DCEFE4' },
+      soon: { label: '快到期', color: '#D97B00', soft: '#FBEBD3' },
+      urgent: { label: '该处理了', color: '#E0341F', soft: '#FCE0D8' },
+      over: { label: '已超期', color: '#E0341F', soft: '#FCE0D8' }
     }[status]
 
     return Object.assign(base, {
@@ -351,6 +432,8 @@ function getItemState(item) {
       hasProgress: true,
       mainValue: mainValue,
       mainUnit: mainUnit,
+      mainParts: mainParts,
+      mainSize: MAIN_SIZE[status] || 1,
       mainLabel: '已过去',
       subText:
         remain < 0
@@ -375,11 +458,25 @@ function getItemState(item) {
   else if (remain <= remind) status = 'soon'
 
   const meta = {
-    normal: { label: '充裕', color: '#3F8A6B', soft: '#DCEFE4' },
-    soon: { label: '临近', color: '#D18C2A', soft: '#FBEBD3' },
-    urgent: { label: '紧急', color: '#D4553C', soft: '#FCE0D8' },
-    over: { label: '已过期', color: '#7C7C76', soft: '#E9E4D9' }
+    normal: { label: '充裕', color: '#0A7F4E', soft: '#DCEFE4' },
+    soon: { label: '临近', color: '#D97B00', soft: '#FBEBD3' },
+    urgent: { label: '紧急', color: '#E0341F', soft: '#FCE0D8' },
+    over: { label: '已过期', color: '#5F5F57', soft: '#E9E4D9' }
   }[status]
+
+  // 主数值：不足 30 天直接说天数；30 天以上换成 年/月 的复合单位，
+  // 「1个月4天」比「34 天」更容易读出跨度；两种写法共用同一基准字号（由 mainSize 档位决定）
+  let mainValue = String(remain < 0 ? Math.abs(remain) : remain)
+  let mainUnit = '天'
+  let mainParts = [{ v: mainValue, u: mainUnit }]
+  if (remain >= 30) {
+    const span = dateSpan(t, expireDate)
+    if (span) {
+      mainValue = spanText(span)
+      mainUnit = ''
+      mainParts = spanParts(span)
+    }
+  }
 
   return Object.assign(base, {
     status,
@@ -389,8 +486,10 @@ function getItemState(item) {
     remainDays: remain,
     usedDays: Math.max(0, total - remain),
     percent: clamp01(1 - remain / total),
-    mainValue: String(remain < 0 ? Math.abs(remain) : remain),
-    mainUnit: '天',
+    mainValue: mainValue,
+    mainUnit: mainUnit,
+    mainParts: mainParts,
+    mainSize: MAIN_SIZE[status] || 1,
     mainLabel: remain < 0 ? '已过期' : '剩余',
     subText:
       remain < 0
@@ -443,6 +542,9 @@ module.exports = {
   humanDays,
   formatCN,
   weekday,
+  dateSpan,
+  spanText,
+  spanParts,
   getItemState,
   decorate,
   sortItems

@@ -15,17 +15,17 @@ page {
   --text-2: #535b55;
   --text-3: #798178;
 
-  /* 主色：鼠尾草绿（加深以保证白字对比度） */
-  --primary: #3f8a6b;
+  /* 主色：鲜明草绿（提高饱和度与对比度，同时保证白字可读） */
+  --primary: #0a7f4e;
   --primary-soft: #dcefe4;
-  --primary-deep: #3d6757;
+  --primary-deep: #076039;
 
-  /* 状态色：同步加深 */
-  --warn: #d18c2a;
+  /* 状态色：提高饱和与对比度，暖米底上更容易一眼分辨 */
+  --warn: #d97b00;
   --warn-soft: #fbebd3;
-  --danger: #d4553c;
+  --danger: #e0341f;
   --danger-soft: #fce0d8;
-  --muted: #7c7c76;
+  --muted: #5f5f57;
   --muted-soft: #f0efec;
 
   /* 圆角 */

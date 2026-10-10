@@ -76,23 +76,43 @@
   margin-top: 8rpx;
 }
 
+/* 主数值：单独天数与复合单位共用同一基准字号（42rpx），
+   再按状态档位（mainSize 1~4）逐级放大 —— 越紧迫，数字越大 */
 .ic-num {
-  font-size: 56rpx;
+  font-size: 42rpx;
   font-weight: 600;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
+}
+
+.ic-num-s1 {
+  font-size: 42rpx;
+}
+
+.ic-num-s2 {
+  font-size: 48rpx;
+}
+
+.ic-num-s3 {
+  font-size: 54rpx;
+}
+
+.ic-num-s4 {
+  font-size: 60rpx;
 }
 
 .ic-unit {
   font-size: 26rpx;
   color: var(--text-2, #535b55);
   margin-left: 4rpx;
+  margin-right: 8rpx;
 }
 
+/* 状态文字（剩余 / 已过期 / 已过去）放在时间前面 */
 .ic-label {
   font-size: 26rpx;
   color: var(--text-2, #535b55);
-  margin-left: 10rpx;
+  margin-right: 10rpx;
 }
 
 .ic-meta {
@@ -100,20 +120,6 @@
   color: var(--text-3, #798178);
   margin-left: auto;
   flex-shrink: 0;
-}
-
-.ic-bar {
-  margin-top: 16rpx;
-  height: 12rpx; /* 加厚，提升进度可读性 */
-  border-radius: var(--r-pill, 999rpx);
-  background: #e8e6e0; /* 轨道比背景略深，条形容器的存在感更明确 */
-  overflow: hidden;
-}
-
-.ic-bar-fill {
-  height: 100%;
-  border-radius: var(--r-pill, 999rpx);
-  transition: width 0.4s ease;
 }
 
 .ic-sub {
@@ -145,7 +151,7 @@
   font-size: 38rpx;
   line-height: 1;
   font-weight: 600;
-  color: var(--primary, #3f8a6b);
+  color: var(--primary, #0a7f4e);
 }
 
 .ic-use-hover {
@@ -201,7 +207,7 @@
   text-align: center;
   font-size: 30rpx;
   font-weight: 600;
-  color: var(--primary, #3f8a6b);
+  color: var(--primary, #0a7f4e);
   pointer-events: none;
   animation: icFly 0.8s ease-out forwards;
 }

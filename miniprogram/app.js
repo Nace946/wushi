@@ -8,7 +8,12 @@ App({
   globalData: {
     version: '1.0.0',
     // 是否需要刷新列表页（编辑/新增后回到列表时用于提示）
-    dataDirty: false
+    dataDirty: false,
+    // 首页 → 列表页的筛选传参（switchTab 不能带参数，只能走全局）
+    filterStatus: '', // 物品页状态筛选
+    filterCategory: '', // 物品页分类筛选
+    filterEventStatus: '', // 事件页状态筛选
+    filterEventCategory: '' // 事件页分类筛选
   },
 
   onLaunch() {

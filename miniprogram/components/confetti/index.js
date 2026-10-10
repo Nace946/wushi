@@ -17,7 +17,7 @@ Component({
   methods: {
     /** 生成丝带碎片：细长条 + 尾部渐隐，从两侧斜向上喷出后飘向中间 */
     build() {
-      const colors = ['#3F8A6B', '#D18C2A', '#D4553C', '#5EAE8C', '#E8B84B']
+      const colors = ['#0A7F4E', '#D97B00', '#E0341F', '#5EAE8C', '#E8B84B']
       const pieces = []
       for (let i = 0; i < 18; i++) {
         const isLeft = i % 2 === 0
