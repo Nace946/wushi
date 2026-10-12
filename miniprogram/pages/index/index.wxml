@@ -36,7 +36,7 @@
         </view>
       </view>
 
-      <!-- 事件四档统计：最近 / 偏久 / 该做 / 快忘（依次对应事件列表的四档） -->
+      <!-- 事件四档统计：最近 / 不久 / 近期 / 遥远（依次对应事件列表的四档） -->
       <view class="ov-stat">
         <text class="ov-stat-tag">事件</text>
         <view class="ov-stat-cells">

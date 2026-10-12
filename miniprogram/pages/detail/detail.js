@@ -63,9 +63,10 @@ Page({
         rows.push({ label: '到期日', value: time.formatCN(state.targetDate) })
       }
     }
-    // 没有循环间隔就没有提醒
+    // 没有循环间隔就没有提醒；remindDays 为 0 表示用户选择了「不提醒」
     if (state.hasProgress) {
-      rows.push({ label: '提前提醒', value: (item.remindDays || 0) + ' 天' })
+      const rd = Number(item.remindDays) || 0
+      rows.push({ label: '提前提醒', value: rd > 0 ? rd + ' 天' : '不提前提醒' })
     }
     // 正计时不涉及数量与存放位置
     if (!isCountUp) {

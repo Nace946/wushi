@@ -336,7 +336,12 @@ function getItemState(item) {
 
   if (!item) return base
 
-  const remind = Number(item.remindDays) || 7
+  // remindDays = 0 表示「不提前提醒」，不能再用 || 兜底（0 会被换成默认的 7）
+  const remindRaw = item.remindDays
+  const remind =
+    remindRaw === undefined || remindRaw === null || remindRaw === '' || isNaN(Number(remindRaw))
+      ? 7
+      : Math.max(0, Number(remindRaw))
 
   if (item.mode === 'countup') {
     // —— 正计时：距上次换洗/更换 / 上次发生某事已过去多久 ——

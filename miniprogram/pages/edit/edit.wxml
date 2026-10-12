@@ -21,7 +21,7 @@
     </scroll-view>
   </view>
 
-  <!-- 名称 + 图标 -->
+  <!-- 名称 + 图标（倒计时附数量与存放位置） -->
   <view class="card name-card">
     <view class="nb-row">
       <!-- 图标：点击弹出选择面板 -->
@@ -48,6 +48,47 @@
         />
       </view>
     </view>
+
+    <!-- 数量与存放位置：跟随名称下方，只对倒计时有意义（正计时/事件隐藏） -->
+    <block wx:if="{{!isCountUp}}">
+      <view class="field">
+        <text class="flabel">数量</text>
+        <view class="qty-row">
+          <input
+            class="finput qty-input"
+            type="number"
+            value="{{form.quantity}}"
+            data-field="quantity"
+            bindinput="onInput"
+            placeholder="1"
+            placeholder-class="fph"
+            maxlength="3"
+          />
+          <input
+            class="finput unit-input"
+            value="{{form.unit}}"
+            data-field="unit"
+            bindinput="onInput"
+            placeholder="份"
+            placeholder-class="fph"
+            maxlength="4"
+          />
+        </view>
+      </view>
+
+      <view class="field">
+        <text class="flabel">存放位置</text>
+        <input
+          class="finput"
+          value="{{form.location}}"
+          data-field="location"
+          bindinput="onInput"
+          placeholder="例如：冰箱冷藏"
+          placeholder-class="fph"
+          maxlength="16"
+        />
+      </view>
+    </block>
   </view>
 
   <!-- 计时方式 -->
@@ -95,7 +136,7 @@
       >
         <text class="mode-emoji">🗓️</text>
         <text class="mode-name">事件</text>
-        <text class="mode-desc">洗澡、吃火锅…</text>
+        <text class="mode-desc">健身、家庭聚餐…</text>
       </view>
     </view>
   </view>
@@ -313,57 +354,19 @@
         />
       </view>
 
-      <!-- 提前提醒只对「有循环间隔」的记录有意义 -->
+      <!-- 提前提醒只对「有循环间隔」的记录有意义；可选「不提醒」 -->
       <view wx:if="{{!isEvent || cycleEnabled}}" class="field field-col">
         <text class="flabel">提前提醒</text>
         <view class="quick-row">
           <view
-            class="quick {{form.remindDays == item ? 'quick-on' : ''}}"
+            class="quick {{form.remindDays == item.v ? 'quick-on' : ''}}"
             wx:for="{{remindOptions}}"
-            wx:key="*this"
-            data-days="{{item}}"
+            wx:key="v"
+            data-days="{{item.v}}"
             bindtap="onRemindQuick"
-          >{{item}}天</view>
+          >{{item.t}}</view>
         </view>
-      </view>
-
-      <!-- 数量与存放位置只对倒计时有意义，正计时隐藏 -->
-      <view wx:if="{{!isCountUp}}" class="field">
-        <text class="flabel">数量</text>
-        <view class="qty-row">
-          <input
-            class="finput qty-input"
-            type="number"
-            value="{{form.quantity}}"
-            data-field="quantity"
-            bindinput="onInput"
-            placeholder="1"
-            placeholder-class="fph"
-            maxlength="3"
-          />
-          <input
-            class="finput unit-input"
-            value="{{form.unit}}"
-            data-field="unit"
-            bindinput="onInput"
-            placeholder="份"
-            placeholder-class="fph"
-            maxlength="4"
-          />
-        </view>
-      </view>
-
-      <view wx:if="{{!isCountUp}}" class="field">
-        <text class="flabel">存放位置</text>
-        <input
-          class="finput"
-          value="{{form.location}}"
-          data-field="location"
-          bindinput="onInput"
-          placeholder="例如：冰箱冷藏"
-          placeholder-class="fph"
-          maxlength="16"
-        />
+        <text class="fhint">选「不提醒」则不提前预警，只在临近时由颜色变化提示</text>
       </view>
 
       <view class="field field-col">

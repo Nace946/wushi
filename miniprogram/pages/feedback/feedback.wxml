@@ -1,0 +1,46 @@
+<view class="page">
+
+  <!-- 头部 -->
+  <view class="fb-hero">
+    <text class="fb-emoji">💬</text>
+    <text class="fb-title">意见反馈</text>
+    <text class="fb-desc">用着不顺手的地方、想要的新功能，都可以直接告诉我</text>
+  </view>
+
+  <!-- 输入 -->
+  <view class="card fb-card">
+    <textarea
+      class="fb-input"
+      value="{{content}}"
+      bindinput="onInput"
+      maxlength="300"
+      auto-height
+      cursor-spacing="40"
+      placeholder="说说你的想法，或遇到的问题…"
+      placeholder-class="fb-ph"
+    />
+    <view class="fb-count" wx:if="{{content}}">{{content.length}}/300</view>
+  </view>
+
+  <!-- 发送 -->
+  <button
+    class="fb-send"
+    open-type="contact"
+    disabled="{{!content}}"
+    bindtap="onSend"
+    hover-class="fb-send-hover"
+    hover-stay-time="80"
+  >发送反馈</button>
+
+  <view class="fb-tip">
+    <text class="fb-tip-line">点上方按钮，会打开与开发者的微信会话</text>
+    <text class="fb-tip-line">内容已自动复制，长按输入框「粘贴」即可发出</text>
+  </view>
+
+  <!-- 说明 -->
+  <view class="card-soft fb-note">
+    <text class="fb-note-title">为什么要「粘贴」一下？</text>
+    <text class="fb-note-text">微信规定客服会话里的消息必须由你亲手发出，所以小程序会先把你写好的内容复制到剪贴板。进入会话后，长按输入框 → 选「粘贴」→ 点发送就可以了。</text>
+  </view>
+
+</view>

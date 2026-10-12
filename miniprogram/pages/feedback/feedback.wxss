@@ -1,0 +1,121 @@
+.fb-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 24rpx 40rpx;
+}
+
+.fb-emoji {
+  font-size: 76rpx;
+  line-height: 1;
+}
+
+.fb-title {
+  margin-top: 18rpx;
+  font-size: 44rpx;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.5rpx;
+}
+
+.fb-desc {
+  margin-top: 14rpx;
+  font-size: 27rpx;
+  color: var(--text-2);
+  text-align: center;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+/* ---------- 输入区 ---------- */
+.fb-card {
+  padding: 28rpx 30rpx 22rpx;
+}
+
+.fb-input {
+  width: 100%;
+  min-height: 320rpx;
+  font-size: 30rpx;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.fb-ph {
+  color: var(--text-3);
+}
+
+.fb-count {
+  margin-top: 14rpx;
+  text-align: right;
+  font-size: 22rpx;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 发送按钮（覆盖 button 默认样式） ---------- */
+.fb-send {
+  margin: 40rpx 0 0;
+  padding: 0;
+  width: 100%;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.fb-send::after {
+  border: none;
+}
+
+.fb-send[disabled] {
+  background: #dedcd6;
+  color: #ffffff;
+  opacity: 1;
+}
+
+.fb-send-hover {
+  opacity: 0.86;
+  transform: scale(0.985);
+}
+
+/* ---------- 提示 ---------- */
+.fb-tip {
+  margin-top: 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.fb-tip-line {
+  font-size: 24rpx;
+  color: var(--text-3);
+  line-height: 1.7;
+}
+
+/* ---------- 说明卡 ---------- */
+.fb-note {
+  margin-top: 40rpx;
+}
+
+.fb-note-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.fb-note-text {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 25rpx;
+  color: var(--text-3);
+  line-height: 1.75;
+}

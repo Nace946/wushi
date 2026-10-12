@@ -16,7 +16,17 @@ const {
   PIN_TEXT
 } = require('../../utils/constants')
 
-const REMIND_OPTIONS = [1, 2, 3, 5, 7, 15, 30]
+// 提前提醒天数：0 = 不提前提醒（只在临近时才由颜色变化提示）
+const REMIND_OPTIONS = [
+  { v: 0, t: '不提醒' },
+  { v: 1, t: '1天' },
+  { v: 2, t: '2天' },
+  { v: 3, t: '3天' },
+  { v: 5, t: '5天' },
+  { v: 7, t: '7天' },
+  { v: 15, t: '15天' },
+  { v: 30, t: '30天' }
+]
 const CYCLE_OPTIONS = [7, 14, 21, 30, 60, 90, 180, 365]
 
 Page({
@@ -72,7 +82,7 @@ Page({
 
     const baseForm = {
       name: '',
-      icon: isEvent ? '📌' : '📦',
+      icon: isEvent ? '🗓️' : '📦',
       category: isEvent ? 'life' : 'other',
       kind,
       mode: isEvent ? MODE.COUNTUP : MODE.COUNTDOWN,
@@ -317,6 +327,10 @@ Page({
       'form.kind': kind,
       kind
     }
+    // 图标若仍是默认图标，跟随类型切换（物品 📦 / 事件 🗓️）；自定义图标保持不变
+    if (this.isDefaultIcon(this.data.form.icon)) {
+      patch['form.icon'] = this.defaultIconOf(kind)
+    }
     // 切换后若原分类不在新类型的分类里，回落到第一个分类
     const cur = this.data.form.category
     if (!cats.some(c => c.key === cur)) {
@@ -332,6 +346,9 @@ Page({
     if (mode !== MODE.COUNTUP) {
       patch['form.kind'] = KIND.ITEM
       patch.kind = KIND.ITEM
+      if (this.isDefaultIcon(this.data.form.icon)) {
+        patch['form.icon'] = this.defaultIconOf(KIND.ITEM)
+      }
       if (!CATEGORIES.some(c => c.key === this.data.form.category)) {
         patch['form.category'] = CATEGORIES[0].key
       }
@@ -346,10 +363,8 @@ Page({
     const key = e.currentTarget.dataset.key
     const cat = this.data.categories.find(c => c.key === key)
     const patch = { 'form.category': key }
-    // 切换分类时给出推荐图标与默认模式（事件只走正计时）
-    if (cat && (!this.data.form.name || this.data.form.icon === '📦' || this.data.form.icon === '📌')) {
-      patch['form.icon'] = cat.icon
-    }
+    // 切换分类只改分类本身：图标保持用户当前的选择，不随分类跳动
+    // （默认图标由记录类型决定 —— 物品 📦 / 事件 🗓️，见 defaultIconOf）
     if (cat && this.data.form.kind !== KIND.EVENT) {
       patch['form.mode'] = cat.mode
       patch.isCountUp = cat.mode === MODE.COUNTUP
@@ -359,6 +374,16 @@ Page({
       this.syncKindMeta()
       this.updatePreview()
     })
+  },
+
+  /** 默认图标由记录类型决定：物品 📦、事件 🗓️ */
+  defaultIconOf(kind) {
+    return kind === KIND.EVENT ? '🗓️' : '📦'
+  },
+
+  /** 当前图标是否仍是默认图标（用户没在图标面板里手动选过） */
+  isDefaultIcon(icon) {
+    return icon === '📦' || icon === '🗓️'
   },
 
   /** 打开图标面板：自动定位到当前图标所属的分组 */
@@ -515,7 +540,9 @@ Page({
     const isEvent = f.kind === KIND.EVENT
     f.name = String(f.name).trim()
     f.quantity = Number(f.quantity) || 1
-    f.remindDays = Number(f.remindDays) || 7
+    // 0 = 不提前提醒，不能用 || 兜底（会把 0 换成默认的 7）
+    const rdRaw = Number(f.remindDays)
+    f.remindDays = isNaN(rdRaw) ? 7 : Math.max(0, rdRaw)
     // 置顶：兜底校验名额，超出时按不置顶保存（开关处已提示过一次）
     f.pinned = !!f.pinned
     f.pinnedAt = f.pinned ? Number(f.pinnedAt) || Date.now() : 0

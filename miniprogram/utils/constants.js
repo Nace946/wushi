@@ -33,7 +33,7 @@ const EVENT_CATEGORIES = [
   { key: 'food', name: '美食', icon: '🍜', mode: MODE.COUNTUP, kind: KIND.EVENT },
   { key: 'health', name: '健康', icon: '💪', mode: MODE.COUNTUP, kind: KIND.EVENT },
   { key: 'house', name: '家务', icon: '🧹', mode: MODE.COUNTUP, kind: KIND.EVENT },
-  { key: 'other', name: '其他', icon: '📌', mode: MODE.COUNTUP, kind: KIND.EVENT }
+  { key: 'other', name: '其他', icon: '🗓️', mode: MODE.COUNTUP, kind: KIND.EVENT }
 ]
 
 /**
@@ -77,7 +77,7 @@ const KIND_TEXT = {
     nextShort: '下次提醒',
     presetTitle: '快速开始 · 常见事件',
     nameLabel: '事件名称',
-    namePlaceholder: '例如：洗澡、吃火锅',
+    namePlaceholder: '例如：健身',
     submitNew: '开始记录',
     countUnit: '条',
     orderWord: '条',
@@ -126,9 +126,9 @@ const STATUS = {
 }
 
 const STATUS_META = {
-  normal: { label: '充裕', color: '#0A7F4E', soft: '#DCEFE4' },
-  soon: { label: '临近', color: '#D97B00', soft: '#FBEBD3' },
-  urgent: { label: '紧急', color: '#E0341F', soft: '#FCE0D8' },
+  normal: { label: '时间充裕', color: '#0A7F4E', soft: '#DCEFE4' },
+  soon: { label: '临近过期', color: '#D97B00', soft: '#FBEBD3' },
+  urgent: { label: '即将过期', color: '#E0341F', soft: '#FCE0D8' },
   over: { label: '已过期', color: '#5F5F57', soft: '#E9E4D9' }
 }
 
@@ -281,7 +281,7 @@ const EVENT_EMOJI_GROUPS = [
   { key: 'food', name: '美食', icons: ['🍲', '🍢', '🧋', '🍰', '🍗', '🍜', '🍕', '🍔', '🍦', '🍺', '🥘', '🍤'] },
   { key: 'health', name: '健康', icons: ['💪', '🏃', '🩺', '🦷', '🩸', '🧘', '🚴', '🏊', '🧠', '👁️', '😷', '🌡️'] },
   { key: 'house', name: '家务', icons: ['🧹', '🪴', '🐕', '🪟', '🧊', '🧺', '🛋️', '🧽', '🪣', '🧯', '🍽️', '🚪'] },
-  { key: 'other', name: '其他', icons: ['📌', '📞', '✏️', '📚', '🎯', '🎵', '🎨', '🧩', '☀️', '🌙', '🎮', '💌'] }
+  { key: 'other', name: '其他', icons: ['🗓️', '📌', '📞', '✏️', '📚', '🎯', '🎵', '🎨', '🧩', '☀️', '🌙', '🎮', '💌'] }
 ]
 
 /**
@@ -305,7 +305,7 @@ const SLOGANS = [
   '用得上的，才是刚刚好的',
   '给每件物品一个被记住的机会',
   '时间会走，你可以让它有迹可循',
-  '把琐碎交给物时，把安心留给自己',
+  '把琐碎交给它，把安心留给自己',
   '一顿新鲜的饭，从没过期开始',
   '该扔的扔掉，该换的换上',
   '生活的秩序，藏在那些小日期里',
@@ -343,7 +343,7 @@ const PIN_TEXT = {
  * 首页概览的两组四档统计（物品 / 事件各一组）
  * - 颜色与物品一致：充裕绿 → 临近琥珀 → 紧急红 → 已过期灰
  * - 事件用两个字命名，便于四宫格排版；依次对应事件列表的
- *   刚刚进行 / 有点久了 / 该做一下 / 快忘记了
+ *   最近 / 不久 / 近期 / 遥远
  */
 const ITEM_STAT_META = [
   { key: 'normal', name: '充裕', color: '#0A7F4E' },
@@ -354,9 +354,9 @@ const ITEM_STAT_META = [
 
 const EVENT_STAT_META = [
   { key: 'normal', name: '最近', color: '#0A7F4E' },
-  { key: 'soon', name: '偏久', color: '#D97B00' },
-  { key: 'urgent', name: '该做', color: '#E0341F' },
-  { key: 'over', name: '快忘', color: '#5F5F57' }
+  { key: 'soon', name: '不久', color: '#D97B00' },
+  { key: 'urgent', name: '近期', color: '#E0341F' },
+  { key: 'over', name: '遥远', color: '#5F5F57' }
 ]
 
 module.exports = {

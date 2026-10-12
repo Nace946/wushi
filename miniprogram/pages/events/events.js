@@ -12,10 +12,10 @@ Page({
     statuses: [
       { key: 'all', name: '全部' },
       { key: 'attention', name: '需关注' },
-      { key: 'normal', name: '正常' },
-      { key: 'soon', name: '有点久了' },
-      { key: 'urgent', name: '该做一下' },
-      { key: 'over', name: '拖很久了' }
+      { key: 'normal', name: '最近' },
+      { key: 'soon', name: '不久' },
+      { key: 'urgent', name: '近期' },
+      { key: 'over', name: '遥远' }
     ],
     list: [],
     total: 0,

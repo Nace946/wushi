@@ -4,7 +4,7 @@
     "empty-state": "/components/empty-state/index",
     "snackbar": "/components/snackbar/index"
   },
-  "navigationBarTitleText": "物时",
+  "navigationBarTitleText": "总览",
   "enablePullDownRefresh": true,
   "backgroundTextStyle": "dark"
 }

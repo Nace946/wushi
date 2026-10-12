@@ -78,8 +78,8 @@ Page({
     wx.navigateTo({ url: '/pages/guide/guide' })
   },
 
-  onAdd() {
-    wx.navigateTo({ url: '/pages/edit/edit' })
+  goFeedback() {
+    wx.navigateTo({ url: '/pages/feedback/feedback' })
   },
 
   onClear() {

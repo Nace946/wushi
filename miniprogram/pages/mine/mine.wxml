@@ -74,8 +74,11 @@
         <text class="cell-label">使用说明</text>
         <text class="cell-value">›</text>
       </view>
-      <view class="cell cell-last" bindtap="onAdd" hover-class="cell-hover" hover-stay-time="60">
-        <text class="cell-label">添加新记录</text>
+      <view class="cell cell-last" bindtap="goFeedback" hover-class="cell-hover" hover-stay-time="60">
+        <view>
+          <text class="cell-label">意见反馈</text>
+          <text class="cell-hint">用着不顺手？想加什么功能？告诉我</text>
+        </view>
         <text class="cell-value">›</text>
       </view>
     </view>
