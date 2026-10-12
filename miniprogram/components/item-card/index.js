@@ -31,6 +31,9 @@ Component({
     state: null,
     meta: '',
     isCountUp: false,
+    isEvent: false,
+    isEventCountdown: false,
+    showAction: true,
     popping: false,
     flying: false
   },
@@ -43,14 +46,24 @@ Component({
       }
       const state = item._state || time.getItemState(item)
       const isCountUp = item.mode === MODE_COUNTUP
+      // 事件没有「实体」，不涉及数量与存放位置（v3.0 起事件也支持倒计时）
+      const isEvent = item.kind === 'event'
       const parts = []
-      if (item.location) parts.push(item.location)
-      // 正计时不展示数量
-      if (item.quantity && !isCountUp) parts.push('×' + item.quantity)
+      if (!isEvent) {
+        if (item.location) parts.push(item.location)
+        // 正计时不展示数量
+        if (item.quantity && !isCountUp) parts.push('×' + item.quantity)
+      }
+      const isEventCountdown = isEvent && !isCountUp
       this.setData({
         state,
         meta: parts.join(' · '),
-        isCountUp: item.mode === MODE_COUNTUP
+        isCountUp,
+        isEvent,
+        isEventCountdown,
+        // 快捷按钮：正计时 = 重新计时（物品 / 事件都适用）
+        //           倒计时 = 物品「用掉一个」/ 事件「已完成」（v3.2 起事件倒计时也能一键完成）
+        showAction: true
       })
     },
 
@@ -78,6 +91,21 @@ Component({
       setTimeout(() => this.setData({ flying: false }), 820)
 
       this.triggerEvent('use', { id: item.id })
+    },
+
+    /**
+     * 倒计时事件：这件事已完成
+     * 与「用掉一个」区分开 —— 事件没有数量，也不需要 −1 的飘字
+     */
+    onFinish() {
+      const item = this.data.item
+      if (!item) return
+
+      this.vibrate()
+      this.setData({ popping: true })
+      setTimeout(() => this.setData({ popping: false }), 320)
+
+      this.triggerEvent('finish', { id: item.id })
     },
 
     /** 正计时：重新开始计时（等同详情页「我刚处理过」） */

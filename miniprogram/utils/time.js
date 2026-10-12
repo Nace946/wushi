@@ -106,6 +106,53 @@ function daysOf(value, unit) {
   return v
 }
 
+/**
+ * 倒计时事件「已完成」后的下一轮起止日期
+ *
+ * 关键：**整段周期往后平移一期**，而不是「从完成当天重新起算一期」。
+ *
+ * 起始 10.01、持续 1 个月的记录，到期日是 11.01。
+ * 若在 10.12 中途就完成了，下一轮应是 11.01 → 12.01，
+ * 于是「从完成那天算起」还剩 20 天（10.12→11.01 没走完的余量）+ 1 个月 = 50 天。
+ * 如果按「从今天重新持续 1 个月」算，下一轮会变成 11.12，白白丢掉那 20 天。
+ *
+ * 周期锚点也因此不会漂移：设的是「每月 1 号」，之后始终落在 1 号。
+ * 有「持续天数 / 保质期」时按原单位平移（1 个月仍是 1 个月，不会因为 30 天而漂移）；
+ * 「直接填到期日」没有周期长度，就按这一轮的跨度平移，至少 1 天。
+ * 逾期很久才补记时，会一直平移到「晚于今天」的那一期，避免刚记完就又显示已过期。
+ *
+ * @param {Object} item
+ * @returns {{produceDate:String, expireDate:String}}
+ */
+function advanceCountdown(item) {
+  const t = today()
+  const oldStart = (item && item.produceDate) || t
+  const oldExpire =
+    (item && item.expireDate) ||
+    computeExpire(oldStart, item && item.shelfLife, item && item.shelfLifeUnit)
+  if (!oldExpire) return { produceDate: oldStart, expireDate: '' }
+
+  const span = Number(item && item.shelfLife) || 0
+  const unit = (item && item.shelfLifeUnit) || 'day'
+
+  let start = oldStart
+  let expire = oldExpire
+  let n = 0
+  do {
+    if (span > 0) {
+      start = computeExpire(start, span, unit)
+      expire = computeExpire(expire, span, unit)
+    } else {
+      const len = Math.max(1, diffDays(start, expire))
+      start = addDays(start, len)
+      expire = addDays(expire, len)
+    }
+    n++
+  } while (diffDays(t, expire) < 1 && n < 400)
+
+  return { produceDate: start, expireDate: expire }
+}
+
 /** 天数 -> 人类可读文案 */
 function humanDays(days) {
   const d = Math.abs(Math.round(days))
@@ -543,6 +590,7 @@ module.exports = {
   addMonths,
   addYears,
   computeExpire,
+  advanceCountdown,
   daysOf,
   humanDays,
   formatCN,

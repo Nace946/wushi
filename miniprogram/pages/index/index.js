@@ -230,6 +230,36 @@ Page({
     wx.showToast({ title: '已撤销', icon: 'none' })
   },
 
+  /**
+   * 倒计时事件：这件事已完成
+   * 循环的原地进入下一轮；不循环的记一笔后自动收起（流水保留在事件记录里）
+   */
+  onFinishCard(e) {
+    const id = e.detail.id
+    if (!id) return
+    const item = storage.getById(id)
+    if (!item) return
+    const cyclic = !!item.cyclic
+    wx.showModal({
+      title: '「' + item.name + '」已经完成？',
+      content: cyclic
+        ? '记录一次，然后重新计时，进入下一轮。'
+        : '记录一次，这条计时会自动收起（记录仍保留在「事件记录」里）。',
+      cancelText: '再想想',
+      confirmText: '已完成',
+      confirmColor: '#0A7F4E',
+      success: res => {
+        if (!res.confirm) return
+        const r = storage.finishEvent(id)
+        this.refresh()
+        wx.showToast({
+          title: r && r.mode === 'recycled' ? '已完成 · 已重新计时' : '已完成 · 已记录',
+          icon: 'success'
+        })
+      }
+    })
+  },
+
   /** 正计时：重新开始计时 */
   onResetCard(e) {
     const id = e.detail.id

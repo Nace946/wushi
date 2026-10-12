@@ -10,6 +10,18 @@ function fmtClock(ts) {
   return (h.length < 2 ? '0' + h : h) + ':' + (m.length < 2 ? '0' + m : m)
 }
 
+/**
+ * 每条流水右侧的来源标记
+ * - 倒计时完成且已进入下一轮：明确写出来，避免和正计时的「重新计时」混淆
+ * - 倒计时完成且已收起：记一次后这条计时归档了
+ * - 正计时重新计时：不加标记（本来就是它的日常）
+ */
+function logTag(l) {
+  if (l.archived) return ' · 计时已收起'
+  if (l.type === 'done' && l.cyclic) return ' · 已完成 · 进入下一轮'
+  return ''
+}
+
 /** 同一条记录相邻两次之间的间隔文案（本次 − 上次） */
 function fmtGap(ms) {
   if (!ms || ms <= 0) return ''
@@ -56,7 +68,9 @@ Page({
     const map = {}
     logs.forEach(l => {
       if (!map[l.date]) map[l.date] = { date: l.date, title: '', items: [] }
-      map[l.date].items.push(Object.assign({}, l, { timeText: fmtClock(l.ts) }))
+      map[l.date].items.push(
+        Object.assign({}, l, { timeText: fmtClock(l.ts), tag: logTag(l) })
+      )
     })
 
     const groups = Object.keys(map)
@@ -84,8 +98,14 @@ Page({
   },
 
   goDetail(e) {
-    const id = e.currentTarget.dataset.id
-    if (id) wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
+    const ds = e.currentTarget.dataset
+    // 不循环的倒计时事件完成后会被收起，只剩这一条记录，点不进详情
+    // （dataset 里布尔可能被转成字符串，用 Number 判断）
+    if (Number(ds.archived)) {
+      wx.showToast({ title: '这条计时已收起，记录仍然保留', icon: 'none' })
+      return
+    }
+    if (ds.id) wx.navigateTo({ url: '/pages/detail/detail?id=' + ds.id })
   },
 
   onShareAppMessage() {

@@ -33,8 +33,8 @@
     <text wx:if="{{!compact}}" class="ic-sub">{{state.subText}}</text>
   </view>
 
-  <!-- 快捷操作：倒计时 = 用掉一个；正计时 = 重新开始计时 -->
-  <view wx:if="{{showUse}}" class="ic-use-wrap">
+  <!-- 快捷操作：正计时 = 重新计时；倒计时物品 = 用掉一个；倒计时事件 = 已完成 -->
+  <view wx:if="{{showUse && showAction}}" class="ic-use-wrap">
     <!-- 正计时：重置 -->
     <view
       wx:if="{{isCountUp}}"
@@ -46,7 +46,18 @@
       <text class="ic-use-minus">↺</text>
     </view>
 
-    <!-- 倒计时：用掉一个 -->
+    <!-- 倒计时事件：这件事已完成（没有数量，不显示 −1 飘字） -->
+    <view
+      wx:elif="{{isEventCountdown}}"
+      class="ic-use {{popping ? 'ic-use-pop' : ''}}"
+      catchtap="onFinish"
+      hover-class="ic-use-hover"
+      hover-stay-time="60"
+    >
+      <text class="ic-use-minus">−</text>
+    </view>
+
+    <!-- 倒计时物品：用掉一个 -->
     <block wx:else>
       <view
         class="ic-use {{popping ? 'ic-use-pop' : ''}} {{item.quantity <= 0 ? 'ic-use-off' : ''}}"

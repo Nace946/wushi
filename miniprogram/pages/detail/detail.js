@@ -26,7 +26,8 @@ Page({
   load() {
     const item = storage.getById(this.data.id)
     if (!item) {
-      wx.showToast({ title: '物品不存在', icon: 'none' })
+      // 可能是「不循环的事件倒计时」完成后已被收起（记录仍留在事件记录里）
+      wx.showToast({ title: '这条计时已不存在', icon: 'none' })
       setTimeout(() => wx.navigateBack(), 800)
       return
     }
@@ -52,15 +53,28 @@ Page({
         rows.push({ label: kt.cycleShort, value: kt.cycleOffShort })
       }
     } else {
-      rows.push({ label: '生产日期', value: time.formatCN(item.produceDate) || '-' })
+      // 倒计时文案随类型变化：物品说「生产日期 / 保质期」，事件说「起始日期 / 持续天数」
+      rows.push({ label: kt.cdStart, value: time.formatCN(item.produceDate) || '-' })
       if (item.expireManual) {
-        rows.push({ label: '到期日', value: time.formatCN(item.expireDate) + '（手动）' })
+        rows.push({ label: kt.cdExpire, value: time.formatCN(item.expireDate) + '（手动）' })
       } else {
         rows.push({
-          label: '保质期',
+          label: kt.cdSpan,
           value: (item.shelfLife || '-') + ' ' + { day: '天', month: '个月', year: '年' }[item.shelfLifeUnit || 'day']
         })
-        rows.push({ label: '到期日', value: time.formatCN(state.targetDate) })
+        rows.push({ label: kt.cdExpire, value: time.formatCN(state.targetDate) })
+      }
+      // 事件倒计时：完成后是自动进入下一轮，还是记一次后收起
+      // （「直接填写到期日」没有周期长度，不做循环）
+      if (isEvent) {
+        rows.push({
+          label: '完成后',
+          value: item.expireManual
+            ? '不循环 · 完成后只记一次'
+            : item.cyclic
+              ? kt.cyclicOnText
+              : kt.cyclicOffText
+        })
       }
     }
     // 没有循环间隔就没有提醒；remindDays 为 0 表示用户选择了「不提醒」
@@ -68,8 +82,8 @@ Page({
       const rd = Number(item.remindDays) || 0
       rows.push({ label: '提前提醒', value: rd > 0 ? rd + ' 天' : '不提前提醒' })
     }
-    // 正计时不涉及数量与存放位置
-    if (!isCountUp) {
+    // 数量与存放位置只对「物品 + 倒计时」有意义（事件与正计时都不涉及）
+    if (!isCountUp && !isEvent) {
       if (item.location) rows.push({ label: '存放位置', value: item.location })
       // 注意：数量可能为 0，不能用 || 1 兜底（会显示成 1）
       const qty = item.quantity === 0 || item.quantity ? Number(item.quantity) : 1
@@ -106,6 +120,36 @@ Page({
         storage.resetCycle(item.id)
         this.load()
         wx.showToast({ title: kt.resetToast, icon: 'success' })
+      }
+    })
+  },
+
+  /**
+   * 倒计时事件：这件事已完成
+   * 循环的重新计时并留在本页；不循环的记一笔后返回（记录并入「事件记录」）
+   */
+  onFinishEvent() {
+    const item = this.data.item
+    if (!item) return
+    const cyclic = !!item.cyclic
+    wx.showModal({
+      title: '「' + item.name + '」已经完成？',
+      content: cyclic
+        ? '记录一次，并进入下一轮。这一轮没用完的时间会顺延进去，不会白白丢掉。'
+        : '记录一次，这条计时会自动收起（记录仍保留在「事件记录」里）。',
+      cancelText: '再想想',
+      confirmText: '已完成',
+      confirmColor: '#0A7F4E',
+      success: res => {
+        if (!res.confirm) return
+        const r = storage.finishEvent(item.id)
+        if (r && r.mode === 'recycled') {
+          this.load()
+          wx.showToast({ title: '已完成 · 已进入下一轮', icon: 'success' })
+        } else {
+          wx.showToast({ title: '已完成 · 已记录', icon: 'success' })
+          setTimeout(() => wx.navigateBack(), 700)
+        }
       }
     })
   },

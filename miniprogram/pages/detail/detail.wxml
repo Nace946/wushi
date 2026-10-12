@@ -44,17 +44,22 @@
     <view wx:if="{{isCountUp}}" class="btn btn-primary op-btn" bindtap="onReset" hover-class="btn-hover" hover-stay-time="80">
       {{resetBtn}}
     </view>
+    <!-- 倒计时事件：这件事已完成（循环则进入下一轮，不循环则记一次后收起） -->
+    <view wx:elif="{{isEvent}}" class="btn btn-primary op-btn" bindtap="onFinishEvent" hover-class="btn-hover" hover-stay-time="80">
+      这件事已完成
+    </view>
+    <!-- 倒计时物品：已用完 / 丢弃 -->
     <view wx:else class="btn btn-primary op-btn" bindtap="onFinish" hover-class="btn-hover" hover-stay-time="80">
       此物品已使用完或丢弃
     </view>
-    <view wx:if="{{!isCountUp}}" class="btn btn-ghost op-btn" bindtap="onUse" hover-class="btn-hover" hover-stay-time="80">
+    <view wx:if="{{!isCountUp && !isEvent}}" class="btn btn-ghost op-btn" bindtap="onUse" hover-class="btn-hover" hover-stay-time="80">
       用掉一个 · 还剩 {{item.quantity}}{{item.unit}}
     </view>
     <view class="btn btn-ghost op-btn" bindtap="onEdit" hover-class="btn-hover" hover-stay-time="80">
       编辑信息
     </view>
     <view class="btn btn-danger-text op-btn" bindtap="onDelete" hover-class="btn-hover" hover-stay-time="80">
-      删除这件物品
+      {{isEvent ? '删除这条记录' : '删除这件物品'}}
     </view>
   </view>
 

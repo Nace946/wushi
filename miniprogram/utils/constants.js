@@ -14,7 +14,11 @@ const KIND = {
   EVENT: 'event'
 }
 
-// 物品分类
+/**
+ * 物品分类
+ * 注：`mode` 仅作「推荐计时方式」的记录；v3.0 起不再由分类反推表单的计时方式
+ * （添加页改为「先选物品/事件，再选倒计时/正计时」，模式完全由用户决定）
+ */
 const CATEGORIES = [
   { key: 'food', name: '食品', icon: '🥛', mode: MODE.COUNTDOWN, kind: KIND.ITEM },
   { key: 'medicine', name: '药品', icon: '💊', mode: MODE.COUNTDOWN, kind: KIND.ITEM },
@@ -63,6 +67,13 @@ const KIND_TEXT = {
     periodWord: '使用周期',
     tip: '记下上次更换的时间，之后由它自己数着走，到了周期会提醒你。',
     countSteps: [7, 14, 21, 30, 60, 90, 180, 365],
+    // —— 倒计时（v3.0 起事件也支持倒计时，文案随 kind 切换）——
+    expireTitle: '保质期信息',
+    cdStart: '生产日期',
+    cdSpan: '保质期',
+    cdExpire: '到期日',
+    cdManual: '直接填写到期日',
+    cdManualHint: '包装上只印了到期日时打开',
     subOver: n => '建议更换时间已过 ' + n + ' 天',
     subDue: '已到建议周期，建议今天处理',
     subSoon: d => '建议 ' + d + ' 前更换'
@@ -94,6 +105,20 @@ const KIND_TEXT = {
     cycleOffText: '只记录「距离上次多久」，不会提醒你',
     cycleOffShort: '不循环（仅记录）',
     countSteps: [1, 2, 3, 5, 7, 14, 30],
+    // —— 倒计时（v3.0 起事件也能用倒计时，比如生日、纪念日、交房租）——
+    expireTitle: '倒计时信息',
+    cdStart: '起始日期',
+    cdSpan: '持续天数',
+    cdExpire: '到期日',
+    cdManual: '直接填写到期日',
+    cdManualHint: '只知道具体是哪一天时打开',
+    // —— 倒计时的「循环」开关（事件专用）：完成后自动进入下一轮 ——
+    cyclicSwitchLabel: '完成后自动循环',
+    cyclicSwitchHint: '开启后完成即进入下一轮，这一轮没用完的时间会顺延进去，不会浪费',
+    cyclicOnText: '完成后自动进入下一轮（剩余时间顺延）',
+    cyclicOffText: '完成后只记一次，这条计时会自动删除',
+    // 直接填写到期日时不做循环（没有周期长度可推演），因此不显示开关
+    cyclicManualHint: '直接填写到期日不做循环，完成后只记一次',
     subOver: n => '已经超过循环间隔 ' + n + ' 天',
     subDue: '已到循环间隔，可以再来一次',
     subSoon: d => '大约 ' + d + ' 后再来一次'

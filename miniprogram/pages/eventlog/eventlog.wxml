@@ -19,7 +19,7 @@
     <empty-state
       emoji="🗓️"
       text="还没有事件记录"
-      subText="在事件页点卡片右侧的 ↺，每重新开始一次就记一笔"
+      subText="在事件页点卡片右侧的 ↺ 或 −，每记一次就留一笔"
     />
   </view>
 
@@ -37,6 +37,7 @@
         wx:for-item="log"
         wx:key="logId"
         data-id="{{log.itemId}}"
+        data-archived="{{log.archived ? 1 : 0}}"
         bindtap="goDetail"
         hover-class="ul-hover"
         hover-stay-time="60"
@@ -44,7 +45,7 @@
         <text class="ul-icon">{{log.icon}}</text>
         <view class="ul-main">
           <text class="ul-name">{{log.name}}</text>
-          <text class="ul-sub">{{log.timeText}}</text>
+          <text class="ul-sub">{{log.timeText}}{{log.tag}}</text>
         </view>
         <text class="ul-gap">{{log.gapText}}</text>
       </view>

@@ -81,6 +81,7 @@
         bind:tap="goDetail"
         bind:use="onUse"
         bind:reset="onResetCard"
+        bind:finish="onFinishCard"
       />
     </view>
   </view>
@@ -107,6 +108,7 @@
         bind:tap="goDetail"
         bind:use="onUse"
         bind:reset="onResetCard"
+        bind:finish="onFinishCard"
       />
     </view>
     <view wx:else class="card">
@@ -140,6 +142,7 @@
         bind:tap="goDetail"
         bind:use="onUse"
         bind:reset="onResetCard"
+        bind:finish="onFinishCard"
       />
     </view>
     <view wx:else class="card">

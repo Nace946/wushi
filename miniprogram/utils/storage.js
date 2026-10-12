@@ -19,8 +19,12 @@ const DEFAULT_SETTINGS = {
   reduceMotion: false // 降低动效（舒缓式可访问性选项）
 }
 
-/** 读取全部物品（含事件）；旧数据无 kind 字段时按「物品」补齐 */
-function getAll() {
+/**
+ * 读取原始数据（含已归档的记录），仅供本文件内部「读-改-写」使用
+ *
+ * 写操作必须基于它，否则会把归档记录从存储里抹掉（见 getAll 的说明）。
+ */
+function readAll() {
   try {
     const list = wx.getStorageSync(KEY_ITEMS)
     if (!Array.isArray(list)) return []
@@ -29,6 +33,17 @@ function getAll() {
     console.error('[storage] 读取失败', e)
     return []
   }
+}
+
+/**
+ * 读取全部记录（含事件）；旧数据无 kind 字段时按「物品」补齐
+ *
+ * 已归档（archived）的记录不再返回：不循环的事件在完成后要「记录进统计并自动删除」，
+ * 而事件记录页的数据源是各条记录里的 eventLog —— 直接删掉记录会连流水一起丢。
+ * 因此「删除」实现为归档：对列表 / 统计不可见，流水仍然保留在事件记录里。
+ */
+function getAll() {
+  return readAll().filter(i => !i.archived)
 }
 
 /** 只取物品（不含事件） */
@@ -59,7 +74,7 @@ function getById(id) {
 
 /** 新增，返回完整对象 */
 function add(item) {
-  const list = getAll()
+  const list = readAll()
   const now = Date.now()
   const full = Object.assign(
     {
@@ -77,6 +92,9 @@ function add(item) {
       lastDate: '',
       lastAt: 0, // 正计时起点精确时刻（毫秒，所有正计时都写）；0 = 按上次日期当天 0 点计
       cycleDays: '',
+      // 事件 × 倒计时：完成后是否自动进入下一轮（false = 完成后记录一次并归档）
+      cyclic: false,
+      archived: false, // 已归档：对列表与统计不可见，但流水保留在「事件记录」里
       quantity: 1,
       unit: '份',
       location: '',
@@ -99,7 +117,7 @@ function add(item) {
 
 /** 局部更新 */
 function update(id, patch) {
-  const list = getAll()
+  const list = readAll()
   const idx = list.findIndex(i => i.id === id)
   if (idx === -1) return null
   list[idx] = Object.assign({}, list[idx], patch, { updatedAt: Date.now() })
@@ -108,7 +126,7 @@ function update(id, patch) {
 }
 
 function remove(id) {
-  const list = getAll().filter(i => i.id !== id)
+  const list = readAll().filter(i => i.id !== id)
   return saveAll(list)
 }
 
@@ -126,11 +144,48 @@ const EVENT_LOG_LIMIT = 40
 function resetCycle(id) {
   const item = getById(id)
   const now = Date.now()
-  const log = { id: util.uuid(), t: time.today(), ts: now }
+  const log = { id: util.uuid(), type: 'reset', t: time.today(), ts: now }
   const logs = Array.isArray(item && item.eventLog) ? item.eventLog.slice(0, EVENT_LOG_LIMIT - 1) : []
   logs.unshift(log)
   // 起点精确时刻对所有正计时都有效，不必等用户开「详细计时」
   return update(id, { lastDate: time.today(), lastAt: now, eventLog: logs })
+}
+
+/**
+ * 倒计时事件「已完成」：记一笔流水，再决定是进入下一轮还是把这笔计时收起来
+ *
+ * **两种结果都会先记一笔流水**（`type:'done'`），所以不论循环与否，
+ * 这一次完成都会出现在「事件记录」里（循环的那笔带 `cyclic:true` 标记，见 eventlog 页）。
+ *
+ * - 循环（item.cyclic）：进入下一轮 —— 整段周期往后平移一期（见 time.advanceCountdown），
+ *   中途提前完成时，这一轮没走完的时间会顺延进去，不会白白丢掉
+ * - 不循环：仅归档 —— 对列表与统计不可见（体感就是「自动删除」），
+ *   但流水保留在 eventLog 里，所以「事件记录」仍能看到这一次完成
+ *
+ * @param {String} id
+ * @returns {null|{mode:'recycled'|'archived', item:Object|null}}
+ */
+function finishEvent(id) {
+  const item = getById(id)
+  if (!item) return null
+  const now = Date.now()
+  const cyclic = !!item.cyclic
+  // type 区分「正计时重新计时」与「倒计时完成」；cyclic 记录这次完成走的是哪条分支
+  const log = { id: util.uuid(), type: 'done', cyclic, t: time.today(), ts: now }
+  const logs = Array.isArray(item.eventLog) ? item.eventLog.slice(0, EVENT_LOG_LIMIT - 1) : []
+  logs.unshift(log)
+
+  if (cyclic) {
+    const next = time.advanceCountdown(item)
+    const updated = update(
+      id,
+      Object.assign({}, next, { lastDate: '', lastAt: 0, eventLog: logs })
+    )
+    return { mode: 'recycled', item: updated }
+  }
+
+  update(id, { archived: true, archivedAt: now, eventLog: logs })
+  return { mode: 'archived', item: null }
 }
 
 /** 取全部置顶记录（按置顶时间先后，先置顶的排前面） */
@@ -153,11 +208,12 @@ function countPinned(excludeId) {
  * @returns {{ok:Boolean, reason?:String, item?:Object, limit:Number, used:Number}}
  */
 function setPinned(id, on) {
-  const list = getAll()
+  const list = readAll()
   const idx = list.findIndex(i => i.id === id)
   if (idx === -1) return { ok: false, reason: 'missing', limit: PIN_LIMIT, used: 0 }
 
-  const used = list.filter(i => i && i.pinned && i.id !== id).length
+  // 只数还在台面上的置顶（归档记录不该占名额）
+  const used = list.filter(i => i && i.pinned && !i.archived && i.id !== id).length
   if (on && used >= PIN_LIMIT) {
     return { ok: false, reason: 'full', limit: PIN_LIMIT, used }
   }
@@ -267,22 +323,35 @@ function getAllUsage() {
   return out
 }
 
-/** 汇总全部「事件」的重新计时流水（时间倒序），供事件记录页使用 */
+/**
+ * 汇总全部「事件」的重新计时 / 完成流水（时间倒序），供事件记录页使用
+ *
+ * 这里刻意用 readAll：不循环的事件完成后会被归档（列表里看不到），
+ * 但它留下的那一次完成记录仍应出现在事件记录里。
+ */
 function getAllEventLogs() {
   const out = []
-  getEvents().forEach(item => {
-    const logs = Array.isArray(item.eventLog) ? item.eventLog : []
-    logs.forEach(l => {
-      out.push({
-        logId: l.id,
-        itemId: item.id,
-        name: item.name,
-        icon: item.icon,
-        date: l.t,
-        ts: l.ts || 0
+  readAll()
+    .filter(item => item && item.kind === KIND.EVENT)
+    .forEach(item => {
+      const logs = Array.isArray(item.eventLog) ? item.eventLog : []
+      logs.forEach(l => {
+        out.push({
+          logId: l.id,
+          itemId: item.id,
+          name: item.name,
+          icon: item.icon,
+          date: l.t,
+          ts: l.ts || 0,
+          // 流水来源：reset = 正计时重新计时；done = 倒计时「已完成」（老数据无 type）
+          type: l.type || (item.archived ? 'done' : 'reset'),
+          // 这一次完成是否进入了下一轮（循环事件）
+          cyclic: !!l.cyclic,
+          // 已归档：这条计时在列表里已经收起，点不进详情
+          archived: !!item.archived
+        })
       })
     })
-  })
   out.sort((a, b) => (b.ts || 0) - (a.ts || 0))
   return out
 }
@@ -458,6 +527,8 @@ function buildFromPreset(preset) {
     lastDate: preset.mode === MODE.COUNTUP ? time.today() : '',
     lastAt: 0,
     cycleDays: preset.cycleDays || '',
+    cyclic: false,
+    archived: false,
     quantity: 1,
     unit: preset.unit || (kind === KIND.EVENT ? '次' : '份'),
     location: preset.location || '',
@@ -484,6 +555,7 @@ module.exports = {
   remove,
   clearAll,
   resetCycle,
+  finishEvent,
   useItem,
   undoUse,
   undoUseBatch,

@@ -1,7 +1,65 @@
 <view class="page" wx:if="{{form}}">
 
-  <!-- 预设模板 -->
+  <!-- ① 先选记录类型：物品 / 事件（v3.0 起常显，不再只在正计时下出现） -->
   <view class="block">
+    <text class="block-title">记录什么</text>
+    <view class="modes">
+      <view
+        class="mode {{kind === 'item' ? 'mode-on' : ''}}"
+        data-kind="item"
+        bindtap="onKind"
+      >
+        <text class="mode-emoji">📦</text>
+        <view class="mode-text">
+          <text class="mode-name">物品</text>
+          <text class="mode-desc">床单、牙刷、滤芯…</text>
+        </view>
+      </view>
+      <view
+        class="mode {{kind === 'event' ? 'mode-on' : ''}}"
+        data-kind="event"
+        bindtap="onKind"
+      >
+        <text class="mode-emoji">🗓️</text>
+        <view class="mode-text">
+          <text class="mode-name">事件</text>
+          <text class="mode-desc">洗澡、剪指甲、生日…</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ② 再选计时方式：倒计时 / 正计时（两种记录类型都适用） -->
+  <view class="block">
+    <text class="block-title">计时方式</text>
+    <view class="modes">
+      <view
+        class="mode {{form.mode === 'countdown' ? 'mode-on' : ''}}"
+        data-mode="countdown"
+        bindtap="onMode"
+      >
+        <text class="mode-emoji">⏳</text>
+        <view class="mode-text">
+          <text class="mode-name">倒计时</text>
+          <text class="mode-desc">离到期还有多久</text>
+        </view>
+      </view>
+      <view
+        class="mode {{form.mode === 'countup' ? 'mode-on' : ''}}"
+        data-mode="countup"
+        bindtap="onMode"
+      >
+        <text class="mode-emoji">🌱</text>
+        <view class="mode-text">
+          <text class="mode-name">正计时</text>
+          <text class="mode-desc">距上次过了多久</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 预设模板（按当前类型与计时方式匹配，无匹配时整块隐藏） -->
+  <view class="block" wx:if="{{presets.length}}">
     <text class="block-title">{{ktPresetTitle}}</text>
     <scroll-view scroll-x class="preset-scroll" show-scrollbar="{{false}}">
       <view class="preset-inner">
@@ -21,7 +79,7 @@
     </scroll-view>
   </view>
 
-  <!-- 名称 + 图标（倒计时附数量与存放位置） -->
+  <!-- 名称 + 图标（仅「物品 + 倒计时」附数量与存放位置） -->
   <view class="card name-card">
     <view class="nb-row">
       <!-- 图标：点击弹出选择面板 -->
@@ -49,8 +107,8 @@
       </view>
     </view>
 
-    <!-- 数量与存放位置：跟随名称下方，只对倒计时有意义（正计时/事件隐藏） -->
-    <block wx:if="{{!isCountUp}}">
+    <!-- 数量与存放位置：只对「物品 + 倒计时」有意义（事件与正计时都隐藏） -->
+    <block wx:if="{{!isCountUp && !isEvent}}">
       <view class="field">
         <text class="flabel">数量</text>
         <view class="qty-row">
@@ -91,56 +149,6 @@
     </block>
   </view>
 
-  <!-- 计时方式 -->
-  <view class="block">
-    <text class="block-title">计时方式</text>
-    <view class="modes">
-      <view
-        class="mode {{form.mode === 'countdown' ? 'mode-on' : ''}}"
-        data-mode="countdown"
-        bindtap="onMode"
-      >
-        <text class="mode-emoji">⏳</text>
-        <text class="mode-name">倒计时</text>
-        <text class="mode-desc">越用越近到期</text>
-      </view>
-      <view
-        class="mode {{form.mode === 'countup' ? 'mode-on' : ''}}"
-        data-mode="countup"
-        bindtap="onMode"
-      >
-        <text class="mode-emoji">🌱</text>
-        <text class="mode-name">正计时</text>
-        <text class="mode-desc">越久越该处理</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 记录类型（仅正计时可选） -->
-  <view class="block" wx:if="{{showKind}}">
-    <text class="block-title">记录什么</text>
-    <view class="modes">
-      <view
-        class="mode {{kind === 'item' ? 'mode-on' : ''}}"
-        data-kind="item"
-        bindtap="onKind"
-      >
-        <text class="mode-emoji">📦</text>
-        <text class="mode-name">物品</text>
-        <text class="mode-desc">床单、牙刷、滤芯…</text>
-      </view>
-      <view
-        class="mode {{kind === 'event' ? 'mode-on' : ''}}"
-        data-kind="event"
-        bindtap="onKind"
-      >
-        <text class="mode-emoji">🗓️</text>
-        <text class="mode-name">事件</text>
-        <text class="mode-desc">健身、家庭聚餐…</text>
-      </view>
-    </view>
-  </view>
-
   <!-- 分类（随物品 / 事件变化） -->
   <view class="card">
     <view class="field field-col">
@@ -157,14 +165,14 @@
     </view>
   </view>
 
-  <!-- ============ 倒计时：保质期信息 ============ -->
+  <!-- ============ 倒计时：到期信息（文案随物品 / 事件变化） ============ -->
   <view class="block" wx:if="{{form.mode === 'countdown'}}">
-    <text class="block-title">保质期信息</text>
+    <text class="block-title">{{ktExpireTitle}}</text>
     <view class="card">
       <view class="switch-row">
         <view>
-          <text class="flabel">直接填写到期日</text>
-          <text class="fhint">包装上只印了到期日时打开</text>
+          <text class="flabel">{{ktCdManual}}</text>
+          <text class="fhint">{{ktCdManualHint}}</text>
         </view>
         <switch
           checked="{{form.expireManual}}"
@@ -175,7 +183,7 @@
 
       <view wx:if="{{form.expireManual}}">
         <view class="field">
-          <text class="flabel">到期日</text>
+          <text class="flabel">{{ktCdExpire}}</text>
           <picker
             mode="date"
             value="{{form.expireDate}}"
@@ -191,7 +199,7 @@
 
       <view wx:else>
         <view class="field">
-          <text class="flabel">生产日期</text>
+          <text class="flabel">{{ktCdStart}}</text>
           <picker
             mode="date"
             value="{{form.produceDate}}"
@@ -205,7 +213,7 @@
         </view>
 
         <view class="field field-col">
-          <text class="flabel">保质期</text>
+          <text class="flabel">{{ktCdSpan}}</text>
           <view class="life-row">
             <input
               class="finput life-input"
@@ -230,9 +238,36 @@
         </view>
       </view>
 
-      <view wx:if="{{expirePreview}}" class="preview">
-        <text class="preview-label">到期日</text>
+      <!-- 到期日预览：只在你「没直接填到期日」时才有意义（用于展示系统算出来的结果）。
+           直接填写到期日时，上方就是同一个日期，再预览一次只是重复。 -->
+      <view wx:if="{{expirePreview && !form.expireManual}}" class="preview">
+        <text class="preview-label">{{ktCdExpire}}</text>
         <text class="preview-value">{{expirePreview}}</text>
+      </view>
+
+      <!-- 事件 × 倒计时：完成后是否自动进入下一轮（物品用不到，用完即换新） -->
+      <view wx:if="{{isEvent && !form.expireManual}}" class="field field-switch">
+        <view class="sw-main">
+          <text class="flabel">{{ktCyclicLabel}}</text>
+          <text class="fhint">{{ktCyclicHint}}</text>
+        </view>
+        <switch
+          checked="{{cyclicEnabled}}"
+          bindchange="onCyclicToggle"
+          color="#0A7F4E"
+        />
+      </view>
+
+      <!-- 直接填写到期日：没有周期长度可推演，不做循环，因此不显示开关，只给一句说明 -->
+      <view wx:if="{{isEvent && form.expireManual}}" class="open-line">
+        <text class="open-emoji">🕊️</text>
+        <text class="open-text">{{ktCyclicManual}}</text>
+      </view>
+
+      <!-- 不循环：完成后只留一条记录，这条计时会自动收起 -->
+      <view wx:if="{{isEvent && !form.expireManual && !cyclicEnabled}}" class="open-line">
+        <text class="open-emoji">🕊️</text>
+        <text class="open-text">{{ktCyclicOff}}</text>
       </view>
     </view>
   </view>
@@ -354,8 +389,8 @@
         />
       </view>
 
-      <!-- 提前提醒只对「有循环间隔」的记录有意义；可选「不提醒」 -->
-      <view wx:if="{{!isEvent || cycleEnabled}}" class="field field-col">
+      <!-- 提前提醒：倒计时（物品/事件）都有；正计时里只有「有循环间隔」的才有 -->
+      <view wx:if="{{!isCountUp || !isEvent || cycleEnabled}}" class="field field-col">
         <text class="flabel">提前提醒</text>
         <view class="quick-row">
           <view

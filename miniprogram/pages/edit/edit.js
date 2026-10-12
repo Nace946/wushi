@@ -37,8 +37,8 @@ Page({
     kind: KIND.ITEM,
     isEvent: false,
     isCountUp: false,
-    showKind: false, // 正计时时展示「物品 / 事件」选择
-    cycleEnabled: true, // 事件：是否设置循环间隔（关闭 = 纯记录）
+    cycleEnabled: true, // 事件 × 正计时：是否设置循环间隔（关闭 = 纯记录）
+    cyclicEnabled: false, // 事件 × 倒计时：完成后是否自动进入下一轮（关闭 = 只记一次后归档）
     categories: CATEGORIES,
     emojiGroups: EMOJI_GROUPS,
     iconGroup: 'common',
@@ -69,9 +69,21 @@ Page({
     ktSubmitNew: KIND_TEXT.item.submitNew,
     ktPeriodWord: KIND_TEXT.item.periodWord,
     ktTip: KIND_TEXT.item.tip,
+    // 倒计时字段文案（随物品 / 事件切换）
+    ktExpireTitle: KIND_TEXT.item.expireTitle,
+    ktCdStart: KIND_TEXT.item.cdStart,
+    ktCdSpan: KIND_TEXT.item.cdSpan,
+    ktCdExpire: KIND_TEXT.item.cdExpire,
+    ktCdManual: KIND_TEXT.item.cdManual,
+    ktCdManualHint: KIND_TEXT.item.cdManualHint,
     ktCycleSwitch: KIND_TEXT.event.cycleSwitchLabel,
     ktCycleSwitchHint: KIND_TEXT.event.cycleSwitchHint,
     ktCycleOff: KIND_TEXT.event.cycleOffText,
+    ktCyclicLabel: KIND_TEXT.event.cyclicSwitchLabel,
+    ktCyclicHint: KIND_TEXT.event.cyclicSwitchHint,
+    ktCyclicOn: KIND_TEXT.event.cyclicOnText,
+    ktCyclicOff: KIND_TEXT.event.cyclicOffText,
+    ktCyclicManual: KIND_TEXT.event.cyclicManualHint,
     saving: false
   },
 
@@ -91,6 +103,8 @@ Page({
       shelfLifeUnit: 'day',
       expireDate: '',
       expireManual: false,
+      // 事件 × 倒计时：完成后是否自动进入下一轮（默认关闭，避免意外重复）
+      cyclic: false,
       lastDate: today,
       lastAt: 0, // 起点精确时刻（毫秒）；日期是今天时，保存会自动记为此刻
       cycleDays: '',
@@ -128,7 +142,6 @@ Page({
         form,
         kind: form.kind,
         isCountUp: form.mode === MODE.COUNTUP,
-        showKind: form.mode === MODE.COUNTUP,
         pinEnabled: !!form.pinned,
         unitIndex: Math.max(0, SHELF_UNITS.findIndex(u => u.key === form.shelfLifeUnit))
       })
@@ -145,7 +158,6 @@ Page({
         form: baseForm,
         kind,
         isCountUp: baseForm.mode === MODE.COUNTUP,
-        showKind: baseForm.mode === MODE.COUNTUP,
         pinEnabled: false
       })
       wx.setNavigationBarTitle({ title: isEvent ? '添加事件' : '添加物品' })
@@ -205,13 +217,15 @@ Page({
     const kt = kindText(kind)
 
     const categories = isEvent ? EVENT_CATEGORIES : CATEGORIES
-    // 事件全部是正计时，预设不按 mode 再过滤
-    const presets = isEvent ? EVENT_PRESETS : PRESETS.filter(p => p.mode === f.mode)
+    // 预设按当前计时方式过滤：事件均为正计时模板，事件选倒计时时列表为空（模板区整体隐藏）
+    const presets = (isEvent ? EVENT_PRESETS : PRESETS).filter(p => p.mode === f.mode)
 
     this.setData({
       kind,
       isEvent,
       cycleEnabled: isEvent ? Number(f.cycleDays) > 0 : true,
+      // 直接填写到期日时没有周期长度可推演，一律不做循环（开关也不显示）
+      cyclicEnabled: !!f.cyclic && !f.expireManual,
       categories,
       emojiGroups: isEvent ? EVENT_EMOJI_GROUPS : EMOJI_GROUPS,
       presets,
@@ -225,9 +239,21 @@ Page({
       ktSubmitNew: kt.submitNew,
       ktPeriodWord: kt.periodWord,
       ktTip: kt.tip,
+      ktExpireTitle: kt.expireTitle,
+      ktCdStart: kt.cdStart,
+      ktCdSpan: kt.cdSpan,
+      ktCdExpire: kt.cdExpire,
+      ktCdManual: kt.cdManual,
+      ktCdManualHint: kt.cdManualHint,
       ktCycleSwitch: kt.cycleSwitchLabel || KIND_TEXT.event.cycleSwitchLabel,
       ktCycleSwitchHint: kt.cycleSwitchHint || KIND_TEXT.event.cycleSwitchHint,
-      ktCycleOff: kt.cycleOffText || KIND_TEXT.event.cycleOffText
+      ktCycleOff: kt.cycleOffText || KIND_TEXT.event.cycleOffText,
+      // 倒计时的循环开关（事件专用）
+      ktCyclicLabel: kt.cyclicSwitchLabel || KIND_TEXT.event.cyclicSwitchLabel,
+      ktCyclicHint: kt.cyclicSwitchHint || KIND_TEXT.event.cyclicSwitchHint,
+      ktCyclicOn: kt.cyclicOnText || KIND_TEXT.event.cyclicOnText,
+      ktCyclicOff: kt.cyclicOffText || KIND_TEXT.event.cyclicOffText,
+      ktCyclicManual: kt.cyclicManualHint || KIND_TEXT.event.cyclicManualHint
     })
   },
 
@@ -317,7 +343,7 @@ Page({
     )
   },
 
-  /** 正计时：切换「物品 / 事件」 */
+  /** 记录类型：物品 / 事件（v3.0 起常显，不再只在正计时下出现） */
   onKind(e) {
     const kind = e.currentTarget.dataset.kind
     if (!kind || kind === this.data.form.kind) return
@@ -339,21 +365,14 @@ Page({
     this.setData(patch, () => this.syncKindMeta())
   },
 
+  /**
+   * 计时方式：倒计时 / 正计时
+   * v3.0 起两种方式对物品与事件都开放，切换计时方式**不再联动记录类型**
+   */
   onMode(e) {
     const mode = e.currentTarget.dataset.mode
-    const patch = { 'form.mode': mode, isCountUp: mode === MODE.COUNTUP, showKind: mode === MODE.COUNTUP }
-    // 倒计时只有物品，自动切回物品
-    if (mode !== MODE.COUNTUP) {
-      patch['form.kind'] = KIND.ITEM
-      patch.kind = KIND.ITEM
-      if (this.isDefaultIcon(this.data.form.icon)) {
-        patch['form.icon'] = this.defaultIconOf(KIND.ITEM)
-      }
-      if (!CATEGORIES.some(c => c.key === this.data.form.category)) {
-        patch['form.category'] = CATEGORIES[0].key
-      }
-    }
-    this.setData(patch, () => {
+    if (!mode || mode === this.data.form.mode) return
+    this.setData({ 'form.mode': mode, isCountUp: mode === MODE.COUNTUP }, () => {
       this.syncKindMeta()
       this.updatePreview()
     })
@@ -361,16 +380,9 @@ Page({
 
   onCategory(e) {
     const key = e.currentTarget.dataset.key
-    const cat = this.data.categories.find(c => c.key === key)
-    const patch = { 'form.category': key }
-    // 切换分类只改分类本身：图标保持用户当前的选择，不随分类跳动
-    // （默认图标由记录类型决定 —— 物品 📦 / 事件 🗓️，见 defaultIconOf）
-    if (cat && this.data.form.kind !== KIND.EVENT) {
-      patch['form.mode'] = cat.mode
-      patch.isCountUp = cat.mode === MODE.COUNTUP
-      patch.showKind = cat.mode === MODE.COUNTUP
-    }
-    this.setData(patch, () => {
+    // 切换分类只改分类本身：图标与计时方式都保持用户当前的选择
+    // （v3.0 起计时方式完全由「计时方式」区块决定，分类不再反推 mode）
+    this.setData({ 'form.category': key }, () => {
       this.syncKindMeta()
       this.updatePreview()
     })
@@ -464,9 +476,28 @@ Page({
     }
   },
 
+  /**
+   * 直接填写到期日
+   * 这一模式下没有周期长度，无法推演下一轮，因此不做循环：
+   * 打开时顺手把「完成后自动循环」关掉（开关本身也不显示）
+   */
   onExpireManual(e) {
     const on = e.detail.value
-    this.setData({ 'form.expireManual': on }, () => this.updatePreview())
+    const patch = { 'form.expireManual': on }
+    if (on) {
+      patch.cyclicEnabled = false
+      patch['form.cyclic'] = false
+    }
+    this.setData(patch, () => this.updatePreview())
+  },
+
+  /**
+   * 事件 × 倒计时：完成后是否自动进入下一轮
+   * 开启 = 完成时重新计时；关闭 = 完成时记一笔流水，这条计时自动收起
+   */
+  onCyclicToggle(e) {
+    const on = !!e.detail.value
+    this.setData({ cyclicEnabled: on, 'form.cyclic': on })
   },
 
   onPreset(e) {
@@ -481,7 +512,6 @@ Page({
         form,
         kind: form.kind,
         isCountUp: form.mode === MODE.COUNTUP,
-        showKind: form.mode === MODE.COUNTUP,
         pinEnabled: !!form.pinned,
         unitIndex: Math.max(0, SHELF_UNITS.findIndex(u => u.key === form.shelfLifeUnit))
       },
@@ -559,9 +589,13 @@ Page({
       f.lastDate = ''
       f.cycleDays = ''
       f.detailTiming = false
+      // 事件的倒计时可以「完成后自动循环」；物品用不到（用完即换新）
+      // 「直接填写到期日」没有周期长度，不做循环
+      f.cyclic = isEvent && !f.expireManual ? !!this.data.cyclicEnabled : false
     } else {
       // 事件不设循环间隔时，清空周期（纯记录）
       f.cycleDays = f.kind === KIND.EVENT && !this.data.cycleEnabled ? '' : Number(f.cycleDays) || ''
+      f.cyclic = false
       f.produceDate = ''
       f.shelfLife = ''
       f.expireDate = ''
@@ -573,6 +607,11 @@ Page({
       // （否则今天刚创建的事件会从 0 点开始算，显示成「已过去 8 小时」）
       f.lastAt = time.resolveStartAt(f.lastDate, f.lastAt)
       if (!f.cycleDays) f.remindDays = 0
+    }
+    // 事件不涉及数量与存放位置（倒计时也一样），统一清空
+    if (isEvent) {
+      f.quantity = 1
+      f.location = ''
     }
 
     this.setData({ saving: true })
