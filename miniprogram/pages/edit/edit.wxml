@@ -296,15 +296,24 @@
         </picker>
       </view>
 
-      <!-- 起点精确时刻：所有正计时通用，不足一天时按小时/分钟统计已过去多久 -->
-      <view wx:if="{{showAtRow}}" class="field field-col">
+      <!-- 起点精确时刻：所有正计时通用（不足一天时按小时/分钟统计已过去多久）。
+           点时间可手动指定，也可以一键取当前时间；两者都不用时按「今天→此刻 / 过去→当天 0 点」兜底 -->
+      <view class="field field-col">
         <text class="flabel">精确时刻</text>
         <view class="at-row">
-          <text class="at-value {{form.lastAt ? '' : 'at-empty'}}">{{atText || '保存时记为此刻'}}</text>
+          <picker
+            class="at-picker"
+            mode="time"
+            value="{{atTime}}"
+            bindchange="onPickAt"
+          >
+            <view class="at-value {{atEmpty ? 'at-empty' : ''}}">{{atText}}</view>
+          </picker>
           <view class="at-btn" bindtap="onPickNow" hover-class="at-btn-hover" hover-stay-time="60">
             ↻ 取当前时间
           </view>
         </view>
+        <text class="fhint">点上面的时间可手动指定</text>
       </view>
 
       <!-- 事件：循环间隔为可选项，关闭即「只记录时间」 -->

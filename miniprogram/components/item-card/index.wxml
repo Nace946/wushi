@@ -46,7 +46,7 @@
       <text class="ic-use-minus">↺</text>
     </view>
 
-    <!-- 倒计时事件：这件事已完成（没有数量，不显示 −1 飘字） -->
+    <!-- 倒计时事件：这件事已完成（用对勾表示「完成」，没有数量，不显示 −1 飘字） -->
     <view
       wx:elif="{{isEventCountdown}}"
       class="ic-use {{popping ? 'ic-use-pop' : ''}}"
@@ -54,7 +54,7 @@
       hover-class="ic-use-hover"
       hover-stay-time="60"
     >
-      <text class="ic-use-minus">−</text>
+      <text class="ic-use-check">✓</text>
     </view>
 
     <!-- 倒计时物品：用掉一个 -->

@@ -498,10 +498,16 @@
   margin-top: 14rpx;
 }
 
-.at-value {
+/* 时间选择器吃掉整行剩余宽度（flex 项需要 min-width:0 才不会被文字撑破） */
+.at-picker {
   flex: 1;
+  min-width: 0;
+}
+
+/* 主色 = 可点改；与上方「上次发生日期」的 .fvalue 保持同一套点击暗示 */
+.at-value {
   font-size: 30rpx;
-  color: var(--text, #1f2420);
+  color: var(--primary, #0a7f4e);
   font-variant-numeric: tabular-nums;
 }
 

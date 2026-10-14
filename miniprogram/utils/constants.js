@@ -61,7 +61,7 @@ const KIND_TEXT = {
     orderWord: '件',
     resetBtn: '我刚处理过，重新开始计时',
     resetModalTitle: '记录一次处理',
-    resetModal: n => '将「' + n + '」的上次处理时间更新为今天，计时重新开始。',
+    resetModal: n => '将「' + n + '」的上次处理时间更新为此刻，计时重新开始。如需改时间，可在编辑页手动指定。',
     resetToast: '已重新开始计时',
     resetBtnShort: '已重新开始计时',
     periodWord: '使用周期',

@@ -53,7 +53,8 @@ Page({
     expirePreview: '',
     cyclePreview: '',
     atText: '', // 起点精确时刻的展示文案
-    showAtRow: false, // 是否展示「精确时刻」行（日期是今天、或已记过时刻）
+    atTime: '', // 时间选择器的值（'HH:mm'）
+    atEmpty: true, // 是否尚未指定精确时刻（true 时灰显）
     // 首页置顶
     pinEnabled: false,
     pinUsed: 0,
@@ -260,11 +261,20 @@ Page({
   /** 实时计算预览：倒计时=到期日；正计时=下次建议更换 / 下次提醒 */
   updatePreview() {
     const f = this.data.form
-    // 起点精确时刻的展示：日期是今天（保存时记为此刻）或已经记过时刻时都显示
+    // 起点精确时刻：所有正计时都记（与「详细计时」开关无关）。
+    // 未指定时按「日期是今天 → 保存记为此刻 / 日期在过去 → 按当天 0 点计」兜底，
+    // 展示文案与 atTime（时间选择器初值）都要跟着这个兜底走，避免选出来的时刻和预期不一致
     const isToday = f.lastDate === time.today()
+    const at = Number(f.lastAt) || 0
+    const hasAt = at > 0
     this.setData({
-      atText: f.lastAt ? time.formatCN(f.lastDate) + ' ' + time.formatTime(f.lastAt) : '',
-      showAtRow: f.mode === MODE.COUNTUP && (isToday || Number(f.lastAt) > 0)
+      atText: hasAt
+        ? time.formatCN(f.lastDate) + ' ' + time.formatTime(at)
+        : isToday
+          ? '保存时记为此刻'
+          : '未指定 · 按当天 0 点计',
+      atTime: hasAt ? time.formatTime(at) : isToday ? time.formatTime(Date.now()) : '00:00',
+      atEmpty: !hasAt
     })
     if (f.mode === MODE.COUNTUP) {
       const next = f.lastDate && Number(f.cycleDays) > 0
@@ -341,6 +351,29 @@ Page({
         wx.showToast({ title: '起点已更新为 ' + time.formatTime(now), icon: 'none' })
       }
     )
+  },
+
+  /**
+   * 手动指定起点精确时刻（时间选择器，值为 'HH:mm'）
+   *
+   * 时刻要挂在「上次发生日期」那天上，所以用 dayStart(lastDate) 取当天 0 点再加时/分。
+   * 起点不能落在未来：当天选的时刻晚于此刻时回落到此刻，否则会显示成
+   * 「已过去 1 分钟」这种自相矛盾的结果（getItemState 把负时长夹到了 0）。
+   */
+  onPickAt(e) {
+    const f = this.data.form
+    const parts = String(e.detail.value || '').split(':')
+    if (parts.length !== 2 || !f.lastDate) return
+    const h = Number(parts[0])
+    const m = Number(parts[1])
+    if (isNaN(h) || isNaN(m)) return
+    let stamp = time.dayStart(f.lastDate) + h * 3600000 + m * 60000
+    if (isNaN(stamp)) return
+    if (stamp > Date.now()) {
+      stamp = Date.now()
+      wx.showToast({ title: '不能晚于当前时刻，已取此刻', icon: 'none' })
+    }
+    this.setData({ 'form.lastAt': stamp }, () => this.updatePreview())
   },
 
   /** 记录类型：物品 / 事件（v3.0 起常显，不再只在正计时下出现） */

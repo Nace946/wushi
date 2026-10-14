@@ -154,6 +154,14 @@
   color: var(--primary, #0a7f4e);
 }
 
+/* 倒计时事件「已完成」：用对勾，比减号更直白 */
+.ic-use-check {
+  font-size: 34rpx;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--primary, #0a7f4e);
+}
+
 .ic-use-hover {
   opacity: 0.72;
 }

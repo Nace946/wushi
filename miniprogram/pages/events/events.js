@@ -12,6 +12,7 @@ Page({
     statuses: [
       { key: 'all', name: '全部' },
       { key: 'attention', name: '需关注' },
+      { key: 'countdown', name: '倒计时' },
       { key: 'normal', name: '最近' },
       { key: 'soon', name: '不久' },
       { key: 'urgent', name: '近期' },
@@ -64,6 +65,9 @@ Page({
     const st = d.activeStatus
     if (st === 'attention') {
       list = list.filter(i => i._state.status !== 'normal')
+    } else if (st === 'countdown') {
+      // 只看倒计时事件（有到期日的那种）
+      list = list.filter(i => i.mode === 'countdown')
     } else if (st === 'normal' || st === 'soon' || st === 'urgent' || st === 'over') {
       list = list.filter(i => i._state.status === st)
     }
