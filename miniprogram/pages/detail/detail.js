@@ -33,10 +33,12 @@ Page({
     }
 
     const state = time.getItemState(item)
-    const cat = CATEGORIES.concat(EVENT_CATEGORIES).find(c => c.key === item.category)
     const isCountUp = item.mode === MODE.COUNTUP
     const isEvent = item.kind === KIND.EVENT
     const kt = kindText(item.kind)
+    // 分类必须按 kind 取对应那一套：物品的 food=食品/🧴 与事件的 food=美食/🍜 是同名 key，
+    // 若把两套 concat 后再 find，事件会命中物品那一份（v3.8 修）
+    const cat = (isEvent ? EVENT_CATEGORIES : CATEGORIES).find(c => c.key === item.category)
 
     const rows = []
     if (isCountUp) {
@@ -56,13 +58,20 @@ Page({
       // 倒计时文案随类型变化：物品说「生产日期 / 保质期」，事件说「起始日期 / 持续天数」
       rows.push({ label: kt.cdStart, value: time.formatCN(item.produceDate) || '-' })
       if (item.expireManual) {
-        rows.push({ label: kt.cdExpire, value: time.formatCN(item.expireDate) + '（手动）' })
+        rows.push({
+          label: kt.cdExpire,
+          value: time.formatCN(item.expireDate) + ' ' + time.EXPIRE_AT_TEXT + '（手动）'
+        })
       } else {
         rows.push({
           label: kt.cdSpan,
           value: (item.shelfLife || '-') + ' ' + { day: '天', month: '个月', year: '年' }[item.shelfLifeUnit || 'day']
         })
-        rows.push({ label: kt.cdExpire, value: time.formatCN(state.targetDate) })
+        // 到期时刻统一是当天 23:59（当天整天都算有效），写全了才不会误会成 0 点
+        rows.push({
+          label: kt.cdExpire,
+          value: time.formatCN(state.targetDate) + ' ' + time.EXPIRE_AT_TEXT
+        })
       }
       // 事件倒计时：完成后是自动进入下一轮，还是记一次后收起
       // （「直接填写到期日」没有周期长度，不做循环）
@@ -161,7 +170,7 @@ Page({
     wx.showModal({
       title: '此物品已使用完或丢弃？',
       // 说明放在正文：官方限制 cancelText / confirmText 均最多 4 个字符
-      content: '已购新品：保留记录，日期更新为今天重新计时。\n不再需要：直接删除这条记录。',
+      content: '已购新品：保留记录，日期更新为今天重新计时。\n不再需要：从列表删除，使用记录会保留。',
       cancelText: '已购新品',
       confirmText: '删除物品',
       confirmColor: '#E0341F',
@@ -217,7 +226,8 @@ Page({
     if (!item) return
     wx.showModal({
       title: '删除「' + item.name + '」',
-      content: '删除后无法恢复，确定继续吗？',
+      content: '从列表里删除，它留下的记录会保留在记录页里。',
+      confirmText: '删除',
       confirmColor: '#E0341F',
       success: res => {
         if (!res.confirm) return
@@ -230,7 +240,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: this.data.item ? this.data.item.name + ' · 物时' : '物时',
+      title: this.data.item ? this.data.item.name + ' · 天天计时' : '天天计时',
       path: '/pages/index/index'
     }
   }

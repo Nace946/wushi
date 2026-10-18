@@ -4,9 +4,9 @@
   <view class="hero">
     <view class="hero-mark">
       <text class="hero-emoji">🌿</text>
-      <text class="hero-name">物时</text>
+      <text class="hero-name">天天计时</text>
     </view>
-    <text class="hero-desc">记住物品的保质期，也记住每件事的间隔</text>
+    <text class="hero-desc">万物有时，日子有数</text>
   </view>
 
   <!-- 统计 -->
@@ -91,7 +91,7 @@
   </view>
 
   <view class="foot">
-    <text class="foot-line">物时 v{{version}}</text>
+    <text class="foot-line">天天计时 v{{version}}</text>
     <text class="foot-line">数据仅保存在本机，不会上传服务器</text>
     <text class="foot-line">更换手机或卸载小程序会导致数据丢失，请注意</text>
   </view>

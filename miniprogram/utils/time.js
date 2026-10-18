@@ -1,5 +1,5 @@
 /**
- * 物时 · 日期与计时计算
+ * 天天计时 · 日期与计时计算
  * 全部按「自然日」计算，使用 UTC 时间戳避免时区/夏令时误差
  */
 
@@ -50,6 +50,22 @@ function dayStart(str) {
   const p = String(str || '').split('-')
   if (p.length !== 3) return NaN
   return new Date(+p[0], +p[1] - 1, +p[2]).getTime()
+}
+
+/** 到期时刻的口径：到期日当天 23:59 结束（当天整天都还算有效） */
+const EXPIRE_HH = 23
+const EXPIRE_MM = 59
+const EXPIRE_AT_TEXT = EXPIRE_HH + ':' + (EXPIRE_MM < 10 ? '0' + EXPIRE_MM : EXPIRE_MM)
+
+/**
+ * 'YYYY-MM-DD' -> 该日 23:59:59.999 的毫秒时间戳
+ * 倒计时统一按这个时刻判定「还剩多久 / 是否过期」：
+ * 到期日当天一直到 23:59 都算有效，不足一天时才好用小时、分钟说话。
+ */
+function dayEnd(str) {
+  const p = String(str || '').split('-')
+  if (p.length !== 3) return NaN
+  return new Date(+p[0], +p[1] - 1, +p[2], EXPIRE_HH, EXPIRE_MM, 59, 999).getTime()
 }
 
 /**
@@ -378,7 +394,8 @@ function getItemState(item) {
     mainLabel: '剩余',
     subText: '',
     detailText: '', // 正计时且开启「详细计时」时的 年/月/日/时 细分
-    targetDate: ''
+    targetDate: '',
+    expireAtText: '' // 倒计时到期的具体时点（固定 23:59）
   }
 
   if (!item) return base
@@ -500,12 +517,17 @@ function getItemState(item) {
   }
 
   // —— 倒计时：还有多久过期 ——
+  // 到期时刻统一按「到期日 23:59」计：到期日当天整天都还算有效，
+  // 所以真正过期发生在当天 23:59 之后；剩余不足一天时改用小时 / 分钟，不再含糊地说「剩余 0 天」。
   const expireDate = item.expireDate || computeExpire(item.produceDate, item.shelfLife, item.shelfLifeUnit)
+  const expireAt = dayEnd(expireDate)
+  const remainMs = isNaN(expireAt) ? NaN : expireAt - Date.now()
+  // remain 仍是「自然日差」，供四档筛选与排序使用（列表筛选按整天更稳）
   const remain = diffDays(t, expireDate)
   const total = Math.max(1, diffDays(item.produceDate, expireDate))
 
   let status = 'normal'
-  if (remain < 0) status = 'over'
+  if (isNaN(remainMs) ? remain < 0 : remainMs < 0) status = 'over'
   else if (remain <= 3) status = 'urgent'
   else if (remain <= remind) status = 'soon'
 
@@ -521,7 +543,25 @@ function getItemState(item) {
   let mainValue = String(remain < 0 ? Math.abs(remain) : remain)
   let mainUnit = '天'
   let mainParts = [{ v: mainValue, u: mainUnit }]
-  if (remain >= 30) {
+
+  // 不足一天（含「已过期但不足一天」）：主数值换成小时 / 分钟，
+  // 否则「今天到期」会显示成「剩余 0 天」，说不清到底还剩多久
+  let shortSpan = false
+  if (!isNaN(remainMs)) {
+    const abs = Math.abs(remainMs)
+    if (abs < DAY) {
+      shortSpan = true
+      if (abs < 3600000) {
+        mainParts = [{ v: String(Math.max(1, Math.floor(abs / 60000))), u: '分钟' }]
+      } else {
+        mainParts = [{ v: String(Math.floor(abs / 3600000)), u: '小时' }]
+      }
+      mainValue = mainParts[0].v
+      mainUnit = mainParts[0].u
+    }
+  }
+
+  if (!shortSpan && remain >= 30) {
     const span = dateSpan(t, expireDate)
     if (span) {
       mainValue = spanText(span)
@@ -542,12 +582,14 @@ function getItemState(item) {
     mainUnit: mainUnit,
     mainParts: mainParts,
     mainSize: MAIN_SIZE[status] || 1,
-    mainLabel: remain < 0 ? '已过期' : '剩余',
+    mainLabel: status === 'over' ? '已过期' : '剩余',
     subText:
-      remain < 0
+      status === 'over'
         ? '已于 ' + formatCN(expireDate) + ' 过期'
         : formatCN(expireDate) + ' 到期 · ' + weekday(expireDate),
-    targetDate: expireDate
+    targetDate: expireDate,
+    // 到期那一刻的具体时点（统一 23:59），详情页用来把「到期日」写全
+    expireAtText: EXPIRE_AT_TEXT
   })
 }
 
@@ -582,6 +624,8 @@ module.exports = {
   formatDate,
   toStamp,
   dayStart,
+  dayEnd,
+  EXPIRE_AT_TEXT,
   startStamp,
   formatTime,
   today,

@@ -1,5 +1,5 @@
 /**
- * 物时 · 常量与预设
+ * 天天计时 · 常量与预设
  */
 
 // 计时模式
@@ -29,11 +29,19 @@ const CATEGORIES = [
 ]
 
 /**
- * 事件分类（仅正计时）：围绕「距离上次做某事多久」的生活场景
+ * 事件分类：围绕「距离上次做某事多久」的生活场景
  * 洗澡、上厕所、距离上次吃火锅……这些都不是"物品"，而是一次次发生的事
+ *
+ * v3.8 新增「日常」「任务」两类：
+ * - 日常：每天/隔天重复的琐碎小事（刷牙、记账、整理桌面），比"生活起居"更泛
+ * - 任务：有明确截止感或周期性的事务（交房租、缴费、还款、打卡）
+ * 注：key 用 routine / task，刻意避开物品分类里已有的 daily（日用品），
+ *     避免「物品+事件」两套分类被 concat 后出现同名 key 撞车
  */
 const EVENT_CATEGORIES = [
   { key: 'life', name: '生活起居', icon: '🛁', mode: MODE.COUNTUP, kind: KIND.EVENT },
+  { key: 'routine', name: '日常', icon: '🌤️', mode: MODE.COUNTUP, kind: KIND.EVENT },
+  { key: 'task', name: '任务', icon: '📋', mode: MODE.COUNTUP, kind: KIND.EVENT },
   { key: 'food', name: '美食', icon: '🍜', mode: MODE.COUNTUP, kind: KIND.EVENT },
   { key: 'health', name: '健康', icon: '💪', mode: MODE.COUNTUP, kind: KIND.EVENT },
   { key: 'house', name: '家务', icon: '🧹', mode: MODE.COUNTUP, kind: KIND.EVENT },
@@ -47,7 +55,7 @@ const EVENT_CATEGORIES = [
 const KIND_TEXT = {
   item: {
     tag: '物品',
-    lastLabel: '上次更换 / 清洗',
+    lastLabel: '上次处理',
     cycleLabel: '建议更换周期（天）',
     nextLabel: '下次建议更换',
     lastShort: '上次更换',
@@ -55,7 +63,7 @@ const KIND_TEXT = {
     nextShort: '下次建议',
     presetTitle: '快速开始 · 常见物品',
     nameLabel: '物品名称',
-    namePlaceholder: '例如：鲜牛奶',
+    namePlaceholder: '例如：牛奶',
     submitNew: '开始计时',
     countUnit: '件',
     orderWord: '件',
@@ -65,7 +73,7 @@ const KIND_TEXT = {
     resetToast: '已重新开始计时',
     resetBtnShort: '已重新开始计时',
     periodWord: '使用周期',
-    tip: '记下上次更换的时间，之后由它自己数着走，到了周期会提醒你。',
+    tip: '记下上次更换的时间，之后自动计时。',
     countSteps: [7, 14, 21, 30, 60, 90, 180, 365],
     // —— 倒计时（v3.0 起事件也支持倒计时，文案随 kind 切换）——
     expireTitle: '保质期信息',
@@ -73,7 +81,7 @@ const KIND_TEXT = {
     cdSpan: '保质期',
     cdExpire: '到期日',
     cdManual: '直接填写到期日',
-    cdManualHint: '包装上只印了到期日时打开',
+    cdManualHint: '',
     subOver: n => '建议更换时间已过 ' + n + ' 天',
     subDue: '已到建议周期，建议今天处理',
     subSoon: d => '建议 ' + d + ' 前更换'
@@ -81,10 +89,10 @@ const KIND_TEXT = {
   event: {
     tag: '事件',
     lastLabel: '上次发生',
-    cycleLabel: '循环间隔（天）',
+    cycleLabel: '间隔时间（天）',
     nextLabel: '下次提醒',
     lastShort: '上次发生',
-    cycleShort: '循环间隔',
+    cycleShort: '预期时间',
     nextShort: '下次提醒',
     presetTitle: '快速开始 · 常见事件',
     nameLabel: '事件名称',
@@ -94,15 +102,15 @@ const KIND_TEXT = {
     orderWord: '条',
     resetBtn: '刚刚做过，重新计时',
     resetModalTitle: '记录一次发生',
-    resetModal: n => '将「' + n + '」的上次发生时间更新为今天，重新计时。',
+    resetModal: n => '将「' + n + '」的上次发生时间更新为此刻并重新计时，如需更改时间请在编辑中修改。',
     resetToast: '已重新计时',
     resetBtnShort: '已重新计时',
     periodWord: '记录方式',
-    tip: '记下这件事上次发生的时间，之后由它自己数着走。',
+    tip: '记下这件事上次发生的时间，之后由它帮你数。',
     // —— 循环间隔（可选）：不设置时按「纯记录」处理 ——
-    cycleSwitchLabel: '设置循环间隔',
-    cycleSwitchHint: '关闭则只记录时间，不做提醒',
-    cycleOffText: '只记录「距离上次多久」，不会提醒你',
+    cycleSwitchLabel: '设置预期间隔',
+    cycleSwitchHint: '关闭则只记录时间',
+    cycleOffText: '未开启：只记录「距离上次多久」，不会提醒你',
     cycleOffShort: '不循环（仅记录）',
     countSteps: [1, 2, 3, 5, 7, 14, 30],
     // —— 倒计时（v3.0 起事件也能用倒计时，比如生日、纪念日、交房租）——
@@ -113,14 +121,14 @@ const KIND_TEXT = {
     cdManual: '直接填写到期日',
     cdManualHint: '只知道具体是哪一天时打开',
     // —— 倒计时的「循环」开关（事件专用）：完成后自动进入下一轮 ——
-    cyclicSwitchLabel: '完成后自动循环',
-    cyclicSwitchHint: '开启后完成即进入下一轮，这一轮没用完的时间会顺延进去，不会浪费',
-    cyclicOnText: '完成后自动进入下一轮（剩余时间顺延）',
-    cyclicOffText: '完成后只记一次，这条计时会自动删除',
+    cyclicSwitchLabel: '完成后自动重新计时',
+    cyclicSwitchHint: '开启后完成即进入下一周期',
+    cyclicOnText: '完成后自动进入下一轮',
+    cyclicOffText: '未开启：完成后只记一次，这条计时会自动删除',
     // 直接填写到期日时不做循环（没有周期长度可推演），因此不显示开关
     cyclicManualHint: '直接填写到期日不做循环，完成后只记一次',
-    subOver: n => '已经超过循环间隔 ' + n + ' 天',
-    subDue: '已到循环间隔，可以再来一次',
+    subOver: n => '已经超过预期时间 ' + n + ' 天',
+    subDue: '已到预期时间，可以再来一次',
     subSoon: d => '大约 ' + d + ' 后再来一次'
   }
 }
@@ -181,7 +189,7 @@ const QUANTITY_UNITS = ['份', '件', '瓶', '盒', '袋', '支', '个', '包', 
  */
 const PRESETS = [
   // —— 倒计时（保质期）——
-  { name: '鲜牛奶', category: 'food', icon: '🥛', mode: MODE.COUNTDOWN, shelfLife: 7, shelfLifeUnit: 'day', remindDays: 2, unit: '瓶', location: '冰箱冷藏' },
+  { name: '牛奶', category: 'food', icon: '🥛', mode: MODE.COUNTDOWN, shelfLife: 7, shelfLifeUnit: 'day', remindDays: 2, unit: '瓶', location: '冰箱冷藏' },
   { name: '鸡蛋', category: 'food', icon: '🥚', mode: MODE.COUNTDOWN, shelfLife: 30, shelfLifeUnit: 'day', remindDays: 5, unit: '个', location: '冰箱冷藏' },
   { name: '面包', category: 'food', icon: '🍞', mode: MODE.COUNTDOWN, shelfLife: 5, shelfLifeUnit: 'day', remindDays: 1, unit: '袋', location: '常温' },
   { name: '酸奶', category: 'food', icon: '🍶', mode: MODE.COUNTDOWN, shelfLife: 14, shelfLifeUnit: 'day', remindDays: 3, unit: '盒', location: '冰箱冷藏' },
@@ -194,20 +202,17 @@ const PRESETS = [
   { name: '外用药膏', category: 'medicine', icon: '🩹', mode: MODE.COUNTDOWN, shelfLife: 1, shelfLifeUnit: 'year', remindDays: 30, unit: '支', location: '药箱' },
   { name: '维生素', category: 'medicine', icon: '🍬', mode: MODE.COUNTDOWN, shelfLife: 2, shelfLifeUnit: 'year', remindDays: 30, unit: '瓶', location: '药箱' },
   { name: '眼药水', category: 'medicine', icon: '👁️', mode: MODE.COUNTDOWN, shelfLife: 28, shelfLifeUnit: 'day', remindDays: 5, unit: '支', location: '药箱' },
-  { name: '创可贴', category: 'medicine', icon: '🩺', mode: MODE.COUNTDOWN, shelfLife: 3, shelfLifeUnit: 'year', remindDays: 30, unit: '盒', location: '药箱' },
   { name: '面霜', category: 'cosmetic', icon: '🧴', mode: MODE.COUNTDOWN, shelfLife: 2, shelfLifeUnit: 'year', remindDays: 30, unit: '瓶', location: '梳妆台' },
   { name: '防晒霜', category: 'cosmetic', icon: '☀️', mode: MODE.COUNTDOWN, shelfLife: 1, shelfLifeUnit: 'year', remindDays: 30, unit: '支', location: '梳妆台' },
   { name: '口红', category: 'cosmetic', icon: '💄', mode: MODE.COUNTDOWN, shelfLife: 2, shelfLifeUnit: 'year', remindDays: 30, unit: '支', location: '梳妆台' },
-  { name: '面膜', category: 'cosmetic', icon: '🎭', mode: MODE.COUNTDOWN, shelfLife: 3, shelfLifeUnit: 'year', remindDays: 30, unit: '盒', location: '梳妆台' },
   { name: '睫毛膏', category: 'cosmetic', icon: '🖌️', mode: MODE.COUNTDOWN, shelfLife: 3, shelfLifeUnit: 'month', remindDays: 10, unit: '支', location: '梳妆台' },
 
   // —— 正计时（使用/更换周期）——
   { name: '床单被套', category: 'daily', icon: '🛏️', mode: MODE.COUNTUP, cycleDays: 14, remindDays: 3, unit: '套', location: '卧室' },
-  { name: '枕套', category: 'daily', icon: '🛌', mode: MODE.COUNTUP, cycleDays: 7, remindDays: 2, unit: '个', location: '卧室' },
-  { name: '浴巾', category: 'daily', icon: '🧻', mode: MODE.COUNTUP, cycleDays: 21, remindDays: 3, unit: '条', location: '卫生间' },
-  { name: '毛巾', category: 'daily', icon: '🧺', mode: MODE.COUNTUP, cycleDays: 30, remindDays: 5, unit: '条', location: '卫生间' },
   { name: '牙刷', category: 'daily', icon: '🪥', mode: MODE.COUNTUP, cycleDays: 90, remindDays: 7, unit: '支', location: '卫生间' },
   { name: '洗碗布', category: 'daily', icon: '🧽', mode: MODE.COUNTUP, cycleDays: 14, remindDays: 3, unit: '块', location: '厨房' },
+  { name: '浴巾', category: 'daily', icon: '🛁', mode: MODE.COUNTUP, cycleDays: 21, remindDays: 3, unit: '条', location: '卫生间' },
+  { name: '毛巾', category: 'daily', icon: '🚿', mode: MODE.COUNTUP, cycleDays: 30, remindDays: 5, unit: '条', location: '卫生间' },
   { name: '筷子', category: 'daily', icon: '🥢', mode: MODE.COUNTUP, cycleDays: 180, remindDays: 15, unit: '双', location: '厨房' },
   { name: '枕芯', category: 'daily', icon: '💤', mode: MODE.COUNTUP, cycleDays: 365, remindDays: 30, unit: '个', location: '卧室' },
   { name: '空调滤网', category: 'appliance', icon: '❄️', mode: MODE.COUNTUP, cycleDays: 180, remindDays: 15, unit: '片', location: '客厅' },
@@ -224,11 +229,10 @@ const PRESETS = [
 const EVENT_PRESETS = [
   // —— 生活起居 ——
   { name: '洗澡', category: 'life', icon: '🛁', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 2, remindDays: 1 },
-  { name: '洗头', category: 'life', icon: '🧴', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 3, remindDays: 1 },
-  { name: '泡脚', category: 'life', icon: '🦶', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
-  { name: '喝水', category: 'life', icon: '💧', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
-  { name: '剪指甲', category: 'life', icon: '✂️', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 10, remindDays: 2 },
-  { name: '敷面膜', category: 'life', icon: '🎭', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 3, remindDays: 1 },
+  { name: '理发', category: 'life', icon: '💇', mode: MODE.COUNTUP, kind: KIND.EVENT, remindDays: 0 },
+  { name: '交房租', category: 'task', icon: '🏠', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 5 },
+  { name: '交水电费', category: 'task', icon: '💡', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 5 },
+  { name: '还信用卡', category: 'task', icon: '💳', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
   // —— 美食 ——
   { name: '吃火锅', category: 'food', icon: '🍲', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
   { name: '吃烧烤', category: 'food', icon: '🍢', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
@@ -240,20 +244,23 @@ const EVENT_PRESETS = [
   { name: '体检', category: 'health', icon: '🩺', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 365, remindDays: 30 },
   { name: '洗牙', category: 'health', icon: '🦷', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 180, remindDays: 15 },
   { name: '量血压', category: 'health', icon: '🩸', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
-  { name: '早睡', category: 'health', icon: '🛌', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
   // —— 家务 ——
   { name: '拖地', category: 'house', icon: '🧹', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
   { name: '浇花', category: 'house', icon: '🪴', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 5, remindDays: 1 },
   { name: '遛狗', category: 'house', icon: '🐕', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
   { name: '擦窗户', category: 'house', icon: '🪟', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
   { name: '清理冰箱', category: 'house', icon: '🧊', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 7 },
+  // —— 日常（v3.8 新增分类）——
+  { name: '整理房间', category: 'routine', icon: '🧺', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
+  { name: '记账', category: 'routine', icon: '🧾', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 30, remindDays: 5 },
+  { name: '冥想', category: 'routine', icon: '🧘', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
+  // —— 任务（v3.8 新增分类）——
+  { name: '每日打卡', category: 'task', icon: '📝', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 1, remindDays: 1 },
   // —— 其他 ——
   { name: '联系家人', category: 'other', icon: '📞', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
   { name: '写日记', category: 'other', icon: '✏️', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 3, remindDays: 1 },
-  { name: '看书', category: 'other', icon: '📚', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 },
+  { name: '看书', category: 'other', icon: '📚', mode: MODE.COUNTUP, kind: KIND.EVENT, cycleDays: 7, remindDays: 2 }
   // —— 纯记录型：不设循环间隔，只留一个「距离上次多久」的时间痕迹 ——
-  { name: '理发', category: 'life', icon: '💇', mode: MODE.COUNTUP, kind: KIND.EVENT, remindDays: 0 },
-  { name: '吃大餐', category: 'food', icon: '🍽️', mode: MODE.COUNTUP, kind: KIND.EVENT, remindDays: 0 }
 ]
 
 /**
@@ -284,7 +291,7 @@ const EMOJI_GROUPS = [
   {
     key: 'daily',
     name: '日用',
-    icons: ['🛏️', '🛌', '🧺', '🧻', '🪥', '🧽', '🥢', '🍽️', '🧹', '🪣', '👕', '👖', '🧦', '🚿', '🧯', '🪑', '🛋️', '🚪']
+    icons: ['🛏️', '🛌', '🧺', '🧻', '🛁', '🚿', '🪥', '🧽', '🥢', '🍽️', '🧹', '🪣', '👕', '👖', '🧦', '🧯', '🪑', '🛋️', '🚪']
   },
   {
     key: 'appliance',
@@ -303,6 +310,8 @@ const EMOJI_GROUPS = [
  */
 const EVENT_EMOJI_GROUPS = [
   { key: 'life', name: '生活', icons: ['🛁', '🚿', '🦶', '💧', '✂️', '💇', '🪥', '🧼', '🛌', '🎭', '🚽', '🧴', '👕'] },
+  { key: 'routine', name: '日常', icons: ['🌤️', '☀️', '🌙', '🪥', '🧺', '🫧', '🍵', '📖', '🎧', '🧘', '🛏️', '🧹', '🧾'] },
+  { key: 'task', name: '任务', icons: ['📋', '🎯', '📌', '🗓️', '⏰', '💰', '💳', '📝', '📤', '🔔', '🏠', '💡'] },
   { key: 'food', name: '美食', icons: ['🍲', '🍢', '🧋', '🍰', '🍗', '🍜', '🍕', '🍔', '🍦', '🍺', '🥘', '🍤'] },
   { key: 'health', name: '健康', icons: ['💪', '🏃', '🩺', '🦷', '🩸', '🧘', '🚴', '🏊', '🧠', '👁️', '😷', '🌡️'] },
   { key: 'house', name: '家务', icons: ['🧹', '🪴', '🐕', '🪟', '🧊', '🧺', '🛋️', '🧽', '🪣', '🧯', '🍽️', '🚪'] },
@@ -310,32 +319,26 @@ const EVENT_EMOJI_GROUPS = [
 ]
 
 /**
- * 首页每日一句：舒缓治愈风格，贴合"记住物品时间"的定位
+ * 首页每日一句：舒缓治愈风格，一句不超 15 个字（含标点），短而有余味
  * 进入首页时随机取一条，避免与上一条重复
  */
 const SLOGANS = [
-  '新鲜有时，别让好东西悄悄过期',
-  '记住每件物品的时间，生活就少一点慌张',
-  '今天，有哪件东西在等你想起它',
-  '慢一点也没关系，记得就好',
-  '把日子过成有数的样子',
-  '有些东西值得被及时用掉',
-  '时间看得见，就不用靠记忆硬撑',
-  '让每件物品都被好好用完',
-  '该换的换了，日子就清爽了',
-  '过期的不是物品，是被忘记的那段时间',
-  '轻轻记一笔，心里就少一件事',
-  '新鲜的日子，从看清日期开始',
-  '别让冰箱深处藏着遗憾',
-  '用得上的，才是刚刚好的',
-  '给每件物品一个被记住的机会',
-  '时间会走，你可以让它有迹可循',
+  '万物有时，生活有数',
+  '时间不语，替你记着',
+  '一物一事，皆有期限',
+  '时间有痕，生活有光',
+  '该换的换，该做的做',
+  '你记着它，她记着你',
+  '你记着它，他记着你',
+  '时间有刻度，生活有回响',
+  '每一件，都会刚刚好',
+  '看一眼心里就有底了',
   '把琐碎交给它，把安心留给自己',
-  '一顿新鲜的饭，从没过期开始',
-  '该扔的扔掉，该换的换上',
-  '生活的秩序，藏在那些小日期里',
-  '记得住的日子，才过得更踏实',
-  '不慌不忙，把每件物品用到刚好'
+  '记得住的日子，走得更踏实',
+  '今天，有件小事等你想起',
+  '慢一点也没关系，记得就好',
+  '数着日子，把生活过好',
+  '让它替你数着，你只管认真生活'
 ]
 
 // 排序方式

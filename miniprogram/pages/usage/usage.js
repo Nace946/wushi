@@ -10,12 +10,24 @@ function fmtClock(ts) {
   return (h.length < 2 ? '0' + h : h) + ':' + (m.length < 2 ? '0' + m : m)
 }
 
+/**
+ * 每条记录右侧的来源标记
+ * - 记录已删除：这条物品已经从列表里删掉了，只把记录留了下来
+ * - 计时已收起：不循环的事件完成后自动归档（使用记录里一般见不到，兜底显示）
+ */
+function logTag(l) {
+  if (l.deleted) return ' · 物品已删除'
+  if (l.archived) return ' · 计时已收起'
+  return ''
+}
+
 Page({
   data: {
     groups: [],
     todayCount: 0,
     totalCount: 0,
-    empty: true
+    empty: true,
+    limit: storage.LOG_LIMIT
   },
 
   onShow() {
@@ -38,7 +50,7 @@ Page({
     logs.forEach(l => {
       if (!map[l.date]) map[l.date] = { date: l.date, title: '', items: [] }
       map[l.date].items.push(
-        Object.assign({}, l, { timeText: fmtClock(l.ts) })
+        Object.assign({}, l, { timeText: fmtClock(l.ts), tag: logTag(l) })
       )
     })
 
@@ -67,13 +79,51 @@ Page({
   },
 
   goDetail(e) {
-    const id = e.currentTarget.dataset.id
-    if (id) wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
+    const ds = e.currentTarget.dataset
+    // 物品已被删除，只剩这一条记录，点不进详情
+    if (Number(ds.archived)) {
+      wx.showToast({ title: '这件物品已删除，记录仍然保留', icon: 'none' })
+      return
+    }
+    if (ds.id) wx.navigateTo({ url: '/pages/detail/detail?id=' + ds.id })
+  },
+
+  /** 长按某条记录 → 删除这一条（只删记录，数量不会加回来） */
+  onDeleteLog(e) {
+    const ds = e.currentTarget.dataset
+    wx.showModal({
+      title: '删除这条记录？',
+      content: '只删掉这一条使用记录，物品的数量不会加回来。',
+      confirmText: '删除',
+      confirmColor: '#E0341F',
+      success: res => {
+        if (!res.confirm) return
+        storage.removeLog(ds.id, ds.logid)
+        this.load()
+        wx.showToast({ title: '已删除', icon: 'success' })
+      }
+    })
+  },
+
+  /** 清空全部使用记录 */
+  onClearLogs() {
+    wx.showModal({
+      title: '清空使用记录？',
+      content: '全部使用记录会被清掉，物品的数量不受影响。',
+      confirmText: '清空',
+      confirmColor: '#E0341F',
+      success: res => {
+        if (!res.confirm) return
+        storage.clearLogs('usage')
+        this.load()
+        wx.showToast({ title: '已清空', icon: 'success' })
+      }
+    })
   },
 
   onShareAppMessage() {
     return {
-      title: '物时 · 记住每件物品的保质期与更换周期',
+      title: '天天计时 · 记住每件物品的保质期与更换周期',
       path: '/pages/index/index'
     }
   }

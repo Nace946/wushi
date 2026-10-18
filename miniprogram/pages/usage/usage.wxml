@@ -37,14 +37,17 @@
         wx:for-item="log"
         wx:key="logId"
         data-id="{{log.itemId}}"
+        data-logid="{{log.logId}}"
+        data-archived="{{log.archived ? 1 : 0}}"
         bindtap="goDetail"
+        bindlongpress="onDeleteLog"
         hover-class="ul-hover"
         hover-stay-time="60"
       >
         <text class="ul-icon">{{log.icon}}</text>
         <view class="ul-main">
           <text class="ul-name">{{log.name}}</text>
-          <text class="ul-sub">{{log.timeText}}</text>
+          <text class="ul-sub">{{log.timeText}}{{log.tag}}</text>
         </view>
         <text class="ul-n">−{{log.n}}{{log.unit}}</text>
       </view>
@@ -52,7 +55,11 @@
   </view>
 
   <view wx:if="{{!empty}}" class="foot-tip">
-    <text>只保留每件物品最近 40 条记录</text>
+    <text>最多保留最近 {{limit}} 条记录 · 长按某条可单独删除</text>
+  </view>
+
+  <view wx:if="{{!empty}}" class="foot-act">
+    <text class="foot-act-btn" bindtap="onClearLogs" hover-class="foot-act-hover">清空全部使用记录</text>
   </view>
 
 </view>

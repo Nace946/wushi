@@ -21,7 +21,8 @@ Page({
   },
 
   refresh() {
-    const list = time.decorate(storage.getAll())
+    // 统计只算用户自己的记录：首启示例（demo）不计入
+    const list = time.decorate(storage.getAll()).filter(i => !i.demo)
     const settings = storage.getSettings()
     const opt = SORT_OPTIONS.find(o => o.key === settings.sortKey) || SORT_OPTIONS[0]
 
@@ -102,7 +103,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: '物时 · 记住每件物品的保质期与更换周期',
+      title: '天天计时 · 记住每件物品的保质期与更换周期',
       path: '/pages/index/index'
     }
   }

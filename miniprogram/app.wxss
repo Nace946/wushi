@@ -1,5 +1,5 @@
 /**
- * 物时 · 全局样式
+ * 天天计时 · 全局样式
  * 设计语言：新极简 + 舒缓式（低饱和、大留白、柔圆角、无强阴影）
  */
 
@@ -63,6 +63,22 @@ input,
 textarea,
 scroll-view {
   box-sizing: border-box;
+}
+
+/*
+ * 输入框（input / textarea）的原生默认值有三处会在 pad / 大屏上出问题：
+ *  ① 原生默认宽度来自「内容最小宽度」（约 20 个字符），作为 flex 子项时 min-width 默认 auto
+ *     就等于这个固有宽度，于是它停在固有像素宽度、不再跟着屏幕变宽 —— 表现是「屏幕越宽、框越窄」；
+ *  ② 原生默认 min-height 为 1.6rem（≈25.6px），是固定像素、不随 rpx 缩放；
+ *  ③ iOS 下 input 默认非同层渲染（切到原生层），rpx 的 height / padding / font-size 会被打折，
+ *     结果是框很扁、文字被挤 —— 这就是平板上「框还是很窄」的真正原因。
+ * 处理：① 统一放开最小宽度；②③ 各页输入框一律显式写 height / min-height / line-height（rpx），
+ * 并在 wxml 上给 input 加 always-embed、给 textarea 加 disable-default-padding（强制同层渲染，iOS 生效）。
+ * 新增输入框时请照抄这套写法，不要只写 width。
+ */
+input,
+textarea {
+  min-width: 0;
 }
 
 /* ---------- 页面容器 ---------- */

@@ -4,7 +4,7 @@
   <view class="filters">
     <view class="search">
       <text class="search-icon">🔍</text>
-      <input
+      <input always-embed="{{true}}"
         class="search-input"
         value="{{keyword}}"
         placeholder="搜索名称或存放位置"

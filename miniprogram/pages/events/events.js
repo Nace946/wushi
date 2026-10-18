@@ -129,7 +129,7 @@ Page({
     if (!item) return
     wx.showModal({
       title: '记录一次发生',
-      content: '将「' + item.name + '」的上次发生时间更新为今天，重新计时。',
+      content: '将「' + item.name + '」的上次发生时间更新为此刻并重新计时，如需更改时间请在编辑中修改。',
       confirmColor: '#0A7F4E',
       success: res => {
         if (!res.confirm) return
@@ -188,7 +188,8 @@ Page({
         } else if (res.tapIndex === 1) {
           wx.showModal({
             title: '删除「' + item.name + '」',
-            content: '删除后无法恢复，确定继续吗？',
+            content: '从列表里删除，它的事件记录会保留在记录页里。',
+            confirmText: '删除',
             confirmColor: '#E0341F',
             success: r => {
               if (r.confirm) {
@@ -210,7 +211,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: '物时 · 记录每件物品与每件事的时间',
+      title: '天天计时 · 记录每件物品与每件事的时间',
       path: '/pages/index/index'
     }
   }

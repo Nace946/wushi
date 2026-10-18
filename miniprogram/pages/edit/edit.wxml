@@ -12,7 +12,7 @@
         <text class="mode-emoji">📦</text>
         <view class="mode-text">
           <text class="mode-name">物品</text>
-          <text class="mode-desc">床单、牙刷、滤芯…</text>
+          <text class="mode-desc">食品、日用品…</text>
         </view>
       </view>
       <view
@@ -23,7 +23,7 @@
         <text class="mode-emoji">🗓️</text>
         <view class="mode-text">
           <text class="mode-name">事件</text>
-          <text class="mode-desc">洗澡、剪指甲、生日…</text>
+          <text class="mode-desc">健身、聚会…</text>
         </view>
       </view>
     </view>
@@ -96,7 +96,7 @@
       <!-- 名称：加大突出 -->
       <view class="nb-main">
         <text class="nb-label">{{ktNameLabel}}</text>
-        <input
+        <input always-embed="{{true}}"
           class="nb-input"
           value="{{form.name}}"
           bindinput="onNameInput"
@@ -112,7 +112,7 @@
       <view class="field">
         <text class="flabel">数量</text>
         <view class="qty-row">
-          <input
+          <input always-embed="{{true}}"
             class="finput qty-input"
             type="number"
             value="{{form.quantity}}"
@@ -122,7 +122,7 @@
             placeholder-class="fph"
             maxlength="3"
           />
-          <input
+          <input always-embed="{{true}}"
             class="finput unit-input"
             value="{{form.unit}}"
             data-field="unit"
@@ -136,7 +136,7 @@
 
       <view class="field">
         <text class="flabel">存放位置</text>
-        <input
+        <input always-embed="{{true}}"
           class="finput"
           value="{{form.location}}"
           data-field="location"
@@ -215,7 +215,7 @@
         <view class="field field-col">
           <text class="flabel">{{ktCdSpan}}</text>
           <view class="life-row">
-            <input
+            <input always-embed="{{true}}"
               class="finput life-input"
               type="digit"
               value="{{form.shelfLife}}"
@@ -243,6 +243,11 @@
       <view wx:if="{{expirePreview && !form.expireManual}}" class="preview">
         <text class="preview-label">{{ktCdExpire}}</text>
         <text class="preview-value">{{expirePreview}}</text>
+      </view>
+
+      <!-- 到期时刻口径：到期日当天 23:59 结束，剩余不足一天时列表改显示小时 / 分钟 -->
+      <view class="cd-hint">
+        <text>到期时间为当天 23:59，不足一天时显示还剩几小时</text>
       </view>
 
       <!-- 事件 × 倒计时：完成后是否自动进入下一轮（物品用不到，用完即换新） -->
@@ -333,7 +338,7 @@
       <block wx:if="{{!isEvent || cycleEnabled}}">
         <view class="field field-col">
           <text class="flabel">{{ktCycleLabel}}</text>
-          <input
+          <input always-embed="{{true}}"
             class="finput"
             type="number"
             value="{{form.cycleDays}}"
@@ -369,8 +374,8 @@
       <!-- 详细计时：超过一天后显示 年/月/日/时 细分（起点时刻不受它影响） -->
       <view class="field field-switch">
         <view class="sw-main">
-          <text class="flabel">详细计时</text>
-          <text class="fhint">超过一天后显示「1年2个月3天5小时」这样的细分时长</text>
+          <text class="flabel">详细计时显示</text>
+          <text class="fhint">开启后可以显示具体间隔时间（精确到小时）</text>
         </view>
         <switch
           checked="{{form.detailTiming}}"
@@ -415,7 +420,7 @@
 
       <view class="field field-col">
         <text class="flabel">备注</text>
-        <textarea
+        <textarea disable-default-padding="{{true}}"
           class="ftextarea"
           value="{{form.remark}}"
           bindinput="onRemarkInput"

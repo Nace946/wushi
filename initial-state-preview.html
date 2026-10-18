@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>天天计时 · 初始状态预览</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --surface: #ffffff;
+    --surface-soft: #fbfaf7;
+    --line: #efeee9;
+    --text: #1f2420;
+    --text-2: #535b55;
+    --text-3: #798178;
+    --primary: #0a7f4e;
+    --primary-soft: #dcefe4;
+    --warn: #d97b00;
+    --warn-soft: #fbebd3;
+    --danger: #e0341f;
+    --danger-soft: #fce0d8;
+    --muted: #5f5f57;
+    --muted-soft: #f0efec;
+    --shadow: 0 3px 15px rgba(43, 47, 44, 0.08);
+    --shadow-sm: 0 1px 6px rgba(43, 47, 44, 0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 64px;
+    background: #eeede7;
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+
+  header { margin-bottom: 24px; }
+  h1 { margin: 0 0 8px; font-size: 24px; letter-spacing: 0.5px; }
+  .sub { margin: 0; font-size: 14px; color: #5f655e; line-height: 1.7; }
+
+  .notes {
+    display: flex; flex-wrap: wrap; gap: 12px;
+    margin: 20px 0 28px;
+  }
+  .note {
+    flex: 1 1 300px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    border-left: 3px solid var(--primary);
+  }
+  .note.warn { border-left-color: var(--warn); }
+  .note h3 { margin: 0 0 6px; font-size: 14px; }
+  .note p { margin: 0; font-size: 13px; color: #5f655e; line-height: 1.65; }
+  .note code {
+    background: var(--muted-soft); border-radius: 4px; padding: 1px 5px;
+    font-size: 12px; color: #3d443e;
+  }
+
+  .screens { display: flex; flex-wrap: wrap; gap: 28px; justify-content: center; }
+  figure { margin: 0; }
+  figcaption { margin-top: 14px; text-align: center; font-size: 13px; color: #5f655e; }
+
+  /* ---------- 手机外框 ---------- */
+  .phone {
+    width: 375px; height: 790px;
+    background: var(--bg);
+    border-radius: 38px;
+    box-shadow: 0 18px 46px rgba(43, 47, 44, 0.16), 0 0 0 8px #fff;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .statusbar {
+    height: 32px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font-size: 12px; color: var(--text-2); flex-shrink: 0;
+  }
+  .statusbar .dots { letter-spacing: 1px; }
+  .navbar {
+    height: 44px; display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 600; flex-shrink: 0;
+  }
+  .scroll {
+    flex: 1; overflow-y: auto; padding: 4px 14px 20px;
+    scrollbar-width: thin;
+    scrollbar-color: #dcdad2 transparent;
+  }
+  .scroll::-webkit-scrollbar { width: 4px; }
+  .scroll::-webkit-scrollbar-thumb { background: #dcdad2; border-radius: 4px; }
+
+  /* ---------- 概览卡 ---------- */
+  .overview {
+    background: linear-gradient(158deg, #e2ece6 0%, #ffffff 62%);
+    border-radius: 16px;
+    padding: 18px 16px 16px;
+    box-shadow: var(--shadow);
+  }
+  .ov-top { display: flex; align-items: stretch; justify-content: space-between; }
+  .ov-hello { flex: 1; min-width: 0; padding-top: 2px; display: flex; flex-direction: column; justify-content: space-between; }
+  .ov-hello-text { font-size: 32px; font-weight: 600; letter-spacing: 0.5px; line-height: 1.3; }
+  .ov-hello-slogan { margin-top: 12px; font-size: 13px; color: var(--text-3); line-height: 1.5; }
+  .ov-cal {
+    width: 66px; margin-left: 10px; background: #fff; border-radius: 12px;
+    box-shadow: var(--shadow-sm); overflow: hidden; flex-shrink: 0;
+  }
+  .cal-month { background: var(--primary); color: #fff; font-size: 11px; text-align: center; padding: 3px 0; }
+  .cal-day { text-align: center; font-size: 23px; font-weight: 600; line-height: 1.2; padding-top: 4px; }
+  .cal-week { text-align: center; font-size: 10px; color: var(--text-2); padding-bottom: 5px; }
+  .ov-zero { margin-top: 12px; font-size: 13px; color: var(--text-3); text-align: center; line-height: 1.5; }
+
+  /* ---------- 示例说明条 ---------- */
+  .demo-bar {
+    display: flex; align-items: center; margin-top: 12px;
+    padding: 12px 14px; background: var(--surface);
+    border: 1px dashed #e2e0d8; border-radius: 12px;
+  }
+  .demo-bar-main { flex: 1; min-width: 0; }
+  .demo-bar-title { display: block; font-size: 14px; font-weight: 600; color: var(--text-2); }
+  .demo-bar-sub { display: block; margin-top: 2px; font-size: 12px; color: var(--text-3); line-height: 1.45; }
+  .demo-bar-btn {
+    flex-shrink: 0; margin-left: 10px; padding: 6px 13px;
+    font-size: 13px; color: var(--primary); background: var(--primary-soft);
+    border-radius: 999px;
+  }
+
+  /* ---------- 区块标题 ---------- */
+  .sec { margin-top: 22px; }
+  .sec-hd { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
+  .sec-title { display: flex; align-items: center; }
+  .sec-pin { font-size: 14px; margin-right: 4px; line-height: 1; }
+  .t-title { font-size: 15px; font-weight: 600; }
+  .sec-count { font-size: 12px; color: var(--text-3); }
+  .sec-more { font-size: 13px; color: var(--text-3); }
+  .card-list { display: flex; flex-direction: column; gap: 10px; }
+
+  /* ---------- 记录卡片 ---------- */
+  .ic {
+    display: flex; align-items: flex-start; background: #fff;
+    border-radius: 16px; padding: 15px; box-shadow: var(--shadow);
+  }
+  .ic-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-right: 11px;
+  }
+  .ic-emoji { font-size: 23px; line-height: 1; }
+  .ic-body { flex: 1; min-width: 0; }
+  .ic-head { display: flex; align-items: center; justify-content: space-between; }
+  .ic-name-wrap { display: flex; align-items: center; min-width: 0; flex: 1; }
+  .ic-pin { font-size: 12px; margin-right: 3px; flex-shrink: 0; }
+  .ic-name {
+    font-size: 16px; font-weight: 600; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 170px;
+  }
+  .ic-demo {
+    flex-shrink: 0; margin-left: 5px; padding: 1px 5px;
+    font-size: 10px; line-height: 1.6; color: var(--text-3);
+    background: var(--muted-soft); border-radius: 999px;
+  }
+  .ic-status { font-size: 12px; padding: 2px 8px; border-radius: 999px; flex-shrink: 0; }
+  .ic-metric { display: flex; align-items: baseline; margin-top: 4px; }
+  .ic-label { font-size: 13px; color: var(--text-2); }
+  .ic-num { font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; margin-left: 2px; }
+  .ic-unit { font-size: 13px; color: var(--text-2); margin-left: 2px; margin-right: 4px; }
+  .ic-detail-badge {
+    display: inline-block; margin-top: 4px; font-size: 11px;
+    color: var(--text-3); background: var(--muted-soft);
+    border-radius: 6px; padding: 1px 6px;
+  }
+  .ic-sub { display: block; margin-top: 4px; font-size: 12px; color: var(--text-3); }
+  .ic-use-wrap { flex-shrink: 0; margin-left: 10px; align-self: center; }
+  .ic-use {
+    width: 36px; height: 36px; border-radius: 999px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--primary-soft);
+  }
+  .ic-use span { font-size: 19px; line-height: 1; font-weight: 600; color: var(--primary); }
+  .ic-use.check span { font-size: 17px; font-weight: 500; }
+
+  /* ---------- 筛选区 ---------- */
+  .filters { padding-top: 2px; }
+  .search {
+    display: flex; align-items: center; height: 40px;
+    background: #fff; border-radius: 12px; padding: 0 12px;
+    box-shadow: var(--shadow-sm); margin-bottom: 10px;
+  }
+  .search-icon { font-size: 13px; opacity: 0.5; margin-right: 6px; }
+  .search-ph { font-size: 13px; color: var(--text-3); }
+  .tabs { display: flex; gap: 16px; padding: 2px 2px 8px; overflow: hidden; }
+  .tab { font-size: 14px; color: var(--text-2); white-space: nowrap; padding-bottom: 4px; }
+  .tab-on { color: var(--primary); font-weight: 600; border-bottom: 2px solid var(--primary); }
+  .tab-count { font-size: 10px; margin-left: 2px; color: var(--text-3); }
+  .chips-row { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; }
+  .chips-inner { display: flex; gap: 8px; overflow: hidden; }
+  .fchip {
+    flex-shrink: 0; font-size: 12px; color: var(--text-2);
+    background: #fff; border-radius: 999px; padding: 5px 11px;
+    border: 1px solid #f0efe9;
+  }
+  .fchip-on { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .fchip-sort { margin-left: auto; display: flex; align-items: center; gap: 3px; }
+  .sort-icon { font-size: 11px; }
+
+  .list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+
+  /* ---------- tabBar ---------- */
+  .tabbar {
+    flex-shrink: 0; height: 52px; background: #fff;
+    border-top: 1px solid #f2f1ec;
+    display: flex; align-items: center;
+  }
+  .tb {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; color: #7c847e;
+  }
+  .tb svg { width: 21px; height: 21px; stroke: #7c847e; fill: none; stroke-width: 1.7; }
+  .tb.on { color: var(--primary); }
+  .tb.on svg { stroke: var(--primary); }
+
+  .fab {
+    position: absolute; right: 18px; bottom: 70px;
+    width: 52px; height: 52px; border-radius: 999px;
+    background: var(--primary); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 300;
+    box-shadow: 0 8px 20px rgba(10, 127, 78, 0.32);
+  }
+
+  /* ---------- 对比面板 ---------- */
+  .compare { margin-top: 44px; background: #fff; border-radius: 16px; padding: 22px 24px; box-shadow: var(--shadow-sm); }
+  .compare h2 { margin: 0 0 6px; font-size: 16px; }
+  .compare p.hint { margin: 0 0 16px; font-size: 13px; color: #5f655e; }
+  .cmp-grid { display: flex; flex-wrap: wrap; gap: 14px; }
+  .cmp {
+    flex: 1 1 220px; background: var(--surface-soft); border-radius: 12px;
+    padding: 14px 16px; border: 1px solid #f1f0ea;
+  }
+  .cmp .when { font-size: 12px; color: var(--text-3); }
+  .cmp .val { margin-top: 6px; font-size: 13px; color: var(--text-2); }
+  .cmp .val b { font-size: 22px; color: var(--primary); font-variant-numeric: tabular-nums; }
+  .cmp .val b.red { color: var(--danger); }
+  .cmp .val b.gray { color: var(--muted); }
+  footer.tip { margin-top: 22px; font-size: 12px; color: #7a8079; line-height: 1.7; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>天天计时 · 首启初始状态</h1>
+    <p class="sub">
+      下面三屏是「第一次打开」看到的界面：没有你自己的记录，只有 8 条带「示例」角标的示范卡片。<br />
+      数据由真实代码（<code>storage.ensureInit</code> + <code>time.getItemState</code>）在 2026-10-18 09:46 计算得出；手机框内可上下滚动（总览一屏放不下全部示例）。
+    </p>
+  </header>
+
+  <section class="notes">
+    <div class="note">
+      <h3>① 示例不算「实际物品」</h3>
+      <p>
+        8 条示范记录带 <code>demo</code> 标记：卡片上有「示例」角标，<b>不计入</b>首页四档统计与「我的」计数，
+        首页顶部说明条可一键「清空」。改过并保存的示例会去掉标记，从此算你自己的记录。
+      </p>
+    </div>
+    <div class="note warn">
+      <h3>② 到期时刻 = 当天 23:59</h3>
+      <p>
+        到期日当天整天都算有效，真正过期发生在 23:59 之后；<b>剩余不足一天时改用小时 / 分钟</b>，
+        不再出现「剩余 0 天」。下面的「鲜牛奶」今天到期，显示的就是「剩余 14 小时」。
+      </p>
+    </div>
+  </section>
+
+  <div class="screens">
+
+    <!-- ================= 首页 ================= -->
+    <figure>
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span class="dots">••• ⏻</span></div>
+        <div class="navbar">总览</div>
+        <div class="scroll">
+
+          <div class="overview">
+            <div class="ov-top">
+              <div class="ov-hello">
+                <div class="ov-hello-text">早上好</div>
+                <div class="ov-hello-slogan">万物有时，日子有数</div>
+              </div>
+              <div class="ov-cal">
+                <div class="cal-month">10月</div>
+                <div class="cal-day">18</div>
+                <div class="cal-week">周日</div>
+              </div>
+            </div>
+            <div class="ov-zero">还没有自己的记录，点击下方 + 添加第一条</div>
+          </div>
+
+          <div class="demo-bar">
+            <div class="demo-bar-main">
+              <div class="demo-bar-title">下面是 8 条示例</div>
+              <div class="demo-bar-sub">点开、用掉、重新计时都可以试，不算你的记录</div>
+            </div>
+            <div class="demo-bar-btn">清空</div>
+          </div>
+
+          <div class="sec">
+            <div class="sec-hd">
+              <div class="sec-title"><span class="sec-pin">📌</span><span class="t-title">置顶</span></div>
+              <span class="sec-count">2/5</span>
+            </div>
+            <div class="card-list">
+              <!-- 感冒药 -->
+              <div class="ic">
+                <div class="ic-icon" style="background:#DCEFE4"><span class="ic-emoji">💊</span></div>
+                <div class="ic-body">
+                  <div class="ic-head">
+                    <div class="ic-name-wrap">
+                      <span class="ic-pin">📌</span>
+                      <span class="ic-name">感冒药</span>
+                      <span class="ic-demo">示例</span>
+                    </div>
+                    <div class="ic-status" style="color:#0A7F4E;background:#DCEFE4">充裕</div>
+                  </div>
+                  <div class="ic-metric">
+                    <span class="ic-label">剩余</span>
+                    <span class="ic-num" style="font-size:21px;color:#0A7F4E">10</span><span class="ic-unit">个月</span>
+                    <span class="ic-num" style="font-size:21px;color:#0A7F4E">26</span><span class="ic-unit">天</span>
+                  </div>
+                </div>
+              </div>
+              <!-- 床单被套 -->
+              <div class="ic">
+                <div class="ic-icon" style="background:#DCEFE4"><span class="ic-emoji">🛏️</span></div>
+                <div class="ic-body">
+                  <div class="ic-head">
+                    <div class="ic-name-wrap">
+                      <span class="ic-pin">📌</span>
+                      <span class="ic-name">床单被套</span>
+                      <span class="ic-demo">示例</span>
+                    </div>
+                    <div class="ic-status" style="color:#0A7F4E;background:#DCEFE4">正常</div>
+                  </div>
+                  <div class="ic-metric">
+                    <span class="ic-label">已过去</span>
+                    <span class="ic-num" style="font-size:21px;color:#0A7F4E">9</span><span class="ic-unit">天</span>
+                  </div>
+                </div>
+                <div class="ic-use-wrap"><div class="ic-use"><span>↺</span></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sec">
+            <div class="sec-hd">
+              <span class="t-title">需要关注</span>
+              <span class="sec-more">查看全部 ›</span>
+            </div>
+            <div class="card-list">
+              <div class="ic">
+                <div class="ic-icon" style="background:#FCE0D8"><span class="ic-emoji">🥛</span></div>
+                <div class="ic-body">
+                  <div class="ic-head">
+                    <div class="ic-name-wrap">
+                      <span class="ic-name">鲜牛奶</span>
+                      <span class="ic-demo">示例</span>
+                    </div>
+                    <div class="ic-status" style="color:#E0341F;background:#FCE0D8">紧急</div>
+                  </div>
+                  <div class="ic-metric">
+                    <span class="ic-label">剩余</span>
+                    <span class="ic-num" style="font-size:27px;color:#E0341F">14</span><span class="ic-unit">小时</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sec">
+            <div class="sec-hd">
+              <span class="t-title">需要处理</span>
+              <span class="sec-more">查看全部 ›</span>
+            </div>
+            <div class="card-list">
+              <!-- 吃火锅（已超期 8 天，最急） -->
+              <div class="ic">
+                <div class="ic-icon" style="background:#FCE0D8"><span class="ic-emoji">🍲</span></div>
+                <div class="ic-body">
+                  <div class="ic-head">
+                    <div class="ic-name-wrap">
+                      <span class="ic-name">吃火锅</span>
+                      <span class="ic-demo">示例</span>
+                    </div>
+                    <div class="ic-status" style="color:#E0341F;background:#FCE0D8">已超期</div>
+                  </div>
+                  <div class="ic-metric">
+                    <span class="ic-label">已过去</span>
+                    <span class="ic-num" style="font-size:30px;color:#E0341F">38</span><span class="ic-unit">天</span>
+                  </div>
+                </div>
+                <div class="ic-use-wrap"><div class="ic-use"><span>↺</span></div></div>
+              </div>
+              <!-- 牙刷 -->
+              <div class="ic">
+                <div class="ic-icon" style="background:#FCE0D8"><span class="ic-emoji">🪥</span></div>
+                <div class="ic-body">
+                  <div class="ic-head">
+                    <div class="ic-name-wrap">
+                      <span class="ic-name">牙刷</span>
+                      <span class="ic-demo">示例</span>
+                    </div>
+                    <div class="ic-status" style="color:#E0341F;background:#FCE0D8">已超期</div>
+                  </div>
+                  <div class="ic-metric">
+                    <span class="ic-label">已过去</span>
+                    <span class="ic-num" style="font-size:30px;color:#E0341F">95</span><span class="ic-unit">天</span>
+                  </div>
+                </div>
+                <div class="ic-use-wrap"><div class="ic-use"><span>↺</span></div></div>
+              </div>
+              <!-- 酸奶 -->
+              <div class="ic">
+                <div class="ic-icon" style="background:#E9E4D9"><span class="ic-emoji">🍶</span></div>
+                <div class="ic-body">
+                  <div class="ic-head">
+                    <div class="ic-name-wrap">
+                      <span class="ic-name">酸奶</span>
+                      <span class="ic-demo">示例</span>
+                    </div>
+                    <div class="ic-status" style="color:#5F5F57;background:#E9E4D9">已过期</div>
+                  </div>
+                  <div class="ic-metric">
+                    <span class="ic-label">已过期</span>
+                    <span class="ic-num" style="font-size:30px;color:#5F5F57">2</span><span class="ic-unit">天</span>
+                  </div>
+                </div>
+                <div class="ic-use-wrap"><div class="ic-use"><span>−</span></div></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="fab">+</div>
+        <div class="tabbar">
+          <div class="tb on">
+            <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/></svg>
+            <span>总览</span>
+          </div>
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>
+            <span>物品</span>
+          </div>
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+            <span>事件</span>
+          </div>
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20.5c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>
+            <span>我的</span>
+          </div>
+        </div>
+      </div>
+      <figcaption>① 总览：统计为 0（示例不计），示例说明条 + 示范卡片</figcaption>
+    </figure>
+
+    <!-- ================= 物品页 ================= -->
+    <figure>
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span class="dots">••• ⏻</span></div>
+        <div class="navbar">物品</div>
+        <div class="scroll">
+          <div class="filters">
+            <div class="search">
+              <span class="search-icon">🔍</span>
+              <span class="search-ph">搜索名称或存放位置</span>
+            </div>
+            <div class="tabs">
+              <span class="tab tab-on">全部<span class="tab-count">5</span></span>
+              <span class="tab">食品<span class="tab-count">2</span></span>
+              <span class="tab">药品<span class="tab-count">1</span></span>
+              <span class="tab">化妆品</span>
+              <span class="tab">日用品<span class="tab-count">2</span></span>
+              <span class="tab">家电耗材</span>
+            </div>
+            <div class="chips-row">
+              <div class="chips-inner">
+                <span class="fchip fchip-on">全部</span>
+                <span class="fchip">需关注</span>
+                <span class="fchip">正计时</span>
+                <span class="fchip">充裕</span>
+                <span class="fchip">紧急</span>
+                <span class="fchip">已过期</span>
+              </div>
+              <span class="fchip fchip-sort"><span class="sort-icon">⇅</span>排序</span>
+            </div>
+          </div>
+
+          <div class="list">
+            <!-- 牙刷 -->
+            <div class="ic">
+              <div class="ic-icon" style="background:#FCE0D8"><span class="ic-emoji">🪥</span></div>
+              <div class="ic-body">
+                <div class="ic-head">
+                  <div class="ic-name-wrap">
+                    <span class="ic-name">牙刷</span>
+                    <span class="ic-demo">示例</span>
+                  </div>
+                  <div class="ic-status" style="color:#E0341F;background:#FCE0D8">已超期</div>
+                </div>
+                <div class="ic-metric">
+                  <span class="ic-label">已过去</span>
+                  <span class="ic-num" style="font-size:30px;color:#E0341F">95</span><span class="ic-unit">天</span>
+                  <span style="margin-left:auto;font-size:12px;color:#798178">1支 · 卫生间</span>
+                </div>
+                <span class="ic-sub">建议更换时间已过 5 天</span>
+              </div>
+              <div class="ic-use-wrap"><div class="ic-use"><span>↺</span></div></div>
+            </div>
+            <!-- 酸奶 -->
+            <div class="ic">
+              <div class="ic-icon" style="background:#E9E4D9"><span class="ic-emoji">🍶</span></div>
+              <div class="ic-body">
+                <div class="ic-head">
+                  <div class="ic-name-wrap">
+                    <span class="ic-name">酸奶</span>
+                    <span class="ic-demo">示例</span>
+                  </div>
+                  <div class="ic-status" style="color:#5F5F57;background:#E9E4D9">已过期</div>
+                </div>
+                <div class="ic-metric">
+                  <span class="ic-label">已过期</span>
+                  <span class="ic-num" style="font-size:30px;color:#5F5F57">2</span><span class="ic-unit">天</span>
+                  <span style="margin-left:auto;font-size:12px;color:#798178">4盒 · 冰箱冷藏</span>
+                </div>
+                <span class="ic-sub">已于 2026.10.16 过期</span>
+              </div>
+              <div class="ic-use-wrap"><div class="ic-use"><span>−</span></div></div>
+            </div>
+            <!-- 鲜牛奶：今天到期 → 小时 -->
+            <div class="ic">
+              <div class="ic-icon" style="background:#FCE0D8"><span class="ic-emoji">🥛</span></div>
+              <div class="ic-body">
+                <div class="ic-head">
+                  <div class="ic-name-wrap">
+                    <span class="ic-name">鲜牛奶</span>
+                    <span class="ic-demo">示例</span>
+                  </div>
+                  <div class="ic-status" style="color:#E0341F;background:#FCE0D8">紧急</div>
+                </div>
+                <div class="ic-metric">
+                  <span class="ic-label">剩余</span>
+                  <span class="ic-num" style="font-size:27px;color:#E0341F">14</span><span class="ic-unit">小时</span>
+                  <span style="margin-left:auto;font-size:12px;color:#798178">2瓶 · 冰箱冷藏</span>
+                </div>
+                <span class="ic-sub">2026.10.18 到期 · 周日</span>
+              </div>
+              <div class="ic-use-wrap"><div class="ic-use"><span>−</span></div></div>
+            </div>
+            <!-- 床单被套 -->
+            <div class="ic">
+              <div class="ic-icon" style="background:#DCEFE4"><span class="ic-emoji">🛏️</span></div>
+              <div class="ic-body">
+                <div class="ic-head">
+                  <div class="ic-name-wrap">
+                    <span class="ic-pin">📌</span>
+                    <span class="ic-name">床单被套</span>
+                    <span class="ic-demo">示例</span>
+                  </div>
+                  <div class="ic-status" style="color:#0A7F4E;background:#DCEFE4">正常</div>
+                </div>
+                <div class="ic-metric">
+                  <span class="ic-label">已过去</span>
+                  <span class="ic-num" style="font-size:21px;color:#0A7F4E">9</span><span class="ic-unit">天</span>
+                  <span style="margin-left:auto;font-size:12px;color:#798178">1套 · 卧室</span>
+                </div>
+                <span class="ic-sub">建议 2026.10.23 前更换</span>
+              </div>
+              <div class="ic-use-wrap"><div class="ic-use"><span>↺</span></div></div>
+            </div>
+            <!-- 感冒药 -->
+            <div class="ic">
+              <div class="ic-icon" style="background:#DCEFE4"><span class="ic-emoji">💊</span></div>
+              <div class="ic-body">
+                <div class="ic-head">
+                  <div class="ic-name-wrap">
+                    <span class="ic-pin">📌</span>
+                    <span class="ic-name">感冒药</span>
+                    <span class="ic-demo">示例</span>
+                  </div>
+                  <div class="ic-status" style="color:#0A7F4E;background:#DCEFE4">充裕</div>
+                </div>
+                <div class="ic-metric">
+                  <span class="ic-label">剩余</span>
+                  <span class="ic-num" style="font-size:21px;color:#0A7F4E">10</span><span class="ic-unit">个月</span>
+                  <span class="ic-num" style="font-size:21px;color:#0A7F4E">26</span><span class="ic-unit">天</span>
+                  <span style="margin-left:auto;font-size:12px;color:#798178">1盒 · 药箱</span>
+                </div>
+                <span class="ic-sub">2027.09.13 到期 · 周一</span>
+              </div>
+              <div class="ic-use-wrap"><div class="ic-use"><span>−</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="fab">+</div>
+        <div class="tabbar">
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/></svg>
+            <span>总览</span>
+          </div>
+          <div class="tb on">
+            <svg viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>
+            <span>物品</span>
+          </div>
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+            <span>事件</span>
+          </div>
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20.5c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>
+            <span>我的</span>
+          </div>
+        </div>
+      </div>
+      <figcaption>② 物品：8 条示范里 5 件物品，全部带「示例」角标</figcaption>
+    </figure>
+
+    <!-- ================= 事件页 ================= -->
+    <figure>
+      <div class="phone">
+        <div class="statusbar"><span>9:41</span><span class="dots">••• ⏻</span></div>
+        <div class="navbar">事件</div>
+        <div class="scroll">
+          <div class="filters">
+            <div class="search">
+              <span class="search-icon">🔍</span>
+              <span class="search-ph">搜索事件名称</span>
+            </div>
+            <div class="tabs">
+              <span class="tab tab-on">全部<span class="tab-count">3</span></span>
+              <span class="tab">生活起居<span class="tab-count">2</span></span>
+              <span class="tab">日常</span>
+              <span class="tab">任务</span>
+              <span class="tab">美食<span class="tab-count">1</span></span>
+              <span class="tab">健康</span>
+            </div>
+            <div class="chips-row">
+              <div class="chips-inner">
+                <span class="fchip fchip-on">全部</span>
+                <span class="fchip">需关注</span>
+                <span class="fchip">倒计时</span>
+                <span class="fchip">最近</span>
+                <span class="fchip">不久</span>
+                <span class="fchip">近期</span>
+              </div>
+              <span class="fchip fchip-sort"><span class="sort-icon">⇅</span>排序</span>
+            </div>
+          </div>
+
+          <div class="list">
+            <!-- 理发：纯记录 -->
+            <div class="ic">
+              <div class="ic-icon" style="background:#FCE0D8"><span class="ic-emoji">💇</span></div>
+              <div class="ic-body">
+                <div class="ic-head">
+                  <div class="ic-name-wrap">
+                    <span class="ic-name">理发</span>
+                    <span class="ic-demo">示例</span>
+                  </div>
+                  <div class="ic-status" style="color:#E0341F;background:#FCE0D8">很久没做了</div>
+                </div>
+                <div class="ic-metric">
+                  <span class="ic-label">已过去</span>
+                  <span class="ic-num" style="font-size:27px;color:#E0341F">23</span><span class="ic-unit">天</span>
+                </div>
+                <span class="ic-sub">确实挺久了，要不要安排一下</span>
+              </div>
+              <div class="ic-use-wrap"><div class="ic-use"><span>↺</span></div></div>
+            </div>
+            <!-- 吃火锅 -->
+            <div class="ic">
+              <div class="ic-icon" style="background:#FCE0D8"><span class="ic-emoji">🍲</span></div>
+              <div class="ic-body">
+                <div class="ic-head">
+                  <div class="ic-name-wrap">
+                    <span class="ic-name">吃火锅</span>
+                    <span class="ic-demo">示例</span>
+                  </div>
+                  <div class="ic-status" style="color:#E0341F;background:#FCE0D8">已超期</div>
+                </div>
+                <div class="ic-metric">
+                  <span class="ic-label">已过去</span>
+                  <span class="ic-num" style="font-size:30px;color:#E0341F">38</span><span class="ic-unit">天</span>
+                </div>
+                <span class="ic-sub">已经超过循环间隔 8 天</span>
+              </div>
+              <div class="ic-use-wrap"><div class="ic-use"><span>↺</span></div></div>
+            </div>
+            <!-- 洗澡：5 小时，详细计时 -->
+            <div class="ic">
+              <div class="ic-icon" style="background:#DCEFE4"><span class="ic-emoji">🛁</span></div>
+              <div class="ic-body">
+                <div class="ic-head">
+                  <div class="ic-name-wrap">
+                    <span class="ic-name">洗澡</span>
+                    <span class="ic-demo">示例</span>
+                  </div>
+                  <div class="ic-status" style="color:#0A7F4E;background:#DCEFE4">正常</div>
+                </div>
+                <div class="ic-metric">
+                  <span class="ic-label">已过去</span>
+                  <span class="ic-num" style="font-size:21px;color:#0A7F4E">5</span><span class="ic-unit">小时</span>
+                </div>
+                <span class="ic-sub">大约 2026.10.20 后再来一次</span>
+              </div>
+              <div class="ic-use-wrap"><div class="ic-use"><span>↺</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="fab">+</div>
+        <div class="tabbar">
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/></svg>
+            <span>总览</span>
+          </div>
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5M12 12v9"/></svg>
+            <span>物品</span>
+          </div>
+          <div class="tb on">
+            <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+            <span>事件</span>
+          </div>
+          <div class="tb">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20.5c0-4 3.4-6.5 7.5-6.5s7.5 2.5 7.5 6.5"/></svg>
+            <span>我的</span>
+          </div>
+        </div>
+      </div>
+      <figcaption>③ 事件：3 条示范事件（正计时 2 条 + 纯记录 1 条）</figcaption>
+    </figure>
+
+  </div>
+
+  <section class="compare">
+    <h2>「不足一天改用小时 / 分」的实际效果</h2>
+    <p class="hint">到期时刻统一为当天 23:59，所以临界那几小时会说人话，而不是「剩余 0 天」。</p>
+    <div class="cmp-grid">
+      <div class="cmp">
+        <div class="when">今天到期 · 现在 09:46</div>
+        <div class="val">剩余 <b>14</b> 小时（当天夜里 23:59 结束）</div>
+      </div>
+      <div class="cmp">
+        <div class="when">今天到期 · 现在 23:40</div>
+        <div class="val">剩余 <b>19</b> 分钟</div>
+      </div>
+      <div class="cmp">
+        <div class="when">今天到期 · 已过 23:59</div>
+        <div class="val">已过期 <b class="gray" style="color:#5F5F57">1</b> 分钟 → 之后按小时</div>
+      </div>
+      <div class="cmp">
+        <div class="when">明天到期 · 现在 09:46</div>
+        <div class="val">剩余 <b>1</b> 天（超过 24 小时仍说天）</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="tip">
+    预览为静态样张，仅用于确认视觉与文案；实际数值随打开时间实时计算。<br />
+    首启示例共 8 条（5 件物品 + 3 个事件），全部带「示例」角标，可一键清空。
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 /**
- * 物时 · 本地数据层
+ * 天天计时 · 本地数据层
  * 首版使用 wx.setStorageSync 持久化；后续迁移云开发时只需替换本文件实现
  */
 
@@ -125,8 +125,37 @@ function update(id, patch) {
   return list[idx]
 }
 
+/**
+ * 删除记录
+ *
+ * 有流水的改成「软删除」：只打归档标记，不真抹掉数据 —— 否则它名下的使用 / 事件流水会跟着消失
+ * （用户需求：「删除的物品记录也要保存」）。归档后列表、统计、置顶、详情都看不到它。
+ * deleted 用来与「不循环事件完成后自动归档」区分，记录页据此显示不同的来源标记。
+ *
+ * 一条流水都没有的记录直接真删 —— 留着也没有任何可展示的东西。
+ */
 function remove(id) {
-  const list = readAll().filter(i => i.id !== id)
+  const list = readAll()
+  const idx = list.findIndex(i => i.id === id)
+  if (idx === -1) return false
+  const it = list[idx]
+  const hasLog =
+    (Array.isArray(it.usageLog) && it.usageLog.length > 0) ||
+    (Array.isArray(it.eventLog) && it.eventLog.length > 0)
+
+  if (!hasLog) {
+    list.splice(idx, 1)
+    return saveAll(list)
+  }
+
+  list[idx] = Object.assign({}, it, {
+    archived: true,
+    archivedAt: Date.now(),
+    deleted: true,
+    pinned: false,
+    pinnedAt: 0,
+    updatedAt: Date.now()
+  })
   return saveAll(list)
 }
 
@@ -134,21 +163,50 @@ function clearAll() {
   return saveAll([])
 }
 
-/** 每件物品最多保留的消耗流水条数 */
-const USAGE_LOG_LIMIT = 40
+/** 示例记录（首启写入的示范内容）：只用于提示操作，不算用户的真实物品 */
+function getDemo() {
+  return readAll().filter(i => i.demo && !i.archived)
+}
 
-/** 每条记录最多保留的「重新计时」流水条数（事件记录页数据源） */
-const EVENT_LOG_LIMIT = 40
+/** 还剩下的示例条数 */
+function countDemo() {
+  return getDemo().length
+}
+
+/**
+ * 一键清空示例：真删除（连流水一起回收）
+ * 与 remove() 的软删除不同 —— 示例本来就不是用户的数据，留流水没有意义
+ * @returns {Number} 清掉的条数
+ */
+function removeDemo() {
+  const list = readAll()
+  const keep = list.filter(i => !i.demo)
+  const n = list.length - keep.length
+  if (!n) return 0
+  saveAll(keep)
+  return n
+}
+
+/**
+ * 流水总上限：使用记录、事件记录各只保留最近 100 条
+ *
+ * 注意是「跨全部记录合计」的全局上限，不是每条记录各自 100 条 ——
+ * 记录页本来就是一个把所有记录混排在一起的列表，按页总量截断才符合「记录存储 100 条」的直觉。
+ * 每次写入流水后由 pruneLogs() 收敛。
+ */
+const LOG_LIMIT = 100
 
 /** 正计时：记录一次「已更换/已清洗」或「刚刚发生过」，重置计时（起点落到此刻）并留一条流水 */
 function resetCycle(id) {
   const item = getById(id)
   const now = Date.now()
   const log = { id: util.uuid(), type: 'reset', t: time.today(), ts: now }
-  const logs = Array.isArray(item && item.eventLog) ? item.eventLog.slice(0, EVENT_LOG_LIMIT - 1) : []
+  const logs = Array.isArray(item && item.eventLog) ? item.eventLog.slice() : []
   logs.unshift(log)
   // 起点精确时刻对所有正计时都有效，不必等用户开「详细计时」
-  return update(id, { lastDate: time.today(), lastAt: now, eventLog: logs })
+  const updated = update(id, { lastDate: time.today(), lastAt: now, eventLog: logs })
+  pruneLogs()
+  return updated
 }
 
 /**
@@ -172,7 +230,7 @@ function finishEvent(id) {
   const cyclic = !!item.cyclic
   // type 区分「正计时重新计时」与「倒计时完成」；cyclic 记录这次完成走的是哪条分支
   const log = { id: util.uuid(), type: 'done', cyclic, t: time.today(), ts: now }
-  const logs = Array.isArray(item.eventLog) ? item.eventLog.slice(0, EVENT_LOG_LIMIT - 1) : []
+  const logs = Array.isArray(item.eventLog) ? item.eventLog.slice() : []
   logs.unshift(log)
 
   if (cyclic) {
@@ -181,10 +239,12 @@ function finishEvent(id) {
       id,
       Object.assign({}, next, { lastDate: '', lastAt: 0, eventLog: logs })
     )
+    pruneLogs()
     return { mode: 'recycled', item: updated }
   }
 
   update(id, { archived: true, archivedAt: now, eventLog: logs })
+  pruneLogs()
   return { mode: 'archived', item: null }
 }
 
@@ -245,10 +305,11 @@ function useItem(id, n) {
     n: num,
     unit: item.unit || ''
   }
-  const logs = Array.isArray(item.usageLog) ? item.usageLog.slice(0, USAGE_LOG_LIMIT - 1) : []
+  const logs = Array.isArray(item.usageLog) ? item.usageLog.slice() : []
   logs.unshift(log)
 
   const updated = update(id, { quantity: after, usageLog: logs })
+  pruneLogs()
   return { item: updated, logId: log.id, before, after, n: num }
 }
 
@@ -300,11 +361,116 @@ function clearUsage(id) {
   return update(id, { usageLog: [] })
 }
 
-/** 汇总全部消耗流水（时间倒序），供记录页使用 */
+/* ---------- 流水收敛与手动删除（v3.10） ---------- */
+
+/**
+ * 把某一类流水按时间收敛到 LOG_LIMIT 条（跨全部记录合计）
+ * @returns {Boolean} 是否有改动
+ */
+function pruneField(list, field) {
+  const flat = []
+  list.forEach((it, i) => {
+    const logs = Array.isArray(it[field]) ? it[field] : []
+    logs.forEach(l => flat.push({ i, id: l.id, ts: Number(l.ts) || 0 }))
+  })
+  if (flat.length <= LOG_LIMIT) return false
+
+  // 时间新的留下；每条记录内部本来就是新在前，用 (记录下标 | 流水 id) 标记要保留的
+  flat.sort((a, b) => b.ts - a.ts)
+  const keep = {}
+  flat.slice(0, LOG_LIMIT).forEach(x => {
+    keep[x.i + '|' + x.id] = true
+  })
+
+  let changed = false
+  list.forEach((it, i) => {
+    const logs = Array.isArray(it[field]) ? it[field] : []
+    const kept = logs.filter(l => keep[i + '|' + l.id])
+    if (kept.length !== logs.length) {
+      it[field] = kept
+      changed = true
+    }
+  })
+  return changed
+}
+
+/** 归档后名下已经没有任何流水的空壳记录，直接清掉，别白占存储 */
+function dropEmptyArchived(list) {
+  return list.filter(it => {
+    if (!it || !it.archived) return true
+    const u = Array.isArray(it.usageLog) ? it.usageLog.length : 0
+    const e = Array.isArray(it.eventLog) ? it.eventLog.length : 0
+    return u > 0 || e > 0
+  })
+}
+
+/**
+ * 收敛流水：① 使用记录 / 事件记录各只留最近 LOG_LIMIT 条；② 清掉归档后已无流水的空壳
+ * 每次写入流水之后调用（本地数据量很小，多读写一次可忽略）
+ * @returns {Boolean} 是否有改动
+ */
+function pruneLogs() {
+  const list = readAll()
+  const changed = pruneField(list, 'usageLog') | pruneField(list, 'eventLog')
+  const kept = dropEmptyArchived(list)
+  if (!changed && kept.length === list.length) return false
+  return saveAll(kept)
+}
+
+/**
+ * 手动删除一条流水（记录页长按某条 → 删除）
+ *
+ * 只删这条记录本身，**不改数量、不动计时** —— 想「撤回一次用掉、把数量加回来」请用 undoUse。
+ * @param {String} itemId 所属记录 id
+ * @param {String} logId  流水 id
+ * @returns {Boolean} 是否删掉了
+ */
+function removeLog(itemId, logId) {
+  const list = readAll()
+  const it = list.find(i => i.id === itemId)
+  if (!it) return false
+
+  let hit = false
+  ;['usageLog', 'eventLog'].forEach(f => {
+    const logs = Array.isArray(it[f]) ? it[f] : []
+    const kept = logs.filter(l => l.id !== logId)
+    if (kept.length !== logs.length) {
+      it[f] = kept
+      hit = true
+    }
+  })
+  if (!hit) return false
+
+  it.updatedAt = Date.now()
+  return saveAll(dropEmptyArchived(list))
+}
+
+/**
+ * 清空一类流水（记录页底部「清空」）：只清流水，记录自身的数量与计时都不受影响
+ * @param {String} type 'usage' 使用记录 | 'event' 事件记录
+ */
+function clearLogs(type) {
+  const field = type === 'event' ? 'eventLog' : 'usageLog'
+  const list = readAll()
+  let changed = false
+  list.forEach(it => {
+    if (Array.isArray(it[field]) && it[field].length > 0) {
+      it[field] = []
+      changed = true
+    }
+  })
+  if (!changed) return false
+  return saveAll(dropEmptyArchived(list))
+}
+
+/**
+ * 汇总全部消耗流水（时间倒序），供记录页使用
+ *
+ * 与事件记录同理用 readAll：被删除（归档）的物品，它留下的使用流水仍应显示在记录页里。
+ */
 function getAllUsage() {
-  const list = getAll()
   const out = []
-  list.forEach(item => {
+  readAll().forEach(item => {
     const logs = Array.isArray(item.usageLog) ? item.usageLog : []
     logs.forEach(l => {
       out.push({
@@ -315,7 +481,11 @@ function getAllUsage() {
         date: l.t,
         ts: l.ts || 0,
         n: Number(l.n) || 1,
-        unit: l.unit || item.unit || ''
+        unit: l.unit || item.unit || '',
+        // 所属记录已归档：点不进详情，只在记录里留痕
+        archived: !!item.archived,
+        // 是「被用户删除」而不是「不循环事件完成后自动收起」
+        deleted: !!item.deleted
       })
     })
   })
@@ -347,8 +517,10 @@ function getAllEventLogs() {
           type: l.type || (item.archived ? 'done' : 'reset'),
           // 这一次完成是否进入了下一轮（循环事件）
           cyclic: !!l.cyclic,
-          // 已归档：这条计时在列表里已经收起，点不进详情
-          archived: !!item.archived
+          // 已归档：这条计时在列表里已经收起（自动收起或被删除），点不进详情
+          archived: !!item.archived,
+          // 归档原因是「用户删除了记录」，而不是「不循环事件完成后自动收起」
+          deleted: !!item.deleted
         })
       })
     })
@@ -396,14 +568,15 @@ function ensureInit() {
       icon: '🥛',
       category: 'food',
       mode: MODE.COUNTDOWN,
-      produceDate: time.addDays(t, -5),
+      // 生产日期 7 天前 + 保质期 7 天 = 今天到期：用来演示「剩余不足一天时改显示小时」
+      produceDate: time.addDays(t, -7),
       shelfLife: 7,
       shelfLifeUnit: 'day',
       quantity: 2,
       unit: '瓶',
       location: '冰箱冷藏',
       remindDays: 2,
-      remark: '示例数据，可长按删除'
+      remark: '示例数据，可一键清空'
     },
     {
       name: '酸奶',
@@ -497,7 +670,10 @@ function ensureInit() {
     Object.assign({}, i, {
       id: util.uuid(),
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
+      // v3.11：首启写入的这些只是「示例」，用于提示怎么操作 ——
+      // 不计入首页 / 我的统计，卡片上带「示例」角标，可一键清空（removeDemo）
+      demo: true
     })
   )
 
@@ -545,6 +721,7 @@ function buildFromPreset(preset) {
 module.exports = {
   KEY_ITEMS,
   DEFAULT_SETTINGS,
+  LOG_LIMIT,
   getAll,
   getItems,
   getEvents,
@@ -554,12 +731,18 @@ module.exports = {
   update,
   remove,
   clearAll,
+  getDemo,
+  countDemo,
+  removeDemo,
   resetCycle,
   finishEvent,
   useItem,
   undoUse,
   undoUseBatch,
   clearUsage,
+  pruneLogs,
+  removeLog,
+  clearLogs,
   getAllUsage,
   getAllEventLogs,
   getPinned,

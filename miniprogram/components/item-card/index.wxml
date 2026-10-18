@@ -10,6 +10,8 @@
       <view class="ic-name-wrap">
         <text wx:if="{{item.pinned}}" class="ic-pin">📌</text>
         <text class="ic-name">{{item.name}}</text>
+        <!-- 示例记录：首启用来提示操作，不算用户的真实物品 -->
+        <text wx:if="{{item.demo}}" class="ic-demo">示例</text>
       </view>
       <view class="ic-status" style="color:{{state.color}};background:{{state.soft}}">
         {{state.statusLabel}}

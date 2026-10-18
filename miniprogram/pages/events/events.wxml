@@ -4,7 +4,7 @@
   <view class="filters">
     <view class="search">
       <text class="search-icon">🔍</text>
-      <input
+      <input always-embed="{{true}}"
         class="search-input"
         value="{{keyword}}"
         placeholder="搜索事件名称"
@@ -66,7 +66,7 @@
       wx:if="{{total === 0}}"
       emoji="🗓️"
       text="还没有记录的事件"
-      subText="记录「距离上次…多久了」，比如洗澡、吃火锅"
+      subText="记录「距离上次…多久了」，比如健身、聚会"
       buttonText="添加事件"
       bind:action="onAdd"
     />

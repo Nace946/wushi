@@ -12,11 +12,11 @@ Page({
     statuses: [
       { key: 'all', name: '全部' },
       { key: 'attention', name: '需关注' },
+      { key: 'countup', name: '正计时' },
       { key: 'normal', name: '充裕' },
       { key: 'soon', name: '临近' },
       { key: 'urgent', name: '紧急' },
-      { key: 'over', name: '已过期' },
-      { key: 'countup', name: '正计时' }
+      { key: 'over', name: '已过期' }
     ],
     list: [],
     total: 0,
@@ -213,7 +213,8 @@ Page({
         } else if (res.tapIndex === 1) {
           wx.showModal({
             title: '删除「' + item.name + '」',
-            content: '删除后无法恢复，确定继续吗？',
+            content: '从列表里删除，它的使用记录会保留在记录页里。',
+            confirmText: '删除',
             confirmColor: '#E0341F',
             success: r => {
               if (r.confirm) {
@@ -235,7 +236,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: '物时 · 记住每件物品的保质期与更换周期',
+      title: '天天计时 · 记住每件物品的保质期与更换周期',
       path: '/pages/index/index'
     }
   }

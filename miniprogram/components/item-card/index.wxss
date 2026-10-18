@@ -63,6 +63,18 @@
   max-width: 340rpx;
 }
 
+/* 「示例」角标：首启示范内容专用，弱化处理，不和真实记录抢注意力 */
+.ic-demo {
+  flex-shrink: 0;
+  margin-left: 10rpx;
+  padding: 2rpx 10rpx;
+  font-size: 20rpx;
+  line-height: 1.6;
+  color: var(--text-3, #798178);
+  background: var(--muted-soft, #f0efec);
+  border-radius: var(--r-pill, 999rpx);
+}
+
 .ic-status {
   font-size: 24rpx;
   padding: 4rpx 16rpx;

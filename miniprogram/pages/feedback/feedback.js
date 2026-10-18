@@ -22,7 +22,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: '物时 · 记住每件物品的保质期与更换周期',
+      title: '天天计时 · 记住每件物品的保质期与更换周期',
       path: '/pages/index/index'
     }
   }

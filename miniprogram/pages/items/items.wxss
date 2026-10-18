@@ -25,9 +25,13 @@
 
 .search-input {
   flex: 1;
+  min-width: 0;
   font-size: 29rpx;
   color: var(--text);
+  /* 高度用 rpx 显式定死并压掉原生 min-height，避免大屏上被原生层收窄压扁 */
   height: 76rpx;
+  min-height: 76rpx;
+  line-height: 76rpx;
 }
 
 .search-ph {

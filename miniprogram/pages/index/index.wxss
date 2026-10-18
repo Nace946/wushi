@@ -149,6 +149,53 @@
   margin-top: 44rpx;
 }
 
+/* ---------- 首启示例说明条 ----------
+   首启写进来的示例只用于提示操作，不算用户的真实记录：
+   这条说明放在概览卡下方，一眼能看到「下面是示例」并能一键清空 */
+.demo-bar {
+  display: flex;
+  align-items: center;
+  margin-top: 24rpx;
+  padding: 24rpx 28rpx;
+  background: var(--surface);
+  border: 2rpx dashed var(--line);
+  border-radius: var(--r-md);
+}
+
+.demo-bar-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.demo-bar-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.demo-bar-sub {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: var(--text-3);
+  line-height: 1.45;
+}
+
+.demo-bar-btn {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+  padding: 12rpx 26rpx;
+  font-size: 26rpx;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: var(--r-pill);
+}
+
+.demo-bar-btn-hover {
+  opacity: 0.72;
+}
+
 .sec-hd {
   display: flex;
   align-items: center;

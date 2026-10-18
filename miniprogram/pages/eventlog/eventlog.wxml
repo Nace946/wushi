@@ -37,8 +37,11 @@
         wx:for-item="log"
         wx:key="logId"
         data-id="{{log.itemId}}"
+        data-logid="{{log.logId}}"
         data-archived="{{log.archived ? 1 : 0}}"
+        data-deleted="{{log.deleted ? 1 : 0}}"
         bindtap="goDetail"
+        bindlongpress="onDeleteLog"
         hover-class="ul-hover"
         hover-stay-time="60"
       >
@@ -53,7 +56,11 @@
   </view>
 
   <view wx:if="{{!empty}}" class="foot-tip">
-    <text>只保留每个事件最近 40 次记录</text>
+    <text>最多保留最近 {{limit}} 条记录 · 长按某条可单独删除</text>
+  </view>
+
+  <view wx:if="{{!empty}}" class="foot-act">
+    <text class="foot-act-btn" bindtap="onClearLogs" hover-class="foot-act-hover">清空全部事件记录</text>
   </view>
 
 </view>

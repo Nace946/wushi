@@ -14,7 +14,7 @@
   "window": {
     "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#F7F6F3",
-    "navigationBarTitleText": "物时",
+    "navigationBarTitleText": "天天计时",
     "navigationBarTextStyle": "black",
     "backgroundColor": "#F7F6F3",
     "enablePullDownRefresh": false

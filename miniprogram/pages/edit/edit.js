@@ -290,7 +290,9 @@ Page({
     }
     if (f.produceDate && f.shelfLife) {
       const d = time.computeExpire(f.produceDate, f.shelfLife, f.shelfLifeUnit)
-      this.setData({ expirePreview: d ? time.formatCN(d) : '' })
+      this.setData({
+        expirePreview: d ? time.formatCN(d) + ' ' + time.EXPIRE_AT_TEXT : ''
+      })
     } else {
       this.setData({ expirePreview: '' })
     }
@@ -649,6 +651,9 @@ Page({
 
     this.setData({ saving: true })
     if (this.data.isEdit) {
+      // 改过内容的示例就不再是「示例」了：去掉标记，从此算你自己的记录
+      const old = storage.getById(this.data.id)
+      if (old && old.demo) f.demo = false
       storage.update(this.data.id, f)
     } else {
       storage.add(f)
@@ -669,7 +674,11 @@ Page({
     if (!this.data.isEdit) return
     wx.showModal({
       title: '删除记录',
-      content: '删除后无法恢复，确定继续吗？',
+      content:
+        '从列表里删除这条' +
+        (this.data.isEvent ? '事件' : '物品') +
+        '，它留下的记录会保留在记录页里。',
+      confirmText: '删除',
       confirmColor: '#E0341F',
       success: res => {
         if (!res.confirm) return

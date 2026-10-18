@@ -35,7 +35,9 @@ Page({
     // 底部提示条
     snackShow: false,
     snackText: '',
-    hasData: false
+    hasData: false,
+    // 首启示例还有几条（只用于提示操作，不算用户的真实记录）
+    demoCount: 0
   },
 
   onLoad() {
@@ -87,7 +89,9 @@ Page({
   refresh() {
     const raw = storage.getAll()
     const list = time.decorate(raw)
-    const total = list.length
+    // 统计口径只算用户自己的记录：首启写入的示例只是提示，不算「实际物品」
+    const real = list.filter(i => !i.demo)
+    const total = real.length
 
     // 纯记录型事件（没设循环间隔）没有提醒日期，不该出现在关注/处理列表里
     const reminding = list.filter(i => i._state.remindable !== false)
@@ -95,7 +99,7 @@ Page({
     // 四档统计：物品与事件各一组（对应各自列表页的状态分布）
     const itemCounter = { normal: 0, soon: 0, urgent: 0, over: 0 }
     const eventCounter = { normal: 0, soon: 0, urgent: 0, over: 0 }
-    list.forEach(i => {
+    real.forEach(i => {
       const s = i._state.status
       const bucket = i.kind === KIND.EVENT ? eventCounter : itemCounter
       if (bucket[s] !== undefined) bucket[s]++
@@ -140,6 +144,7 @@ Page({
 
     this.setData({
       total,
+      demoCount: storage.countDemo(),
       stats,
       eventStats,
       pinned,
@@ -157,6 +162,22 @@ Page({
     wx.showToast({
       title: this.data.pinFull ? PIN_TEXT.full : '还可置顶 ' + (PIN_LIMIT - this.data.pinned.length) + ' 条',
       icon: 'none'
+    })
+  },
+
+  /** 清空首启示例：它们只是用来提示怎么操作，真删除（连同流水） */
+  onClearDemo() {
+    wx.showModal({
+      title: '清空示例',
+      content: '这些示例只是用来看懂怎么操作，清空不会影响你自己的记录。',
+      confirmText: '清空',
+      confirmColor: '#E0341F',
+      success: res => {
+        if (!res.confirm) return
+        const n = storage.removeDemo()
+        this.refresh()
+        wx.showToast({ title: n ? '已清空 ' + n + ' 条示例' : '已经没有示例了', icon: 'none' })
+      }
     })
   },
 
@@ -280,7 +301,7 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: '物时 · 记住每件物品的保质期与更换周期',
+      title: '天天计时 · 记住每件物品的保质期与更换周期',
       path: '/pages/index/index'
     }
   }

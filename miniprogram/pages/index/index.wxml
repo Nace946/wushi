@@ -57,7 +57,18 @@
     </block>
 
     <view wx:else class="ov-zero">
-      <text>还没有记录，点击下方 + 添加第一条</text>
+      <text>还没有自己的记录，点击下方 + 添加第一条</text>
+    </view>
+  </view>
+
+  <!-- 首启示例说明：这些卡片只用来提示操作，不算真实记录，可一键清空 -->
+  <view wx:if="{{demoCount > 0}}" class="demo-bar">
+    <view class="demo-bar-main">
+      <text class="demo-bar-title">下面是 {{demoCount}} 条示例</text>
+      <text class="demo-bar-sub">点开、用掉、重新计时都可以试，不算你的记录</text>
+    </view>
+    <view class="demo-bar-btn" bindtap="onClearDemo" hover-class="demo-bar-btn-hover" hover-stay-time="60">
+      清空
     </view>
   </view>
 

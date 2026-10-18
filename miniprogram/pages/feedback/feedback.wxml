@@ -9,7 +9,7 @@
 
   <!-- 输入 -->
   <view class="card fb-card">
-    <textarea
+    <textarea disable-default-padding="{{true}}"
       class="fb-input"
       value="{{content}}"
       bindinput="onInput"

@@ -84,6 +84,11 @@
 
 .finput {
   flex: 1;
+  min-width: 0;
+  /* 显式 rpx 高度 + 行高：原生 input 的高度不随 rpx 走，只写 padding 在平板上会塌成一条窄缝 */
+  height: 64rpx;
+  min-height: 64rpx;
+  line-height: 64rpx;
   text-align: right;
   font-size: 29rpx;
   color: var(--text);
@@ -194,12 +199,16 @@
 }
 
 .life-input {
-  flex: none;
-  width: 200rpx;
+  /* 与「数量 / 单位」同理：随屏幕变宽而变宽，并显式给出 rpx 高度 */
+  flex: 1;
+  min-width: 0;
+  height: 80rpx;
+  min-height: 80rpx;
+  line-height: 80rpx;
   text-align: left;
   background: var(--surface-soft);
   border-radius: var(--r-sm);
-  padding: 14rpx 20rpx;
+  padding: 0 20rpx;
 }
 
 /* ---------- 快捷选择 ---------- */
@@ -287,10 +296,14 @@
 
 .nb-input {
   width: 100%;
+  /* 名称是主角：字号最大，必须给它足够的高度，否则平板上原生层会把字压扁 */
+  height: 84rpx;
+  min-height: 84rpx;
+  line-height: 84rpx;
   font-size: 40rpx;
   font-weight: 600;
   color: var(--text);
-  padding: 1rpx 0;
+  padding: 0;
   border-bottom: 2rpx solid var(--line);
 }
 
@@ -417,23 +430,36 @@
 .qty-row {
   display: flex;
   align-items: center;
+  gap: 16rpx;
+  /* 占满标签右侧的剩余空间，两个小框随屏幕一起变宽，不会停在固有宽度上 */
+  flex: 1;
+  min-width: 0;
+  margin-left: 24rpx;
 }
 
 .qty-input {
-  width: 140rpx;
+  flex: 1;
+  min-width: 0;
+  /* 高度全部用 rpx 显式定死：原生 input 在平板上不认 padding，只写 padding 会压成一条缝 */
+  height: 80rpx;
+  min-height: 80rpx;
+  line-height: 80rpx;
   text-align: center;
   background: var(--surface-soft);
   border-radius: var(--r-sm);
-  padding: 12rpx 16rpx;
+  padding: 0 20rpx;
 }
 
 .unit-input {
-  width: 120rpx;
-  margin-left: 12rpx;
+  flex: 1;
+  min-width: 0;
+  height: 80rpx;
+  min-height: 80rpx;
+  line-height: 80rpx;
   text-align: center;
   background: var(--surface-soft);
   border-radius: var(--r-sm);
-  padding: 12rpx 16rpx;
+  padding: 0 20rpx;
 }
 
 /* ---------- 预览与提交 ---------- */
@@ -456,6 +482,15 @@
   font-size: 32rpx;
   font-weight: 600;
   color: var(--primary);
+}
+
+/* 到期时刻口径说明：小字，跟在预览框下面 */
+.cd-hint {
+  margin-top: 12rpx;
+  padding: 0 8rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+  line-height: 1.5;
 }
 
 .switch-row {
