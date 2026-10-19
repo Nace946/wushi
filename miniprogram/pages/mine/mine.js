@@ -75,6 +75,10 @@ Page({
     wx.navigateTo({ url: '/pages/eventlog/eventlog' })
   },
 
+  goBackup() {
+    wx.navigateTo({ url: '/pages/backup/backup' })
+  },
+
   goGuide() {
     wx.navigateTo({ url: '/pages/guide/guide' })
   },

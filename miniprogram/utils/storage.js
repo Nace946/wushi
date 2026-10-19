@@ -206,6 +206,28 @@ function clearAll() {
   return saveAll([])
 }
 
+/**
+ * 备份专用：原始全量读（含已归档 / 已删除的记录）
+ *
+ * 导出必须带上它们 —— 归档记录虽然不显示，但 usageLog / eventLog 还挂在它名下，
+ * 只导「看得见的」会让使用记录与事件记录在换手机后少一截。
+ */
+function readRaw() {
+  return readAll()
+}
+
+/**
+ * 备份专用：整表写回（导入用）
+ *
+ * 与 clearAll() + 逐条 add() 的区别：保留原始 id 与时间戳，导入后记录不会「全变成今天新增的」，
+ * 也不会因为 add() 的默认值把字段填错。写完统一跑一次 pruneLogs() 收敛流水上限。
+ */
+function replaceAll(list) {
+  const ok = saveAll(Array.isArray(list) ? list : [])
+  if (ok) pruneLogs()
+  return ok
+}
+
 /** 示例记录（首启写入的示范内容）：只用于提示操作，不算用户的真实物品 */
 function getDemo() {
   return readAll().filter(i => i.demo && !i.archived)
@@ -776,6 +798,8 @@ module.exports = {
   update,
   remove,
   clearAll,
+  readRaw,
+  replaceAll,
   getDemo,
   countDemo,
   removeDemo,

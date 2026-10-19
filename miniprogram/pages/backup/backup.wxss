@@ -1,0 +1,184 @@
+.page {
+  padding-top: 24rpx;
+}
+
+/* ---------- 本机现状 ---------- */
+.sum-card {
+  padding: 30rpx 32rpx 26rpx;
+}
+
+.sum-hd {
+  display: block;
+  font-size: 26rpx;
+  color: var(--text-3);
+}
+
+.sum-row {
+  display: flex;
+  margin-top: 16rpx;
+}
+
+.sum-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.sum-num {
+  font-size: 52rpx;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.sum-name {
+  margin-top: 4rpx;
+  font-size: 24rpx;
+  color: var(--text-3);
+}
+
+.sum-foot {
+  display: block;
+  margin-top: 22rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid var(--line);
+  font-size: 24rpx;
+  color: var(--text-3);
+  line-height: 1.6;
+}
+
+/* ---------- 区块 ---------- */
+.block {
+  margin-top: 40rpx;
+}
+
+.block-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--text);
+  padding: 0 8rpx 18rpx;
+}
+
+.para {
+  display: block;
+  font-size: 28rpx;
+  color: var(--text-2);
+  line-height: 1.7;
+}
+
+.note {
+  display: block;
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  color: var(--text-3);
+  line-height: 1.7;
+}
+
+/* ---------- 按钮 ---------- */
+/* 原生 button 自带边框与外边距，这里全部覆盖掉 */
+.export-btn,
+.import-btn,
+.merge-btn {
+  margin: 0;
+  padding: 0;
+}
+
+.export-btn {
+  margin-top: 28rpx;
+}
+
+.import-btn {
+  margin-top: 22rpx;
+}
+
+.export-btn::after,
+.import-btn::after,
+.merge-btn::after {
+  border: none;
+}
+
+.export-btn[disabled] {
+  opacity: 0.6;
+}
+
+/* ---------- 预览 ---------- */
+.prev-card {
+  padding: 8rpx 32rpx 30rpx;
+}
+
+.prev-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+
+.prev-row-last {
+  border-bottom: none;
+}
+
+.prev-label {
+  flex-shrink: 0;
+  font-size: 27rpx;
+  color: var(--text-3);
+  margin-right: 24rpx;
+}
+
+.prev-value {
+  flex: 1;
+  text-align: right;
+  font-size: 27rpx;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.merge-btn {
+  margin-top: 28rpx;
+}
+
+.prev-acts {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 28rpx;
+  padding: 0 8rpx;
+}
+
+.prev-act {
+  font-size: 26rpx;
+  color: var(--text-3);
+  padding: 12rpx 8rpx;
+}
+
+.prev-act-danger {
+  color: var(--danger);
+}
+
+/* ---------- 底部说明 ---------- */
+.tip-card {
+  background: var(--surface-soft);
+  border-radius: var(--r-lg);
+  padding: 30rpx 32rpx;
+}
+
+.tip-title {
+  display: block;
+  font-size: 27rpx;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12rpx;
+}
+
+.tip-line {
+  display: block;
+  font-size: 25rpx;
+  color: var(--text-3);
+  line-height: 1.75;
+}
+
+.tip-line + .tip-line {
+  margin-top: 8rpx;
+}

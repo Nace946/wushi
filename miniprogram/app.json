@@ -9,7 +9,8 @@
     "pages/usage/usage",
     "pages/eventlog/eventlog",
     "pages/guide/guide",
-    "pages/feedback/feedback"
+    "pages/feedback/feedback",
+    "pages/backup/backup"
   ],
   "window": {
     "backgroundTextStyle": "dark",

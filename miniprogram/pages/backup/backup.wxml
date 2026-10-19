@@ -1,0 +1,85 @@
+<view class="page">
+
+  <!-- 本机现状 -->
+  <view class="card sum-card">
+    <text class="sum-hd">本机现有数据</text>
+    <view class="sum-row">
+      <view class="sum-cell">
+        <text class="sum-num">{{count}}</text>
+        <text class="sum-name">全部记录</text>
+      </view>
+      <view class="sum-cell">
+        <text class="sum-num">{{itemCount}}</text>
+        <text class="sum-name">物品</text>
+      </view>
+      <view class="sum-cell">
+        <text class="sum-num">{{eventCount}}</text>
+        <text class="sum-name">事件</text>
+      </view>
+    </view>
+    <text class="sum-foot">使用记录 {{usageCount}} 条 · 事件记录 {{eventLogCount}} 条（均随记录一起备份）</text>
+  </view>
+
+  <!-- 导出 -->
+  <view class="block">
+    <text class="block-title">导出备份</text>
+    <view class="card">
+      <text class="para">把全部记录打包成一个 .json 文件，发送到微信聊天（建议发给「文件传输助手」），换手机后再选回来导入。</text>
+      <button class="btn export-btn" hover-class="btn-hover" bindtap="onExport" disabled="{{busy}}">
+        {{busy ? '正在准备…' : '导出并发送备份文件'}}
+      </button>
+      <text class="note">文件里是你在本机记录的全部内容，不含账号信息，也不会上传到服务器。</text>
+    </view>
+  </view>
+
+  <!-- 导入 -->
+  <view class="block">
+    <text class="block-title">导入备份</text>
+    <view class="card">
+      <text class="para">换到新手机后登录同一个微信，把备份文件发到任意聊天里，再从这里选回来。</text>
+      <button class="btn btn-ghost import-btn" hover-class="btn-hover" bindtap="onPickFile">从聊天记录选文件</button>
+      <button class="btn btn-ghost import-btn" hover-class="btn-hover" bindtap="onPaste">从剪贴板粘贴</button>
+      <text class="note">导入前会先显示备份里有多少条记录，确认后才写入，不会覆盖你现在的数据（除非你选「覆盖」）。</text>
+    </view>
+  </view>
+
+  <!-- 预览与确认 -->
+  <view class="block" wx:if="{{preview}}" id="preview-card">
+    <text class="block-title">这份备份里有什么</text>
+    <view class="card prev-card">
+      <view class="prev-row">
+        <text class="prev-label">来源</text>
+        <text class="prev-value">{{preview.source}}</text>
+      </view>
+      <view class="prev-row" wx:if="{{preview.atText}}">
+        <text class="prev-label">导出时间</text>
+        <text class="prev-value">{{preview.atText}}</text>
+      </view>
+      <view class="prev-row">
+        <text class="prev-label">记录条数</text>
+        <text class="prev-value">{{preview.count}} 条（物品 {{preview.itemCount}} · 事件 {{preview.eventCount}}）</text>
+      </view>
+      <view class="prev-row prev-row-last" wx:if="{{preview.skipped}}">
+        <text class="prev-label">已跳过</text>
+        <text class="prev-value">{{preview.skipped}} 条无法识别的内容</text>
+      </view>
+
+      <button class="btn merge-btn" hover-class="btn-hover" bindtap="onMerge">合并导入</button>
+      <view class="prev-acts">
+        <text class="prev-act" bindtap="onCancelPreview">取消</text>
+        <text class="prev-act prev-act-danger" bindtap="onReplace">覆盖导入</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 说明 -->
+  <view class="block">
+    <view class="tip-card">
+      <text class="tip-title">为什么要备份</text>
+      <text class="tip-line">数据只存在这台手机的微信里，换手机、卸载小程序、清理存储都会让它消失。</text>
+      <text class="tip-line">建议在换手机前、以及每次记了很多新内容之后，导出一份发到「文件传输助手」存着。</text>
+      <text class="tip-line">备份文件可以用记事本打开，内容是可读的文本。</text>
+    </view>
+  </view>
+
+</view>
