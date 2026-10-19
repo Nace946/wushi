@@ -29,6 +29,12 @@ const REMIND_OPTIONS = [
 ]
 const CYCLE_OPTIONS = [7, 14, 21, 30, 60, 90, 180, 365]
 
+/** 流水时间指纹：用来判断保存时有没有把「这一轮」的记录时间一起改掉 */
+function logStamps(item) {
+  const logs = item && Array.isArray(item.eventLog) ? item.eventLog : []
+  return logs.map(l => (l && l.ts) || 0).join(',')
+}
+
 Page({
   data: {
     isEdit: false,
@@ -602,6 +608,11 @@ Page({
     if (!this.validate()) return
 
     const f = Object.assign({}, this.data.form)
+    // 表单只管「记录本身」，流水数组不能跟着写回去：
+    // 一是会把期间新增的流水覆盖成旧副本，二是 storage 会误以为这是
+    // 「自己写 eventLog」的那类更新（resetCycle / finishEvent），从而跳过起点同步
+    delete f.eventLog
+    delete f.usageLog
     const isEvent = f.kind === KIND.EVENT
     f.name = String(f.name).trim()
     f.quantity = Number(f.quantity) || 1
@@ -650,17 +661,23 @@ Page({
     }
 
     this.setData({ saving: true })
+    let startSynced = false
     if (this.data.isEdit) {
       // 改过内容的示例就不再是「示例」了：去掉标记，从此算你自己的记录
       const old = storage.getById(this.data.id)
       if (old && old.demo) f.demo = false
-      storage.update(this.data.id, f)
+      const before = logStamps(old)
+      const updated = storage.update(this.data.id, f)
+      // 起点时刻改了，这一轮的流水时间会跟着改（同步逻辑在 storage.update 里）
+      startSynced = isEvent && before !== logStamps(updated)
     } else {
       storage.add(f)
     }
 
     wx.showToast({
-      title: this.data.isEdit ? '已保存' : (isEvent ? '已记录' : '已添加'),
+      title: this.data.isEdit
+        ? (startSynced ? '已保存 · 记录时间已更新' : '已保存')
+        : (isEvent ? '已记录' : '已添加'),
       icon: 'success',
       duration: 1000
     })

@@ -72,7 +72,11 @@ Page({
     logs.forEach(l => {
       if (!map[l.date]) map[l.date] = { date: l.date, title: '', items: [] }
       map[l.date].items.push(
-        Object.assign({}, l, { timeText: fmtClock(l.ts), tag: logTag(l) })
+        Object.assign({}, l, {
+          // 只知道日期、不知道几点时不显示时分（改到过去又没填时刻的情况）
+          timeText: l.noTime ? '' : fmtClock(l.ts),
+          tag: logTag(l)
+        })
       )
     })
 

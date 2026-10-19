@@ -318,7 +318,7 @@
             ↻ 取当前时间
           </view>
         </view>
-        <text class="fhint">点上面的时间可手动指定</text>
+        <text class="fhint">点上面的时间可手动指定{{isEvent ? ' · 事件记录里的这一条会一起改' : ''}}</text>
       </view>
 
       <!-- 事件：循环间隔为可选项，关闭即「只记录时间」 -->

@@ -84,11 +84,16 @@ python tools/gen_tabbar_icons.py
   detailTiming, lastAt,                // lastAt = 起点精确时刻（毫秒，所有正计时都写；0 = 按当天 0 点计）；detailTiming 仅控制是否展示细分
   pinned, pinnedAt,                    // 首页置顶：是否置顶 + 置顶时间（最多 5 条，按置顶先后排序）
   quantity, unit, location, remindDays, remark,
-  usageLog: [{ id, t, ts, n, unit }],   // 物品消耗流水（用掉一个 / 撤销），最多 40 条
-  eventLog: [{ id, t, ts }],            // 正计时重新计时流水，最多 40 条（事件记录页数据源）
+  usageLog: [{ id, t, ts, n, unit }],   // 物品消耗流水（用掉一个 / 撤销）
+  eventLog: [{ id, t, ts, type, cyclic, noTime }], // 事件/正计时流水（事件记录页数据源）；type=reset|done，noTime=只知道日期不知几点
+  archived, archivedAt, deleted,        // 归档 / 软删除：列表与统计不可见，流水保留
+  demo,                                 // 首启示例：带「示例」角标，不计入统计
+  cyclic,                               // 事件 × 倒计时：完成后是否自动进入下一轮
   createdAt, updatedAt
 }
 ```
+
+流水上限：`storage.LOG_LIMIT = 100`，**使用记录与事件记录各自跨全部记录合计最多 100 条**（按时间倒序留最新）。
 
 状态判定（`utils/time.js`，按自然日 UTC 计算）：
 

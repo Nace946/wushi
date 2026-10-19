@@ -115,14 +115,57 @@ function add(item) {
   return full
 }
 
+/**
+ * 起点时刻改了，把「这一轮」的流水时间一起改掉（v3.12）
+ *
+ * 场景：上午 10 点吃了饭，下午 2 点才想起打开小程序点「↺ 重新计时」，
+ * 这一步写进库里的 lastAt 与流水 ts 都是 14:00；用户随后在编辑页把起点改回 10:00，
+ * 如果不同步，事件记录里就永远躺着 14:00 —— 而且「相隔多久」也会跟着错。
+ *
+ * 判据：resetCycle 写入时 log.ts 恒等于当时的 lastAt，所以
+ * 「ts === 旧 lastAt」那一条就是这一轮对应的流水，不会误伤更早的记录；
+ * 老数据同样成立，所以这一版之前记错的时间，用户改一次起点就能自愈。
+ * 找不到（用户手动删掉了那条流水）就原样返回，绝不瞎猜。
+ */
+function applyStartSync(old, patch) {
+  if (!old || !('lastAt' in patch)) return null
+  const oldAt = Number(old.lastAt) || 0
+  const newAt = Number(patch.lastAt) || 0
+  const newDate = 'lastDate' in patch ? patch.lastDate : old.lastDate
+  if (!oldAt) return null // 旧起点本来就没记精确时刻，无从对应
+  if (oldAt === newAt && newDate === old.lastDate) return null // 没改动
+  const logs = Array.isArray(old.eventLog) ? old.eventLog.slice() : []
+  const i = logs.findIndex(l => l && l.type !== 'done' && Number(l.ts) === oldAt)
+  if (i === -1) return null
+  const log = Object.assign({}, logs[i], { t: newDate || logs[i].t })
+  if (newAt > 0) {
+    log.ts = newAt
+    log.noTime = false
+  } else {
+    // 日期改到过去、又没指定几点：记在那天的 0 点以便排序，但不显示具体时分
+    log.ts = time.dayStart(newDate) || logs[i].ts || 0
+    log.noTime = true
+  }
+  logs[i] = log
+  return logs
+}
+
 /** 局部更新 */
 function update(id, patch) {
   const list = readAll()
   const idx = list.findIndex(i => i.id === id)
   if (idx === -1) return null
-  list[idx] = Object.assign({}, list[idx], patch, { updatedAt: Date.now() })
+  const old = list[idx]
+  const next = Object.assign({}, old, patch, { updatedAt: Date.now() })
+  // 只有「外部改起点」（编辑页）才同步流水；
+  // resetCycle / finishEvent 自己就在写 eventLog，跳过以免把上一轮的时间改掉
+  if (!('eventLog' in patch)) {
+    const logs = applyStartSync(old, patch)
+    if (logs) next.eventLog = logs
+  }
+  list[idx] = next
   saveAll(list)
-  return list[idx]
+  return next
 }
 
 /**
@@ -513,6 +556,8 @@ function getAllEventLogs() {
           icon: item.icon,
           date: l.t,
           ts: l.ts || 0,
+          // 这条流水的起点「只知道日期、不知道几点」（用户把日期改到过去又没填时刻）
+          noTime: !!l.noTime,
           // 流水来源：reset = 正计时重新计时；done = 倒计时「已完成」（老数据无 type）
           type: l.type || (item.archived ? 'done' : 'reset'),
           // 这一次完成是否进入了下一轮（循环事件）
