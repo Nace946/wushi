@@ -3,10 +3,10 @@
   <!-- 头部 -->
   <view class="hero">
     <view class="hero-mark">
-      <text class="hero-emoji">🌿</text>
-      <text class="hero-name">天天计时</text>
+      <text class="hero-name">天天记_✏️</text>
+      <!-- <text class="hero-emoji">🖋️</text> -->
     </view>
-    <text class="hero-desc">万物有时，日子有数</text>
+    <text class="hero-desc">万物有时，生活有序</text>
   </view>
 
   <!-- 统计 -->

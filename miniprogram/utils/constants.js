@@ -109,7 +109,7 @@ const KIND_TEXT = {
     tip: '记下这件事上次发生的时间，之后由它帮你数。',
     // —— 循环间隔（可选）：不设置时按「纯记录」处理 ——
     cycleSwitchLabel: '设置预期间隔',
-    cycleSwitchHint: '关闭则只记录时间',
+    cycleSwitchHint: '会根据你的预期作为提醒标准',
     cycleOffText: '未开启：只记录「距离上次多久」，不会提醒你',
     cycleOffShort: '不循环（仅记录）',
     countSteps: [1, 2, 3, 5, 7, 14, 30],
@@ -192,7 +192,7 @@ const PRESETS = [
   { name: '牛奶', category: 'food', icon: '🥛', mode: MODE.COUNTDOWN, shelfLife: 7, shelfLifeUnit: 'day', remindDays: 2, unit: '瓶', location: '冰箱冷藏' },
   { name: '鸡蛋', category: 'food', icon: '🥚', mode: MODE.COUNTDOWN, shelfLife: 30, shelfLifeUnit: 'day', remindDays: 5, unit: '个', location: '冰箱冷藏' },
   { name: '面包', category: 'food', icon: '🍞', mode: MODE.COUNTDOWN, shelfLife: 5, shelfLifeUnit: 'day', remindDays: 1, unit: '袋', location: '常温' },
-  { name: '酸奶', category: 'food', icon: '🍶', mode: MODE.COUNTDOWN, shelfLife: 14, shelfLifeUnit: 'day', remindDays: 3, unit: '盒', location: '冰箱冷藏' },
+  { name: '土豆', category: 'food', icon: '🥔', mode: MODE.COUNTDOWN, shelfLife: 45, shelfLifeUnit: 'day', remindDays: 10, unit: '个', location: '常温' },
   { name: '大米', category: 'food', icon: '🍚', mode: MODE.COUNTDOWN, shelfLife: 6, shelfLifeUnit: 'month', remindDays: 15, unit: '袋', location: '米桶' },
   { name: '食用油', category: 'food', icon: '🫙', mode: MODE.COUNTDOWN, shelfLife: 18, shelfLifeUnit: 'month', remindDays: 30, unit: '瓶', location: '橱柜' },
   { name: '冷冻食材', category: 'food', icon: '🧊', mode: MODE.COUNTDOWN, shelfLife: 3, shelfLifeUnit: 'month', remindDays: 15, unit: '袋', location: '冰箱冷冻' },
@@ -271,7 +271,7 @@ const EMOJI_GROUPS = [
   {
     key: 'common',
     name: '常用',
-    icons: ['🥛', '🍞', '🥚', '🍚', '🍶', '🥫', '🍎', '🥬', '💊', '🩹', '🧴', '💄', '🛏️', '🪥', '🧺', '🔌', '🌬️', '📦']
+    icons: ['🥛', '🍞', '🥚', '🍚', '🍶', '🥫', '🍎', '🥬', '💊', '🧂️', '🧴', '💄', '🛏️', '🪥', '🧺', '🔌', '🌬️', '📦']
   },
   {
     key: 'food',
@@ -309,11 +309,11 @@ const EMOJI_GROUPS = [
  * 事件图标库：按事件分类分组，选中事件类型时使用
  */
 const EVENT_EMOJI_GROUPS = [
-  { key: 'life', name: '生活', icons: ['🛁', '🚿', '🦶', '💧', '✂️', '💇', '🪥', '🧼', '🛌', '🎭', '🚽', '🧴', '👕'] },
-  { key: 'routine', name: '日常', icons: ['🌤️', '☀️', '🌙', '🪥', '🧺', '🫧', '🍵', '📖', '🎧', '🧘', '🛏️', '🧹', '🧾'] },
+  { key: 'life', name: '生活', icons: ['🛁', '🚿', '🪥', '🛒', '💆', '💇', '🪒', '🧼', '🛌', '💰️', '🚽', '🧴', '🚬'] },
+  { key: 'routine', name: '日常', icons: ['🎮️', '☀️', '🌙', '🖥️' ,'🪥', '🧺', '🎣️', '🍵', '📖', '🎧', '🎫️' , '🧘', '🛏️', '🧹', '🧾', '🀄️'] },
   { key: 'task', name: '任务', icons: ['📋', '🎯', '📌', '🗓️', '⏰', '💰', '💳', '📝', '📤', '🔔', '🏠', '💡'] },
-  { key: 'food', name: '美食', icons: ['🍲', '🍢', '🧋', '🍰', '🍗', '🍜', '🍕', '🍔', '🍦', '🍺', '🥘', '🍤'] },
-  { key: 'health', name: '健康', icons: ['💪', '🏃', '🩺', '🦷', '🩸', '🧘', '🚴', '🏊', '🧠', '👁️', '😷', '🌡️'] },
+  { key: 'food', name: '美食', icons: ['🍲', '🍢', '🧋', '🍰', '🍗', '🍜', '🍕', '🍔', '🍦', '🎂' ,'🍺', '🥘', '🍤'] },
+  { key: 'health', name: '健康', icons: ['💪', '🏃', '⚽️', '🏀️', '🏐️', '🥎️' , '🏓️', '🏸️' , '🎱️' , '🧘', '🚴', '🏊', '🥊', '🏊', '😷', '🌡️'] },
   { key: 'house', name: '家务', icons: ['🧹', '🪴', '🐕', '🪟', '🧊', '🧺', '🛋️', '🧽', '🪣', '🧯', '🍽️', '🚪'] },
   { key: 'other', name: '其他', icons: ['🗓️', '📌', '📞', '✏️', '📚', '🎯', '🎵', '🎨', '🧩', '☀️', '🌙', '🎮', '💌'] }
 ]
