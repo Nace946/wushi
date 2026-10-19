@@ -36,7 +36,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 50rpx 0 40rpx;
+  padding: 50rpx 0 34rpx;
 }
 
 /* 状态文字（剩余 / 已过期 / 已过去）放在时间前面 */
@@ -102,6 +102,40 @@
 .state-text {
   font-size: 27rpx;
   flex: 1;
+}
+
+/* ---------- 加入手机日历（主卡内、主数值下方） ---------- */
+/* 描边胶囊：比实心按钮轻，比纯文字明确，不会和下面的彩色状态条抢层级 */
+.cal-entry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 26rpx;
+  padding: 16rpx 24rpx;
+  border: 2rpx solid var(--line);
+  border-radius: var(--r-pill);
+}
+
+.cal-entry-hover {
+  background: var(--primary-soft);
+  border-color: var(--primary-soft);
+}
+
+.cal-ico {
+  font-size: 26rpx;
+  margin-right: 10rpx;
+}
+
+.cal-text {
+  font-size: 26rpx;
+  color: var(--primary);
+}
+
+.cal-when {
+  margin-left: 12rpx;
+  font-size: 24rpx;
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- 信息 ---------- */

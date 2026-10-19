@@ -1,5 +1,6 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
+const calendar = require('../../utils/calendar')
 const { CATEGORIES, EVENT_CATEGORIES, MODE, KIND, kindText } = require('../../utils/constants')
 
 Page({
@@ -12,7 +13,9 @@ Page({
     isCountUp: false,
     isEvent: false,
     resetBtn: '',
-    detailText: ''
+    detailText: '',
+    canCalendar: false,
+    calendarHint: ''
   },
 
   onLoad(options) {
@@ -101,6 +104,11 @@ Page({
     if (item.remark) rows.push({ label: '备注', value: item.remark })
     if (item.pinned) rows.push({ label: '首页展示', value: '📌 已置顶' })
 
+    // 能不能加进手机日历：纯记录型（没有循环间隔）与已过期的记录都算不出提醒日，不给入口。
+    // 详情页是明确的手动动作，直接落在**目标日当天**（到期日 / 下次提醒日），
+    // 不再扣「提前提醒」的天数 —— 那套口径只属于编辑页的保存开关（v3.19）
+    const cal = calendar.plan(item, 0, { atTarget: true })
+
     this.setData({
       item,
       state,
@@ -110,7 +118,9 @@ Page({
       resetBtn: kt.resetBtn,
       detailLabel: isEvent ? '已过去' : '已使用',
       detailText: state.detailText || '',
-      categoryName: cat ? cat.name : '其他'
+      categoryName: cat ? cat.name : '其他',
+      canCalendar: cal.ok,
+      calendarHint: cal.ok ? calendar.hint(cal.date) : ''
     })
     wx.setNavigationBarTitle({ title: item.name || '物品详情' })
   },
@@ -215,6 +225,78 @@ Page({
       icon: 'none',
       duration: 2000
     })
+  },
+
+  /**
+   * 加入手机日历（v3.17）
+   *
+   * 微信只提供「添加」接口，没有修改 / 删除，所以先弹一次确认，
+   * 把「日历里这一条是快照，之后改时间要自己调整」讲清楚。
+   */
+  onAddCalendar() {
+    const item = this.data.item
+    if (!item || this._addingCalendar) return
+    const p = calendar.plan(item, 0, { atTarget: true })
+    if (!p.ok) {
+      wx.showToast({ title: this.calendarReason(p.reason), icon: 'none' })
+      return
+    }
+    wx.showModal({
+      title: '加入手机日历',
+      content:
+        '将在 ' + calendar.hint(p.date) + '（到期当天）提醒你「' + item.name + '」。\n\n' +
+        '之后在小程序里改了时间，需要你在日历里手动调整。',
+      confirmText: '加入',
+      success: res => {
+        if (res.confirm) this.doAddCalendar(item)
+      }
+    })
+  },
+
+  doAddCalendar(item) {
+    this._addingCalendar = true
+    calendar
+      .add(item, 0, { atTarget: true })
+      .then(() => {
+        this._addingCalendar = false
+        wx.showToast({ title: '已加入手机日历', icon: 'success' })
+      })
+      .catch(err => {
+        this._addingCalendar = false
+        const code = (err && err.code) || ''
+        if (code === 'unsupported') {
+          wx.showToast({ title: '当前微信版本不支持，请升级微信', icon: 'none' })
+          return
+        }
+        if (code !== 'fail') {
+          wx.showToast({ title: this.calendarReason(code), icon: 'none' })
+          return
+        }
+        const msg = String((err.err && err.err.errMsg) || '')
+        if (/auth|deny|denied|permission/i.test(msg)) {
+          // openSetting 只能在点击行为里调，showModal 的确认算点击
+          wx.showModal({
+            title: '需要日历权限',
+            content: '请在设置里允许「添加到日历」，然后再回来点一次。',
+            confirmText: '去设置',
+            success: r => {
+              if (r.confirm) wx.openSetting({ fail: () => {} })
+            }
+          })
+          return
+        }
+        wx.showToast({ title: '没能加入，请稍后再试', icon: 'none' })
+      })
+  },
+
+  calendarReason(code) {
+    const map = {
+      noItem: '记录不见了，请返回重进',
+      noCycle: '这条没有周期，算不出提醒日',
+      noRemind: '这条选了「不提醒」，没有提醒日可加',
+      expired: '已经过期，不需要再提醒'
+    }
+    return map[code] || '暂时无法加入日历'
   },
 
   onEdit() {

@@ -178,13 +178,20 @@
 /* ---------- 分段控件 ---------- */
 .seg {
   display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 68rpx;
+  margin-left: 16rpx;
+  padding: 4rpx;
   background: var(--surface-soft);
   border-radius: var(--r-pill);
-  padding: 4rpx;
 }
 
 .seg-item {
-  padding: 10rpx 24rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  padding: 0 22rpx;
+  white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: 26rpx;
   color: var(--text-2);
@@ -196,40 +203,51 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* 保质期 / 持续天数：标签在左，数字框与单位选择紧跟在右侧同一行（v3.21）
+   不再各占一行——那样这一栏和上面「生产日期」等字段的排法对不上，看着也浪费高度 */
 .life-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 14rpx;
+  /* 靠右收拢，数字框吃掉剩余空隙，单位永远贴在同一行的末端 */
+  justify-content: flex-end;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: nowrap;
+  margin-left: 20rpx;
 }
 
 .life-input {
-  /* 与「数量 / 单位」同理：随屏幕变宽而变宽，并显式给出 rpx 高度 */
+  /* 不再定宽：右侧剩余多少就用多少，最小可收缩到 0，保证单位不被挤到下一行 */
   flex: 1;
   min-width: 0;
-  height: 80rpx;
-  min-height: 80rpx;
-  line-height: 80rpx;
-  text-align: left;
+  height: 68rpx;
+  min-height: 68rpx;
+  line-height: 68rpx;
+  box-sizing: border-box;
+  /* 数字在框内居中（v3.21），不再贴着单位右对齐 */
+  text-align: center;
+  font-size: 29rpx;
   background: var(--surface-soft);
   border-radius: var(--r-sm);
   padding: 0 20rpx;
 }
 
-/* 循环间隔输入框：与「保质期」同一套灰底方框，让「这里可以填数字」一眼可见 */
-.cycle-row {
+/* 循环间隔：标签在左、灰底数字框在右，同一行（v3.21，与「保质期 / 持续天数」保持同一套排法） */
+.cycle-top {
   display: flex;
   align-items: center;
-  margin-top: 14rpx;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .cycle-box {
-  flex: 1;
-  min-width: 0;
+  /* 定宽小方框（flex:1 会铺满整行，用户嫌长），只够放 4 位数 + 天 */
+  flex: none;
+  width: 220rpx;
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  height: 80rpx;
+  height: 68rpx;
   padding: 0 20rpx;
   background: var(--surface-soft);
   border-radius: var(--r-sm);
@@ -238,13 +256,14 @@
 .cycle-input {
   flex: 1;
   min-width: 0;
-  height: 80rpx;
-  min-height: 80rpx;
-  line-height: 80rpx;
+  height: 68rpx;
+  min-height: 68rpx;
+  line-height: 68rpx;
   padding: 0;
   background: transparent;
-  text-align: left;
-  font-size: 30rpx;
+  /* 与倒计时的数字框同字号、同居中方式（v3.21） */
+  text-align: center;
+  font-size: 29rpx;
   color: var(--text);
 }
 
@@ -656,6 +675,37 @@
 
 .submit-area {
   margin-top: 48rpx;
+}
+
+/* ---------- 手机日历联动（提前提醒下方） ---------- */
+.cal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16rpx;
+  padding: 20rpx 24rpx;
+  background: var(--primary-soft);
+  border-radius: 20rpx;
+}
+
+.cal-main {
+  flex: 1;
+  min-width: 0;
+  padding-right: 16rpx;
+}
+
+.cal-label {
+  display: block;
+  font-size: 27rpx;
+  color: var(--primary-deep);
+}
+
+.cal-hint {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--text-3);
+  line-height: 1.5;
 }
 
 .submit-area .btn {

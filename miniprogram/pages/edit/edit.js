@@ -1,6 +1,7 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
 const util = require('../../utils/util')
+const calendar = require('../../utils/calendar')
 const {
   CATEGORIES,
   EVENT_CATEGORIES,
@@ -62,6 +63,11 @@ Page({
     atText: '', // 起点精确时刻的展示文案
     atTime: '', // 时间选择器的值（'HH:mm'）
     atEmpty: true, // 是否尚未指定精确时刻（true 时灰显）
+    // 手机日历（v3.18）：只在选了「提前提醒」时才出现，
+    // 开关是一次性的，不写进记录（日历那边是快照，存状态只会自欺欺人）
+    calAvailable: false,
+    calSync: false,
+    calHint: '',
     // 首页置顶
     pinEnabled: false,
     pinUsed: 0,
@@ -101,6 +107,8 @@ Page({
     const kind = isEvent ? KIND.EVENT : KIND.ITEM
     // 用户是否亲手点过「上次发生」日期：点过就不在切换类型/计时方式时被清空
     this._atTouched = false
+    // 用户是否亲手动过「同时加入手机日历」开关：动过就不再自动帮他打开（v3.20）
+    this._calTouched = false
 
     const baseForm = {
       name: '',
@@ -273,7 +281,11 @@ Page({
   },
 
   /** 实时计算预览：倒计时=到期日；正计时=下次建议更换 / 下次提醒 */
-  updatePreview() {
+  /**
+   * 预览区的实际计算（到期日、下次提醒日、起点文案）
+   * 外面统一走 updatePreview()，好让日历开关跟着一起刷新
+   */
+  _updatePreviewCore() {
     const f = this.data.form
     // 起点精确时刻：所有正计时都记（与「详细计时」开关无关）。
     // 未指定时按「日期是今天 → 保存记为此刻 / 日期在过去 → 按当天 0 点计」兜底，
@@ -311,6 +323,57 @@ Page({
     } else {
       this.setData({ expirePreview: '' })
     }
+  },
+
+  updatePreview() {
+    this._updatePreviewCore()
+    this.refreshCalSync()
+  },
+
+  /**
+   * 手机日历开关的显隐与提示（v3.18）
+   *
+   * 只有选了「提前提醒」才有得提醒 —— 选了「不提醒」就别拿日历打扰用户，
+   * 所以这个开关是否出现完全交给 calendar.plan()：它算不出提醒日（不提醒 /
+   * 纯记录 / 已过期）就不显示。日期一改、提醒天数一改都会重算。
+   */
+  refreshCalSync() {
+    const f = this.data.form
+    if (!f) return
+    // 用当前表单拼一个「尚未存库」的记录来试算：到期日要靠 computeExpire 补出来
+    const probe = Object.assign({}, f)
+    if (f.mode === MODE.COUNTDOWN) {
+      probe.expireDate = f.expireManual
+        ? f.expireDate
+        : f.produceDate && f.shelfLife
+          ? time.computeExpire(f.produceDate, f.shelfLife, f.shelfLifeUnit)
+          : ''
+    } else if (!f.lastDate) {
+      // 起点留空 = 保存时按此刻，试算也按今天
+      probe.lastDate = time.today()
+    }
+    const p = calendar.plan(probe)
+    const patch = {
+      calAvailable: p.ok,
+      calHint: p.ok ? calendar.hint(p.date) : ''
+    }
+    if (p.ok) {
+      // 既然选了「提前提醒」，就默认把日历也加上（v3.20）：要提醒的人多半愿意让手机到点响。
+      // 但只在用户没亲手关过时才自动打开 —— 关过一次就是明确表达「别加」，别跟他抢
+      if (!this._calTouched) patch.calSync = true
+    } else {
+      // 条件不成立了（比如把提醒改成「不提醒」），开关跟着关掉，别留下一个隐形的勾选
+      if (this.data.calSync) patch.calSync = false
+      // 忘掉手动选择：下次再选提醒，仍然按「默认开启」来
+      this._calTouched = false
+    }
+    this.setData(patch)
+  },
+
+  onCalToggle(e) {
+    // 用户亲手拨过开关，此后不再自动改他的选择
+    this._calTouched = true
+    this.setData({ calSync: !!e.detail.value })
   },
 
   onInput(e) {
@@ -536,7 +599,10 @@ Page({
 
   /** 提前提醒天数（分段选择，无需滚动选择器） */
   onRemindQuick(e) {
-    this.setData({ 'form.remindDays': Number(e.currentTarget.dataset.days) })
+    this.setData(
+      { 'form.remindDays': Number(e.currentTarget.dataset.days) },
+      () => this.refreshCalSync()
+    )
   },
 
   onCycleQuick(e) {
@@ -704,14 +770,15 @@ Page({
 
     this.setData({ saving: true })
     let startSynced = false
+    let savedItem = null
     if (this.data.isEdit) {
       // 改过内容的示例就不再是「示例」了：去掉标记，从此算你自己的记录
       const old = storage.getById(this.data.id)
       if (old && old.demo) f.demo = false
       const before = logStamps(old)
-      const updated = storage.update(this.data.id, f)
+      savedItem = storage.update(this.data.id, f)
       // 起点时刻改了，这一轮的流水时间会跟着改（同步逻辑在 storage.update 里）
-      startSynced = isEvent && before !== logStamps(updated)
+      startSynced = isEvent && before !== logStamps(savedItem)
     } else {
       // 首次添加「事件 × 正计时」：用户既然指定了上次发生的时间，
       // 就在事件记录里补上这一笔，否则记录页会从「下一次重新计时」才开始有内容，
@@ -729,21 +796,82 @@ Page({
           }
         ]
       }
-      storage.add(f)
+      savedItem = storage.add(f)
       if (f.eventLog && f.eventLog.length) storage.pruneLogs()
     }
 
-    wx.showToast({
-      title: this.data.isEdit
-        ? (startSynced ? '已保存 · 记录时间已更新' : '已保存')
-        : (isEvent ? '已记录' : '已添加'),
-      icon: 'success',
-      duration: 1000
-    })
-    setTimeout(() => {
-      this.setData({ saving: false })
-      wx.navigateBack()
-    }, 700)
+    this.finishSave(savedItem, isEvent, startSynced)
+  },
+
+  /**
+   * 保存收尾：写日历 → 提示 → 返回
+   *
+   * wx.addPhoneCalendar 要求「在点击行为里调用」，所以这一段必须留在 onSave 的同步
+   * 链路上（storage 写完紧接着调），不能挪进 setTimeout / Promise 回调里。
+   */
+  finishSave(savedItem, isEvent, startSynced) {
+    const back = delay => {
+      setTimeout(() => {
+        this.setData({ saving: false })
+        wx.navigateBack()
+      }, delay)
+    }
+    const plainToast = () =>
+      wx.showToast({
+        title: this.data.isEdit
+          ? (startSynced ? '已保存 · 记录时间已更新' : '已保存')
+          : (isEvent ? '已记录' : '已添加'),
+        icon: 'success',
+        duration: 1000
+      })
+
+    if (!this.data.calSync || !savedItem) {
+      plainToast()
+      back(700)
+      return
+    }
+
+    // 同一条记录、同一个提醒日已经写过一次就不再重复写：日历那边没有删除接口，
+    // 每保存一次多堆一条只会让用户自己去清理。真想再补一条，走详情页那个入口
+    const p = calendar.plan(savedItem)
+    if (p.ok && savedItem.calKey === p.date) {
+      plainToast()
+      back(700)
+      return
+    }
+
+    calendar
+      .add(savedItem)
+      .then(() => {
+        // 记下写过的提醒日；之后日期变了才会再写一条，没变就静默跳过
+        if (p.ok) storage.update(savedItem.id, { calKey: p.date })
+        wx.showToast({ title: '已保存，已加入日历', icon: 'none', duration: 1500 })
+        back(1400)
+      })
+      .catch(err => {
+        const code = (err && err.code) || ''
+        if (code === 'unsupported') {
+          wx.showToast({ title: '已保存 · 微信版本不支持写日历', icon: 'none', duration: 2000 })
+          back(1600)
+          return
+        }
+        const msg = String((err && err.err && err.err.errMsg) || '')
+        if (/auth|deny|denied|permission/i.test(msg)) {
+          wx.showModal({
+            title: '已保存，但没加进日历',
+            content: '需要允许「添加到日历」才能建提醒。可以到设置里打开，之后在详情页点「📅 加入手机日历」再试一次。',
+            confirmText: '去设置',
+            cancelText: '知道了',
+            success: r => {
+              if (r.confirm) wx.openSetting({ fail: () => {} })
+              back(600)
+            }
+          })
+          return
+        }
+        wx.showToast({ title: '已保存 · 日历提醒没加成功', icon: 'none', duration: 2000 })
+        back(1600)
+      })
   },
 
   onDelete() {

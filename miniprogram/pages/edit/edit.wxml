@@ -212,7 +212,9 @@
           </picker>
         </view>
 
-        <view class="field field-col">
+        <!-- 天数选择：标签、数字、单位同排一行（v3.21）
+             原先 label 单独一行、输入框与单位换到第二行，和上面「生产日期」那类字段的排法不一致 -->
+        <view class="field">
           <text class="flabel">{{ktCdSpan}}</text>
           <view class="life-row">
             <input always-embed="{{true}}"
@@ -337,9 +339,9 @@
       <!-- 循环间隔（事件关闭时整块隐藏） -->
       <block wx:if="{{!isEvent || cycleEnabled}}">
         <view class="field field-col">
-          <text class="flabel">{{ktCycleLabel}}</text>
-          <!-- 间隔天数：给一个看得见的输入框（此前是无边框右对齐，跟静态文字没区别） -->
-          <view class="cycle-row">
+          <!-- 间隔天数：标签与数字框同排一行（v3.22），下方保留常用天数快选与提示 -->
+          <view class="cycle-top">
+            <text class="flabel">{{ktCycleLabel}}</text>
             <view class="cycle-box">
               <input always-embed="{{true}}"
                 class="finput cycle-input"
@@ -347,7 +349,7 @@
                 value="{{form.cycleDays}}"
                 data-field="cycleDays"
                 bindinput="onInput"
-                placeholder="填个数字，例如 14"
+                placeholder="14"
                 placeholder-class="fph"
                 maxlength="4"
               />
@@ -363,7 +365,7 @@
               bindtap="onCycleQuick"
             >{{item}}天</view>
           </view>
-          <text class="fhint">也可以直接点下面的常用天数</text>
+          <text class="fhint">填天数；也可以直接点下面的常用天数</text>
         </view>
 
         <view wx:if="{{cyclePreview}}" class="preview">
@@ -423,6 +425,19 @@
           >{{item.t}}</view>
         </view>
         <text class="fhint">选「不提醒」则不提前预警，只在临近时由颜色变化提示</text>
+
+        <!-- 手机日历（v3.18）：只有设了提前提醒才出现，不提醒就不打扰 -->
+        <view wx:if="{{calAvailable}}" class="cal-row">
+          <view class="cal-main">
+            <text class="cal-label">同时加入手机日历</text>
+            <text class="cal-hint">{{calSync ? '保存后在 ' + calHint + ' 提醒你' : '打开后，手机日历会在 ' + calHint + ' 提前提醒你'}}</text>
+          </view>
+          <switch
+            checked="{{calSync}}"
+            bindchange="onCalToggle"
+            color="#0A7F4E"
+          />
+        </view>
       </view>
 
       <view class="field field-col">

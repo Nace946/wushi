@@ -19,6 +19,20 @@
       </view>
     </view>
 
+    <!-- 加入手机日历（v3.20）：紧跟在「剩余 N 天」下面，看完余量顺手就能设个到点提醒；
+         直接落在到期当天 09:00，不扣提前提醒天数 -->
+    <view
+      wx:if="{{canCalendar}}"
+      class="cal-entry"
+      bindtap="onAddCalendar"
+      hover-class="cal-entry-hover"
+      hover-stay-time="60"
+    >
+      <text class="cal-ico">📅</text>
+      <text class="cal-text">加入手机日历</text>
+      <text class="cal-when">{{calendarHint}}</text>
+    </view>
+
     <view class="state-bar" style="background:{{state.soft}};color:{{state.color}}">
       <text class="state-dot" style="background:{{state.color}}"></text>
       <text class="state-text">{{state.statusLabel}} · {{state.subText}}</text>
