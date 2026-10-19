@@ -1,5 +1,6 @@
 const time = require('../../utils/time')
 const storage = require('../../utils/storage')
+const util = require('../../utils/util')
 const {
   CATEGORIES,
   EVENT_CATEGORIES,
@@ -98,6 +99,8 @@ Page({
     const today = time.today()
     const isEvent = options.kind === KIND.EVENT
     const kind = isEvent ? KIND.EVENT : KIND.ITEM
+    // 用户是否亲手点过「上次发生」日期：点过就不在切换类型/计时方式时被清空
+    this._atTouched = false
 
     const baseForm = {
       name: '',
@@ -112,7 +115,10 @@ Page({
       expireManual: false,
       // 事件 × 倒计时：完成后是否自动进入下一轮（默认关闭，避免意外重复）
       cyclic: false,
-      lastDate: today,
+      // 正计时起点（v3.16）：事件默认留空（框里显示「请选择」），但空着保存不拦，
+      // 直接按此刻计 —— 少一步操作，也不强制用户先做一次选择。
+      // 物品仍默认今天：刚换上的床单、毛巾本来就是今天换的，这个默认值有意义。
+      lastDate: isEvent ? '' : today,
       lastAt: 0, // 起点精确时刻（毫秒）；日期是今天时，保存会自动记为此刻
       cycleDays: '',
       quantity: 1,
@@ -134,6 +140,8 @@ Page({
       }
       const form = Object.assign({}, baseForm, item)
       if (!form.kind) form.kind = KIND.ITEM
+      // 编辑已有记录：日期算「已经定过」，切换类型时不能清空
+      this._atTouched = true
 
       // 从详情页「购置新物品」进来：保留原有信息，仅把日期重置为今天
       if (options.reset === '1') {
@@ -270,10 +278,11 @@ Page({
     // 起点精确时刻：所有正计时都记（与「详细计时」开关无关）。
     // 未指定时按「日期是今天 → 保存记为此刻 / 日期在过去 → 按当天 0 点计」兜底，
     // 展示文案与 atTime（时间选择器初值）都要跟着这个兜底走，避免选出来的时刻和预期不一致
-    const isToday = f.lastDate === time.today()
+    const isToday = !f.lastDate || f.lastDate === time.today()
     const at = Number(f.lastAt) || 0
     const hasAt = at > 0
     this.setData({
+      // 日期为空也按「此刻」算：口径统一成「不选就现在」，不再提示去选时间（v3.15）
       atText: hasAt
         ? time.formatCN(f.lastDate) + ' ' + time.formatTime(at)
         : isToday
@@ -344,6 +353,7 @@ Page({
   /** 取当前系统时间作为计时起点（同时把日期拉到今天） */
   onPickNow() {
     const now = Date.now()
+    this._atTouched = true
     this.setData(
       {
         'form.lastDate': time.today(),
@@ -403,7 +413,11 @@ Page({
     if (!cats.some(c => c.key === cur)) {
       patch['form.category'] = cats[0].key
     }
-    this.setData(patch, () => this.syncKindMeta())
+    // 起点日期随「事件 × 正计时」的组合校一遍，保证四个入口长得一样（v3.16）
+    this.setData(patch, () => {
+      this.syncKindMeta()
+      this.fixStartDate(() => this.updatePreview())
+    })
   },
 
   /**
@@ -413,10 +427,34 @@ Page({
   onMode(e) {
     const mode = e.currentTarget.dataset.mode
     if (!mode || mode === this.data.form.mode) return
-    this.setData({ 'form.mode': mode, isCountUp: mode === MODE.COUNTUP }, () => {
+    const patch = { 'form.mode': mode, isCountUp: mode === MODE.COUNTUP }
+    this.setData(patch, () => {
       this.syncKindMeta()
-      this.updatePreview()
+      this.fixStartDate(() => this.updatePreview())
     })
+  },
+
+  /**
+   * 切换「记录类型 / 计时方式」后校正起点日期（v3.16）
+   *
+   * 规则：
+   * - 事件 × 正计时 → 新建且用户没亲手点过日期时留空（框里显示「请选择」，保存按此刻）
+   * - 其它组合      → 日期不能空，空则补今天（物品正计时「刚换上的就是今天」）
+   * 编辑已有记录时不动，避免把用户存过的日期抹掉
+   */
+  fixStartDate(cb) {
+    const f = this.data.form
+    const eventCountUp = f.kind === KIND.EVENT && f.mode === MODE.COUNTUP
+    if (eventCountUp) {
+      if (!this.data.isEdit && !this._atTouched && f.lastDate !== '') {
+        this.setData({ 'form.lastDate': '', 'form.lastAt': 0 }, cb)
+        return
+      }
+    } else if (!f.lastDate) {
+      this.setData({ 'form.lastDate': time.today() }, cb)
+      return
+    }
+    if (cb) cb()
   },
 
   onCategory(e) {
@@ -475,6 +513,8 @@ Page({
     const val = e.detail.value
     const patch = { ['form.' + field]: val }
     if (field === 'lastDate') {
+      // 用户亲手选过日期，之后切换类型 / 计时方式时不再清空
+      this._atTouched = true
       // 日期一改，原先记的精确时刻就对不上了：改成今天则取此刻，改成过去某天则清空（按 0 点计）
       patch['form.lastAt'] = val === time.today() ? Date.now() : 0
     }
@@ -548,6 +588,8 @@ Page({
     const built = storage.buildFromPreset(preset)
     // 点击预设即以预设为准：名称、图标、分类、类型、周期等全部采用预设值
     const form = Object.assign({}, this.data.form, built, { name: preset.name })
+    // 事件正计时：预设只带「周期」，起点保留表单里现有的今天/已选日期（v3.15 起不再清空，
+    // 空着就等于按此刻计，没必要让用户多点一次）
     this.setData(
       {
         form,
@@ -558,7 +600,7 @@ Page({
       },
       () => {
         this.syncKindMeta()
-        this.updatePreview()
+        this.fixStartDate(() => this.updatePreview())
         this.refreshPinCount()
       }
     )
@@ -589,10 +631,7 @@ Page({
         }
       }
     } else {
-      if (!f.lastDate) {
-        wx.showToast({ title: '请选择' + kt.lastLabel, icon: 'none' })
-        return false
-      }
+      // 「上次发生」不再强制填写：空着就按此刻计（onSave 里兜底成今天），v3.15
       // 事件可以不设循环间隔（纯记录）；物品正计时仍需填写
       const needCycle = f.kind !== KIND.EVENT || this.data.cycleEnabled
       if (needCycle && (!f.cycleDays || Number(f.cycleDays) <= 0)) {
@@ -614,6 +653,9 @@ Page({
     delete f.eventLog
     delete f.usageLog
     const isEvent = f.kind === KIND.EVENT
+    // 正计时的「上次发生」兜底为今天：表单里理论上不会是空的，
+    // 但历史数据、极端操作仍可能留空 —— 空着就按此刻计，不弹「请选择」（v3.15）
+    if (f.mode === MODE.COUNTUP && !f.lastDate) f.lastDate = time.today()
     f.name = String(f.name).trim()
     f.quantity = Number(f.quantity) || 1
     // 0 = 不提前提醒，不能用 || 兜底（会把 0 换成默认的 7）
@@ -671,7 +713,24 @@ Page({
       // 起点时刻改了，这一轮的流水时间会跟着改（同步逻辑在 storage.update 里）
       startSynced = isEvent && before !== logStamps(updated)
     } else {
+      // 首次添加「事件 × 正计时」：用户既然指定了上次发生的时间，
+      // 就在事件记录里补上这一笔，否则记录页会从「下一次重新计时」才开始有内容，
+      // 第一次发生的时间就永远丢了。只补一条，之后由 resetCycle 正常追加。
+      if (isEvent && f.mode === MODE.COUNTUP) {
+        const hasAt = Number(f.lastAt) > 0
+        f.eventLog = [
+          {
+            id: util.uuid(),
+            type: 'reset',
+            t: f.lastDate,
+            // 只知道日期、不知道几点时按当天 0 点存（排序正确），但记录页不显示时分
+            ts: hasAt ? Number(f.lastAt) : time.dayStart(f.lastDate),
+            noTime: !hasAt
+          }
+        ]
+      }
       storage.add(f)
+      if (f.eventLog && f.eventLog.length) storage.pruneLogs()
     }
 
     wx.showToast({

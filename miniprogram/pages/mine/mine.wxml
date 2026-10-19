@@ -3,7 +3,7 @@
   <!-- 头部 -->
   <view class="hero">
     <view class="hero-mark">
-      <text class="hero-name">天天记_✏️</text>
+      <text class="hero-name">✏️天天记</text>
       <!-- <text class="hero-emoji">🖋️</text> -->
     </view>
     <text class="hero-desc">万物有时，生活有序</text>
@@ -23,6 +23,27 @@
       <view class="stat">
         <text class="stat-num">{{eventCount}}</text>
         <text class="stat-name">事件</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 记录（v3.14：从「其他」上移到偏好之前，回看记录比调设置更常用） -->
+  <view class="block">
+    <text class="block-title">记录</text>
+    <view class="card">
+      <view class="cell" bindtap="goUsage" hover-class="cell-hover" hover-stay-time="60">
+        <view>
+          <text class="cell-label">使用记录</text>
+          <text class="cell-hint">看看什么东西在什么时候用掉的</text>
+        </view>
+        <text class="cell-value">{{usageCount}} 条 ›</text>
+      </view>
+      <view class="cell cell-last" bindtap="goEventLog" hover-class="cell-hover" hover-stay-time="60">
+        <view>
+          <text class="cell-label">事件记录</text>
+          <text class="cell-hint">看看每件事上次是什么时候做的</text>
+        </view>
+        <text class="cell-value">{{eventLogCount}} 条 ›</text>
       </view>
     </view>
   </view>
@@ -56,19 +77,12 @@
   <view class="block">
     <text class="block-title">其他</text>
     <view class="card">
-      <view class="cell" bindtap="goUsage" hover-class="cell-hover" hover-stay-time="60">
+      <view class="cell" bindtap="goBackup" hover-class="cell-hover" hover-stay-time="60">
         <view>
-          <text class="cell-label">使用记录</text>
-          <text class="cell-hint">看看什么东西在什么时候用掉的</text>
+          <text class="cell-label">备份与迁移</text>
+          <text class="cell-hint">换手机前导出，新手机导入</text>
         </view>
-        <text class="cell-value">{{usageCount}} 条 ›</text>
-      </view>
-      <view class="cell" bindtap="goEventLog" hover-class="cell-hover" hover-stay-time="60">
-        <view>
-          <text class="cell-label">事件记录</text>
-          <text class="cell-hint">看看每件事上次是什么时候做的</text>
-        </view>
-        <text class="cell-value">{{eventLogCount}} 条 ›</text>
+        <text class="cell-value">›</text>
       </view>
       <view class="cell" bindtap="goGuide" hover-class="cell-hover" hover-stay-time="60">
         <text class="cell-label">使用说明</text>
@@ -93,7 +107,7 @@
   <view class="foot">
     <text class="foot-line">天天计时 v{{version}}</text>
     <text class="foot-line">数据仅保存在本机，不会上传服务器</text>
-    <text class="foot-line">更换手机或卸载小程序会导致数据丢失，请注意</text>
+    <text class="foot-line">换手机前，请先到「备份与迁移」导出一份</text>
   </view>
 
 </view>

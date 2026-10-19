@@ -297,7 +297,7 @@
           data-field="lastDate"
           bindchange="onDate"
         >
-          <view class="fvalue">{{form.lastDate || '请选择'}}</view>
+          <view class="fvalue {{form.lastDate ? '' : 'fvalue-empty'}}">{{form.lastDate || '请选择'}}</view>
         </picker>
       </view>
 
@@ -338,16 +338,22 @@
       <block wx:if="{{!isEvent || cycleEnabled}}">
         <view class="field field-col">
           <text class="flabel">{{ktCycleLabel}}</text>
-          <input always-embed="{{true}}"
-            class="finput"
-            type="number"
-            value="{{form.cycleDays}}"
-            data-field="cycleDays"
-            bindinput="onInput"
-            placeholder="例如：14"
-            placeholder-class="fph"
-            maxlength="4"
-          />
+          <!-- 间隔天数：给一个看得见的输入框（此前是无边框右对齐，跟静态文字没区别） -->
+          <view class="cycle-row">
+            <view class="cycle-box">
+              <input always-embed="{{true}}"
+                class="finput cycle-input"
+                type="number"
+                value="{{form.cycleDays}}"
+                data-field="cycleDays"
+                bindinput="onInput"
+                placeholder="填个数字，例如 14"
+                placeholder-class="fph"
+                maxlength="4"
+              />
+              <text class="cycle-unit">天</text>
+            </view>
+          </view>
           <view class="quick-row">
             <view
               class="quick {{form.cycleDays == item ? 'quick-on' : ''}}"
@@ -357,6 +363,7 @@
               bindtap="onCycleQuick"
             >{{item}}天</view>
           </view>
+          <text class="fhint">也可以直接点下面的常用天数</text>
         </view>
 
         <view wx:if="{{cyclePreview}}" class="preview">

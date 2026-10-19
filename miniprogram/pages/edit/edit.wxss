@@ -104,6 +104,11 @@
   padding: 4rpx 0;
 }
 
+/* 未选日期（事件正计时的默认态）：灰字占位，不假装已经填过 */
+.fvalue-empty {
+  color: var(--text-3, #798178);
+}
+
 .ftextarea {
   width: 100%;
   margin-top: 12rpx;
@@ -211,8 +216,46 @@
   padding: 0 20rpx;
 }
 
-/* ---------- 快捷选择 ---------- */
-.quick-row {
+/* 循环间隔输入框：与「保质期」同一套灰底方框，让「这里可以填数字」一眼可见 */
+.cycle-row {
+  display: flex;
+  align-items: center;
+  margin-top: 14rpx;
+}
+
+.cycle-box {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 80rpx;
+  padding: 0 20rpx;
+  background: var(--surface-soft);
+  border-radius: var(--r-sm);
+}
+
+.cycle-input {
+  flex: 1;
+  min-width: 0;
+  height: 80rpx;
+  min-height: 80rpx;
+  line-height: 80rpx;
+  padding: 0;
+  background: transparent;
+  text-align: left;
+  font-size: 30rpx;
+  color: var(--text);
+}
+
+.cycle-unit {
+  flex-shrink: 0;
+  margin-left: 12rpx;
+  font-size: 27rpx;
+  color: var(--text-3);
+}
+
+/* ---------- 快捷选择 ---------- */.quick-row {
   display: flex;
   flex-wrap: wrap;
   margin-top: 14rpx;

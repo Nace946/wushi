@@ -56,7 +56,7 @@ const KIND_TEXT = {
   item: {
     tag: '物品',
     lastLabel: '上次处理',
-    cycleLabel: '建议更换周期（天）',
+    cycleLabel: '建议更换周期',
     nextLabel: '下次建议更换',
     lastShort: '上次更换',
     cycleShort: '建议周期',
@@ -89,7 +89,7 @@ const KIND_TEXT = {
   event: {
     tag: '事件',
     lastLabel: '上次发生',
-    cycleLabel: '间隔时间（天）',
+    cycleLabel: '间隔时间',
     nextLabel: '下次提醒',
     lastShort: '上次发生',
     cycleShort: '预期时间',
@@ -121,7 +121,7 @@ const KIND_TEXT = {
     cdManual: '直接填写到期日',
     cdManualHint: '只知道具体是哪一天时打开',
     // —— 倒计时的「循环」开关（事件专用）：完成后自动进入下一轮 ——
-    cyclicSwitchLabel: '完成后自动重新计时',
+    cyclicSwitchLabel: '完成后自动重新倒计时',
     cyclicSwitchHint: '开启后完成即进入下一周期',
     cyclicOnText: '完成后自动进入下一轮',
     cyclicOffText: '未开启：完成后只记一次，这条计时会自动删除',
@@ -211,8 +211,6 @@ const PRESETS = [
   { name: '床单被套', category: 'daily', icon: '🛏️', mode: MODE.COUNTUP, cycleDays: 14, remindDays: 3, unit: '套', location: '卧室' },
   { name: '牙刷', category: 'daily', icon: '🪥', mode: MODE.COUNTUP, cycleDays: 90, remindDays: 7, unit: '支', location: '卫生间' },
   { name: '洗碗布', category: 'daily', icon: '🧽', mode: MODE.COUNTUP, cycleDays: 14, remindDays: 3, unit: '块', location: '厨房' },
-  { name: '浴巾', category: 'daily', icon: '🛁', mode: MODE.COUNTUP, cycleDays: 21, remindDays: 3, unit: '条', location: '卫生间' },
-  { name: '毛巾', category: 'daily', icon: '🚿', mode: MODE.COUNTUP, cycleDays: 30, remindDays: 5, unit: '条', location: '卫生间' },
   { name: '筷子', category: 'daily', icon: '🥢', mode: MODE.COUNTUP, cycleDays: 180, remindDays: 15, unit: '双', location: '厨房' },
   { name: '枕芯', category: 'daily', icon: '💤', mode: MODE.COUNTUP, cycleDays: 365, remindDays: 30, unit: '个', location: '卧室' },
   { name: '空调滤网', category: 'appliance', icon: '❄️', mode: MODE.COUNTUP, cycleDays: 180, remindDays: 15, unit: '片', location: '客厅' },
